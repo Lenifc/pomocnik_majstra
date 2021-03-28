@@ -52,7 +52,6 @@
     </div>
 </div>
 
-<div class="popup-msg" :class="{ 'error-msg': popupMsg.length}"><span>&times;</span>{{ popupMsg }} </div>
 </div>
 </template>
 
@@ -63,6 +62,8 @@ import firebase from 'firebase/app'
 import axios from 'axios'
 require('firebase/auth')
 require('firebase/firestore')
+require('@/store/notifications.js')
+require('@/store/notifications.css')
 
     const firebaseConfig = {
             apiKey: "AIzaSyCj7WjnSKdPZr7ima0GMz_0NwHB5AqP2xU",
@@ -90,9 +91,6 @@ export default {
     let VIN = ref()
     let milage = ref()
     let description = ref()
-
-    let popupClass = ref('')
-    let popupMsg = ref('')
 
     let brands = ref()
     let selectedBrand = ref()
@@ -223,12 +221,12 @@ export default {
         preparedData[`${selectedBrand.value} ${selectedModel.value} ${refTime()}`] = {
             // Dodane_Przez: user.displayName,
             Tel: phoneNum.value,
-            Marka: selectedBrand.value,
+            Marka: betterLooking(selectedBrand.value),
             Model: selectedModel.value,
             Rok_prod: selectedVersion.value,
-            VIN: VIN.value.toUpperCase().trim(),
-            Przebieg: convertedMilage,
-            Opis: description.value,
+            VIN: VIN.value ? VIN.value.toUpperCase().trim() : "Brak danych",
+            Przebieg: convertedMilage ? convertedMilage : "Brak danych",
+            Opis: description.value ? description.value : "",
             Dodane_Czas: refTime()
         }
         console.log(preparedData)
@@ -256,7 +254,7 @@ export default {
         console.log('gitara');
         clearForm()
     } else {
-      PopupFunc('error')
+      PopupFunc('error') // ten else dodaje mi powiadomienie podwojnie!
         console.log('mamy problem');
     }
     
@@ -290,15 +288,28 @@ export default {
 
 // Show proper popup message in left bottom corner
 function PopupFunc(status) {
-    // Clear classes every time to don't allow 2 classes at the same time
+  let msg = ''
+  // Clear classes every time to don't allow 2 classes at the same time
 
-    if (status == 'error') popupMsg.value = '⚠️ Ełoł, sprafć danie ⚠️'
-    if (status == 'success') popupMsg.value = 'Danie dodanie 👌'
-    
-    // After 6s removes message popup
-    setTimeout(() => {
-        popupClass.value = ''
-    }, 6000)
+  if (status == 'error') msg = '⚠️ Ełoł, sprafć danie ⚠️'
+  if (status == 'success') msg = 'Danie dodanie 👌'
+
+  const myNotification = window.createNotification({
+    closeOnClick: true,
+
+    // displays close button
+    displayCloseButton: false,
+    positionClass: 'nfc-bottom-right',
+    showDuration: 5000,
+
+    // success, info, warning, error, and none
+    theme: status
+  })
+  myNotification({
+    title: status,
+    message: msg,
+  })
+
 }
 
 
@@ -348,13 +359,16 @@ function PopupFunc(status) {
 
       replaceSpaces,
       betterLooking,
-
-      popupMsg,
-      popupClass
     }
   },
 
 }
+
+//
+//
+// https://vuejsexamples.com/
+//
+//
 
 
 
@@ -504,38 +518,6 @@ body{
     align-items: center;
     text-align: center;
 }
-
-.popup-msg{
-    display: none;
-    position: fixed;
-    bottom: 25px;
-    right: 25px;
-    width: max(200px, fit-content);
-    padding: 16px 32px 16px 24px;
-    font-size: 1.3rem;
-    border-radius: 6px;
-    background-color: #000;
-}
-.popup-msg span{
-    position: absolute;
-    top: 0px;
-    right: 8px;
-    font-size: 2rem;
-}
-.popup-msg span:hover{
-   cursor: pointer;
-}
-
-.popup-msg.success-msg{
-    display: block;
-    background-color: #28a745;
-}
-.popup-msg.error-msg{
-    display: block;
-    background-color: #DC3545;
-}
-
-
 
 h1:hover{
     cursor: pointer;
