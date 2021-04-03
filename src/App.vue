@@ -7,18 +7,18 @@
 </div>
 
 <div class="signedIn" v-if="userSignedIn">
-    <button class="btn signOutBtn" @click="logOutFromAccount()">Wyloguj</button>
+    <!-- <button class="btn signOutBtn" @click="logOutFromAccount()"><i class="fa fa-power-off" /> Wyloguj</button> -->
     <div class="container">
         <div class="showElements" @click="openDetails($event)">
           <h1 v-for="item in items" :key="item">{{ item }}</h1>
         </div>
-        <button class="btn newDataBtn" @click="() => showForm = true">Dodaj nowe zgłoszenie</button>
+        <!-- <button class="btn newDataBtn" @click="() => showForm = true">Dodaj nowe zgłoszenie</button> -->
         <div class="newDataDiv" v-if="showForm">
             <div class="closeForm" @click="() => showForm = false">&times;</div>
             <!-- tutaj dodac lewa strone screena z autowyszukiwaniem danych -->
 
             <!-- Podzielic screen na dwa, ponizej dac na prawa strone jaok reczne wypelnianie -->
-            <form class="newDataForm">
+             <form class="newDataForm">
                 
                 <label for="phoneNum">Number telefonu:</label>
                 <input type="number" id="phoneNum" placeholder="123456789 / 1234567" required v-model="phoneNum">
@@ -50,8 +50,9 @@
         </div>
 
         <div class="showDetails" v-if="showDetailsWindow"></div>
-
     </div>
+        <sidebar-menu :menu="menu" width="250px" @item-click="onItemClick" />
+        <router-view></router-view>
 </div>
 
 </div>
@@ -62,10 +63,16 @@
 import { ref, onMounted, watch } from 'vue'
 import firebase from 'firebase/app'
 import axios from 'axios'
+import unsubscribeButton from '@/components/unsubscribeButton.vue'
+
+import { SidebarMenu } from 'vue-sidebar-menu'
+import 'vue-sidebar-menu/dist/vue-sidebar-menu.css'
+
 require('firebase/auth')
 require('firebase/firestore')
 require('@/store/notifications.js')
 require('@/store/notifications.css')
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyCj7WjnSKdPZr7ima0GMz_0NwHB5AqP2xU",
@@ -90,9 +97,10 @@ export default {
     let showForm = ref(false)
 
     let phoneNum = ref()
-    let VIN = ref()
+    let VIN = ref("")
     let milage = ref()
     let description = ref()
+    let unsubscribe = ref()
 
     let brands = ref()
     let selectedBrand = ref()
@@ -101,6 +109,64 @@ export default {
     let versions = ref()
     let selectedVersion = ref()
     let showDetailsWindow = ref(false)
+ 
+    const menu = [
+          {
+            header: 'Warsztat',
+            hiddenOnCollapse: true,
+          },
+          {
+            href: '/',
+            title: 'Dashboard',
+            icon: 'fa fa-desktop',
+          },
+
+          {
+            header: 'Zlecenia',
+            hiddenOnCollapse: true,
+          },
+          {
+            // href: '/dodaj',
+            title: 'Dodaj nowe zlecenie',
+            icon: 'fa fa-plus',
+            class: 'newDataBtn'
+          },
+          {
+            href: '/obecne',
+            title: 'W trakcie',
+            icon: 'fa fa-tasks',
+          },
+          {
+            href: '/zakonczone',
+            title: 'Zakończone',
+            icon: 'fa fa-check',
+          },
+          { component: unsubscribeButton, hidden:true },
+          
+          {
+            header: 'Ustawienia',
+            hiddenOnCollapse: true,
+          },
+            {
+            href: '/',
+            title: 'Dashboard',
+            icon: 'fa fa-tools'
+          },
+          {
+            href: '/',
+            title: 'Dashboard',
+            icon: 'fa fa-user'
+          },
+          {
+              // component: UnsubscribeButton,
+              // props: componentProps
+              // hidden: true,
+              // hiddenOnCollapse: true
+              icon: 'fa fa-power-off',
+              title: 'Wyloguj',
+              class: 'moveToBottom'
+          }
+        ]
 
     const link = 'https://www.otomoto.pl/api/open/categories/29'
 
@@ -162,8 +228,12 @@ export default {
     }
 
     function logOutFromAccount() {
-      auth.signOut().then(() => checkAuthStatus()).catch((error) => {
-        console.log(error)
+      auth.signOut().then(() => {
+        checkAuthStatus()
+        unsubscribe && unsubscribe()
+        PopupFunc('info', 'Zostałeś wylogowany.')
+        }).catch((error) => {
+        PopupFunc('error', error.message)
       })
       //
       //  Podczas wylogowania DODAC czyszczenie wszystkich wartosci z pamieci
@@ -189,7 +259,7 @@ export default {
 
       // subscribe to database and listen for new data 
       // Show all phoneNumbers
-      collectionReference.onSnapshot(snapshot => {
+      unsubscribe = collectionReference.onSnapshot(snapshot => {
         items.value = snapshot.docs.map(doc => doc.id)
       })
     }
@@ -226,8 +296,9 @@ export default {
         // const { serverTimestamp } = firebase.firestore.FieldValue;
 
         let preparedData = []
+        let title = `${betterLooking(selectedBrand.value)} ${selectedModel.value} ${refTime()}`
         // NaN array - id is name with time
-        preparedData[`${betterLooking(selectedBrand.value)} ${selectedModel.value} ${refTime()}`] = {
+        preparedData[title] = {
           // Dodane_Przez: user.displayName,
           Tel: phoneNum.value,
           Marka: betterLooking(selectedBrand.value),
@@ -250,22 +321,22 @@ export default {
           if (doc.exists) {
             docReference.update({
                 ...preparedData
-              })
-              .catch(err => console.log(err))
+              }).then(PopupFunc('success', 'Kolejne danie dodanie 👌'))
+              .catch(err => PopupFunc("error", err.message))
           } else {
             docReference.set({
                 ...preparedData
-              })
-              .catch(err => console.log(err))
+              }).then(PopupFunc('success', 'Danie dodanie 👌'))
+              .catch(err => PopupFunc("error", err.message))
           }
-        }).catch(function (error) {
-          console.log("Error getting document:", error)
+        }).catch(function (err) {
+          PopupFunc("error", err.message)
         })
 
         //Clear form and show proper popup message in left bottom corner
-        PopupFunc('success')
+        
         clearForm()
-      } else PopupFunc('error') // ten else dodaje mi powiadomienie podwojnie!
+      } else PopupFunc('error', '⚠️ Ełoł, sprafć danie ⚠️')
 
     }
 
@@ -296,13 +367,9 @@ export default {
 
 
     // Show proper popup message in left bottom corner
-    function PopupFunc(status) {
+    function PopupFunc(status, msg) {
       console.log(status);
-      let msg = ''
       // Clear classes every time to don't allow 2 classes at the same time
-
-      if (status == 'error') msg = '⚠️ Ełoł, sprafć danie ⚠️'
-      if (status == 'success') msg = 'Danie dodanie 👌'
 
       const myNotification = window.createNotification({
         closeOnClick: true,
@@ -348,6 +415,8 @@ export default {
     function showNumberDetails(data) {
 
       console.log(data)
+      let x = data
+      console.log(Object.keys(x).length)
 
       // draw all cars assigned to this phoneNumber
       // for (let key in data) {
@@ -360,8 +429,13 @@ export default {
       //     // console.log([obj[0], obj[1]])
       //     template += `<div>${obj[0]}: <span> ${(obj[1] || 'Brak Danych')}</span></div>`
       //   })
-        
-      
+    }
+
+    function onItemClick(e){
+      console.log(e.target);
+      console.log(e.currentTarget);
+      if(e.currentTarget.classList.contains('moveToBottom')) logOutFromAccount()
+      if(e.currentTarget.classList.contains('newDataBtn')) showForm.value = true
     }
 
     onMounted(() => {
@@ -407,7 +481,12 @@ export default {
       betterLooking,
 
       openDetails,
-      showDetailsWindow
+      showDetailsWindow,
+
+      SidebarMenu,
+      menu,
+
+      onItemClick
     }
   },
 
@@ -421,6 +500,9 @@ export default {
 </script>
 
 <style>
+/* @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap'); */
+@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600');
+
 *, *:before, *:after{
     margin: 0;
     padding: 0;
@@ -432,7 +514,8 @@ body{
     background-color: #202847;
     color: white;
     position: relative;
-    font-family: Times
+    /* font-family: 'Roboto', sans-serif; */
+    font-family: 'Source Sans Pro', sans-serif;
 }
 
 .container{
@@ -463,6 +546,7 @@ body{
 }
 .signOutBtn{
     position: fixed;
+    padding-left: 8px;
     top: 16px;
     right: 32px;
     font-size: 1.3rem;
@@ -525,6 +609,12 @@ body{
     flex-direction: column;
     align-items: center;
     text-align: center;
+}
+
+.moveToBottom{
+  display: flex!important;
+  margin-top: auto!important;
+  justify-self: flex-end!important;
 }
 
 h1:hover{
