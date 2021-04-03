@@ -1,59 +1,62 @@
 <template>
 <div>
+
   <div class="signedOut" v-if="!userSignedIn">
     <div class="container">
-        <button class="btn signInBtn" @click="logInToAccount()">Zaloguj</button>
+      <button class="btn signInBtn" @click="logInToAccount()">Zaloguj</button>
     </div>
-</div>
+  </div>
 
-<div class="signedIn" v-if="userSignedIn">
-    <!-- <button class="btn signOutBtn" @click="logOutFromAccount()"><i class="fa fa-power-off" /> Wyloguj</button> -->
+  <div class="signedIn" v-if="userSignedIn">
     <div class="container">
-        <div class="showElements" @click="openDetails($event)">
-          <h1 v-for="item in items" :key="item">{{ item }}</h1>
-        </div>
-        <!-- <button class="btn newDataBtn" @click="() => showForm = true">Dodaj nowe zgłoszenie</button> -->
-        <div class="newDataDiv" v-if="showForm">
-            <div class="closeForm" @click="() => showForm = false">&times;</div>
-            <!-- tutaj dodac lewa strone screena z autowyszukiwaniem danych -->
+      <div class="showElements" @click="openDetails($event)">
+        <h1 v-for="item in items" :key="item">{{ item }}</h1>
+        <button class="btn"
+          @click="getDataFromFirebase">{{ !disableNextButton ? "Załaduj kolejne zlecenia": "Załaduj ponownie"}}</button>
+      </div>
+      <div class="newDataDiv" v-if="showForm">
+        <div class="closeForm" @click="() => showForm = false">&times;</div>
+        <!-- tutaj dodac lewa strone screena z autowyszukiwaniem danych -->
+        <!-- TODO -->
+        <!-- Podzielic screen na dwa, ponizej dac na prawa strone jaok reczne wypelnianie -->
+        <form class="newDataForm">
 
-            <!-- Podzielic screen na dwa, ponizej dac na prawa strone jaok reczne wypelnianie -->
-             <form class="newDataForm">
-                
-                <label for="phoneNum">Number telefonu:</label>
-                <input type="number" id="phoneNum" placeholder="123456789 / 1234567" required v-model="phoneNum">
+          <label for="phoneNum">Number telefonu:</label>
+          <input type="number" id="phoneNum" placeholder="123456789 / 1234567" required v-model="phoneNum">
 
-                <label for="brand">Marka:</label>
-                <select name="brand" required @change="fetchModels()" v-model="selectedBrand">
-                    <option disabled selected value="">Wybierz marke</option>
-                    <option v-for="brand in brands" :key="brand" :value="brand">{{ betterLooking(brand) }}</option>
-                </select>
+          <label for="brand">Marka:</label>
+          <select name="brand" required @change="fetchModels()" v-model="selectedBrand">
+            <option disabled selected value="">Wybierz marke</option>
+            <option v-for="brand in brands" :key="brand" :value="brand">{{ betterLooking(brand) }}</option>
+          </select>
 
-                <label for="model">Model:</label>
-                <select name="model" @change="fetchVersion()" v-model="selectedModel" :disabled="!models">
-                    <option disabled selected value="">Wybierz model</option>
-                    <option v-for="model in models" :key="model" :value="replaceSpaces(model.pl)">{{ model.pl }}</option>
-                </select>
+          <label for="model">Model:</label>
+          <select name="model" @change="fetchVersion()" v-model="selectedModel" :disabled="!models">
+            <option disabled selected value="">Wybierz model</option>
+            <option v-for="model in models" :key="model" :value="replaceSpaces(model.pl)">{{ model.pl }}</option>
+          </select>
 
-                  <label for="prod_year">Generacja:</label>
-                <select name="prod_year" v-model="selectedVersion" :disabled="!versions">
-                    <option disabled selected value="">Wybierz generacje</option>
-                    <option v-for="version in versions" :key="version" :value="version.pl">{{ version.pl }}</option>
-                </select>
-                
+          <label for="prod_year">Generacja:</label>
+          <select name="prod_year" v-model="selectedVersion" :disabled="!versions">
+            <option disabled selected value="">Wybierz generacje</option>
+            <option v-for="version in versions" :key="version" :value="version.pl">{{ version.pl }}</option>
+          </select>
+          <!-- TODO -->
+          <!-- W przypadku braku wersji pokazac pole z recznym wpisaniem rocznika -->
 
-                <label for="VIN">VIN:</label><input type="text" maxlength="18" v-model="VIN">
-                <label for="mileage">Przebieg:</label><input type="number" maxlength="7" v-model="milage">
-                <textarea name="description" cols="50" rows="10" placeholder="Opis usterki" v-model="description"></textarea>
-                <button class="btn addData" @click="checkAndSendData($event)">Dodaj</button>
-            </form>
-        </div>
 
-        <div class="showDetails" v-if="showDetailsWindow"></div>
+          <label for="VIN">VIN:</label><input type="text" maxlength="18" v-model="VIN">
+          <label for="mileage">Przebieg:</label><input type="number" maxlength="7" v-model="milage">
+          <textarea name="description" cols="50" rows="10" placeholder="Opis usterki" v-model="description"></textarea>
+          <button class="btn addData" @click="checkAndSendData($event)">Dodaj</button>
+        </form>
+      </div>
+
+      <div class="showDetails" v-if="showDetailsWindow"></div>
     </div>
-        <sidebar-menu :menu="menu" width="250px" @item-click="onItemClick" />
-        <router-view></router-view>
-</div>
+    <sidebar-menu :menu="menu" width="250px" @item-click="onItemClick" />
+    <router-view></router-view>
+  </div>
 
 </div>
 </template>
@@ -63,7 +66,7 @@
 import { ref, onMounted, watch } from 'vue'
 import firebase from 'firebase/app'
 import axios from 'axios'
-import unsubscribeButton from '@/components/unsubscribeButton.vue'
+import divider from '@/components/divider.vue'
 
 import { SidebarMenu } from 'vue-sidebar-menu'
 import 'vue-sidebar-menu/dist/vue-sidebar-menu.css'
@@ -93,7 +96,7 @@ export default {
     let auth = firebase.auth()
 
     let userSignedIn = ref()
-    let items = ref()
+    let items = ref(null)
     let showForm = ref(false)
 
     let phoneNum = ref()
@@ -109,6 +112,16 @@ export default {
     let versions = ref()
     let selectedVersion = ref()
     let showDetailsWindow = ref(false)
+    let lastDoc = ref(0)
+    let disableNextButton = ref(false)
+    let limit = ref(5) 
+    // TODO - pozniej zmienic na 10
+
+    const link = 'https://www.otomoto.pl/api/open/categories/29'
+    const tickets = firebase.firestore()
+                                .collection('warsztat')
+                                .doc('zlecenia')
+
  
     const menu = [
           {
@@ -127,13 +140,13 @@ export default {
           },
           {
             // href: '/dodaj',
+            class: 'newDataBtn',
             title: 'Dodaj nowe zlecenie',
             icon: 'fa fa-plus',
-            class: 'newDataBtn'
           },
           {
             href: '/obecne',
-            title: 'W trakcie',
+            title: 'W trakcie realizacji',
             icon: 'fa fa-tasks',
           },
           {
@@ -141,34 +154,29 @@ export default {
             title: 'Zakończone',
             icon: 'fa fa-check',
           },
-          { component: unsubscribeButton, hidden:true },
-          
           {
             header: 'Ustawienia',
             hiddenOnCollapse: true,
           },
             {
             href: '/',
-            title: 'Dashboard',
+            title: 'Kategorie i ceny',
             icon: 'fa fa-tools'
           },
           {
             href: '/',
-            title: 'Dashboard',
-            icon: 'fa fa-user'
+            title: 'Zarządzaj stanowiskami',
+            icon: 'fa fa-car'
           },
           {
-              // component: UnsubscribeButton,
-              // props: componentProps
-              // hidden: true,
-              // hiddenOnCollapse: true
+            component: divider
+          },
+          {
               icon: 'fa fa-power-off',
               title: 'Wyloguj',
-              class: 'moveToBottom'
+              class: 'logout'
           }
         ]
-
-    const link = 'https://www.otomoto.pl/api/open/categories/29'
 
 
     async function fetchBrands() {
@@ -179,7 +187,7 @@ export default {
         let allMakes = data.data.options
         brands.value = Object.keys(allMakes).sort((next, current) => next > current ? 1 : -1)
       } catch {
-        err => console.log(err)
+        err => console.log(err.message)
       }
     }
     async function fetchModels() {
@@ -193,7 +201,7 @@ export default {
         const data = await axios.get(`${link}/models/${selectedBrand.value}`)
         models.value = data.data.options
       } catch {
-        err => console.log(err)
+        err => console.log(err.message)
       }
 
     }
@@ -207,7 +215,7 @@ export default {
         versions.value = data.data.options
         console.log(data.data.options)
       } catch {
-        (err) => console.log(err)
+        (err) => console.log(err.message)
       }
 
     }
@@ -223,7 +231,7 @@ export default {
     // Log in with Google auth 
     function logInToAccount() {
       auth.signInWithPopup(provider).then(() => checkAuthStatus()).catch((error) => {
-        console.log(error)
+        PopupFunc('error', error.message)
       })
     }
 
@@ -232,7 +240,7 @@ export default {
         checkAuthStatus()
         unsubscribe && unsubscribe()
         PopupFunc('info', 'Zostałeś wylogowany.')
-        }).catch((error) => {
+      }).catch((error) => {
         PopupFunc('error', error.message)
       })
       //
@@ -242,7 +250,6 @@ export default {
 
     function checkAuthStatus() {
       auth.onAuthStateChanged(user => {
-        // console.log(user)
         if (user) {
           userSignedIn.value = true
           getDataFromFirebase()
@@ -252,24 +259,31 @@ export default {
     }
 
     // Zbiera dane z bazy, nastepnie zapisuje je w zmiennej i wyswietla
-    function getDataFromFirebase() { //user
+    async function getDataFromFirebase() {
 
-      const storage = firebase.firestore()
-      const collectionReference = storage.collection('pojazdy')
+      const collectionReference = tickets.collection('obecne').orderBy('timeStamp')
+        .startAfter(lastDoc.value || 0)
+        .limit(limit.value || 10)
 
-      // subscribe to database and listen for new data 
-      // Show all phoneNumbers
-      unsubscribe = collectionReference.onSnapshot(snapshot => {
+      let data = await collectionReference.get()
+      lastDoc.value = data.docs[data.docs.length - 1]
+
+      console.log("Ilosc zlecen: " + data.docs.length)
+      if (!data.docs.length) {
+        disableNextButton.value = true
+        PopupFunc('warning', 'Nie ma więcej zleceń.\nWczytaj ponownie.')
+      } 
+      else unsubscribe = collectionReference.onSnapshot(snapshot => {
         items.value = snapshot.docs.map(doc => doc.id)
+        disableNextButton.value = false
       })
     }
+
 
     function checkAndSendData(e) {
       e.preventDefault()
 
-
-      const storage = firebase.firestore()
-      const collectionReference = storage.collection('pojazdy')
+      const collectionReference = tickets.collection('obecne')
 
       let convertedMilage = milage.value ? milage.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") : ''
       let temp_val = 0
@@ -296,7 +310,8 @@ export default {
         // const { serverTimestamp } = firebase.firestore.FieldValue;
 
         let preparedData = []
-        let title = `${betterLooking(selectedBrand.value)} ${selectedModel.value} ${refTime()}`
+        let timeStamp = refTime()
+        let title = `${betterLooking(selectedBrand.value)} ${selectedModel.value} ${timeStamp}`
         // NaN array - id is name with time
         preparedData[title] = {
           // Dodane_Przez: user.displayName,
@@ -304,10 +319,13 @@ export default {
           Marka: betterLooking(selectedBrand.value),
           Model: selectedModel.value,
           Rok_prod: selectedVersion.value,
+          silnik: [],
           VIN: VIN.value ? VIN.value.toUpperCase().trim() : "Brak danych",
           Przebieg: convertedMilage ? convertedMilage : "Brak danych",
           Opis: description.value ? description.value : "",
-          Dodane_Czas: refTime()
+          Dodane_Czas: timeStamp,
+          // wykonane_prace: [],
+          // Zakonczone_Czas: [],
         }
         console.log(preparedData)
 
@@ -320,12 +338,14 @@ export default {
         docReference.get().then(function (doc) {
           if (doc.exists) {
             docReference.update({
-                ...preparedData
+                ...preparedData,
+                timeStamp
               }).then(PopupFunc('success', 'Kolejne danie dodanie 👌'))
               .catch(err => PopupFunc("error", err.message))
           } else {
             docReference.set({
-                ...preparedData
+                ...preparedData,
+                timeStamp
               }).then(PopupFunc('success', 'Danie dodanie 👌'))
               .catch(err => PopupFunc("error", err.message))
           }
@@ -334,7 +354,7 @@ export default {
         })
 
         //Clear form and show proper popup message in left bottom corner
-        
+
         clearForm()
       } else PopupFunc('error', '⚠️ Ełoł, sprafć danie ⚠️')
 
@@ -361,23 +381,20 @@ export default {
       // Ponizszy zapis zamienia nam pierwsze litery (te po myslniku takze) na duze dla lepszej czytelnosci
       temp = temp.trim().toLowerCase().replace(/\w\S*/g, (w) => (w.replace(/^\w/, (c) => c.toUpperCase())))
       value = temp.replace(' ', '-')
-      // console.log(value)
       return value
     }
 
 
     // Show proper popup message in left bottom corner
     function PopupFunc(status, msg) {
-      console.log(status);
-      // Clear classes every time to don't allow 2 classes at the same time
+      // console.log(status);
 
       const myNotification = window.createNotification({
         closeOnClick: true,
 
-        // displays close button
         displayCloseButton: false,
         positionClass: 'nfc-bottom-right',
-        showDuration: 5000,
+        showDuration: 6000,
 
         // success, info, warning, error, and none
         theme: status
@@ -386,9 +403,7 @@ export default {
         title: status,
         message: msg,
       })
-
     }
-
 
     function replaceSpaces(value) {
       value = value.replace(" ", "-")
@@ -397,16 +412,12 @@ export default {
 
 
     function openDetails(e) {
-      console.log(e.target);
-
-      // Reacts only on H1 click and download details of only clicked data ( e.target)
-
 
       if (e.target.tagName == 'H1' && e.target.innerText) {
         showDetailsWindow.value = true
 
         // fetch data from database
-        firebase.firestore().collection('pojazdy').doc(e.target.innerText)
+        tickets.collection('obecne').doc(e.target.innerText)
           .get().then(showData => showNumberDetails(showData.data()))
       } else return
 
@@ -414,9 +425,8 @@ export default {
 
     function showNumberDetails(data) {
 
-      console.log(data)
-      let x = data
-      console.log(Object.keys(x).length)
+      console.log(data);
+      console.log("Ilosc pojazdow: " + (Object.keys(data).length - 1))
 
       // draw all cars assigned to this phoneNumber
       // for (let key in data) {
@@ -431,11 +441,9 @@ export default {
       //   })
     }
 
-    function onItemClick(e){
-      console.log(e.target);
-      console.log(e.currentTarget);
-      if(e.currentTarget.classList.contains('moveToBottom')) logOutFromAccount()
-      if(e.currentTarget.classList.contains('newDataBtn')) showForm.value = true
+    function onItemClick(e) {
+      if (e.currentTarget.classList.contains('logout')) logOutFromAccount()
+      if (e.currentTarget.classList.contains('newDataBtn')) showForm.value = true
     }
 
     onMounted(() => {
@@ -444,7 +452,6 @@ export default {
     })
 
     watch(phoneNum, (newVal, oldVal) => {
-      console.log(newVal.length)
       if (newVal.length > 9) return phoneNum.value = oldVal
     })
 
@@ -485,8 +492,11 @@ export default {
 
       SidebarMenu,
       menu,
+      onItemClick,
 
-      onItemClick
+      disableNextButton,
+      limit
+
     }
   },
 
@@ -500,7 +510,6 @@ export default {
 </script>
 
 <style>
-/* @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap'); */
 @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600');
 
 *, *:before, *:after{
@@ -514,7 +523,6 @@ body{
     background-color: #202847;
     color: white;
     position: relative;
-    /* font-family: 'Roboto', sans-serif; */
     font-family: 'Source Sans Pro', sans-serif;
 }
 
@@ -611,11 +619,6 @@ body{
     text-align: center;
 }
 
-.moveToBottom{
-  display: flex!important;
-  margin-top: auto!important;
-  justify-self: flex-end!important;
-}
 
 h1:hover{
     cursor: pointer;
