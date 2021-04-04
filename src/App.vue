@@ -10,15 +10,11 @@
   <div class="signedIn" v-if="userSignedIn">
     <div class="container">
       <CreateNewTicket v-if="showForm" 
-      @EmitDataToParent="(preparedData) => sendDataToFirebase(preparedData)" 
+      @EmitDataToParent="({preparedData, pick}) => sendDataToFirebase(preparedData, pick)" 
       @closeForm="(hide) => showForm = hide" 
       />
 
-      <div class="showElements" @click="openDetails($event)">
-        <h1 v-for="item in items" :key="item">{{ item }}</h1>
-        <button class="btn"
-          @click="getMoreData" v-if="!disableNextButton">Załaduj kolejne zlecenia</button>
-      </div>
+      <ShowTickets />
 
       <div class="showDetails" v-if="showDetailsWindow"></div>
     </div>
@@ -35,6 +31,9 @@ import { ref, onMounted } from 'vue'
 import firebase from 'firebase/app'
 import divider from '@/components/divider.vue'
 import CreateNewTicket from '@/components/CreateNewTicket.vue'
+import ShowTickets from '@/components/ShowTickets.vue'
+
+import { useStore } from 'vuex'
 
 import { SidebarMenu } from 'vue-sidebar-menu'
 import 'vue-sidebar-menu/dist/vue-sidebar-menu.css'
@@ -68,9 +67,10 @@ export default {
     let showForm = ref(false)
 
     let showDetailsWindow = ref(false)
-    let lastDoc = ref(0)
     let disableNextButton = ref(false)
     let limit = ref(10) 
+
+    const store = useStore()
 
     const tickets = firebase.firestore()
                                 .collection('warsztat')
@@ -87,7 +87,9 @@ export default {
             title: 'Dashboard',
             icon: 'fa fa-desktop',
           },
-
+          {
+            component: divider
+          },
           {
             header: 'Zlecenia',
             hiddenOnCollapse: true,
@@ -98,26 +100,32 @@ export default {
             icon: 'fa fa-plus',
           },
           {
-            href: '/obecne',
+            class: 'freeTickets',
+            title: 'Wolne',
+            icon: 'fa fa-parking',
+          },
+          {
+            class: 'inProgressTickets',
             title: 'W trakcie realizacji',
             icon: 'fa fa-tasks',
           },
           {
-            href: '/zakonczone',
             title: 'Zakończone',
+            class: 'doneTickets',
             icon: 'fa fa-check',
+          },
+          {
+            component: divider
           },
           {
             header: 'Ustawienia',
             hiddenOnCollapse: true,
           },
             {
-            href: '/',
             title: 'Kategorie i ceny',
             icon: 'fa fa-tools'
           },
           {
-            href: '/',
             title: 'Zarządzaj stanowiskami',
             icon: 'fa fa-car'
           },
@@ -131,7 +139,6 @@ export default {
           }
         ]
   
-
 
     // Log in with Google auth 
     function logInToAccount() {
@@ -147,61 +154,23 @@ export default {
       }).catch((error) => {
         PopupFunc('error', error.message)
       })
-      //
-      //  Podczas wylogowania DODAC czyszczenie wszystkich wartosci z pamieci
-      //
     }
 
     function checkAuthStatus() {
       auth.onAuthStateChanged(user => {
         if (user) {
           userSignedIn.value = true
-          getDataFromFirebase()
         } else userSignedIn.value = false
         console.log("Zalogowany: " + userSignedIn.value);
       })
     }
 
-    // Zbiera dane z bazy, nastepnie zapisuje je w zmiennej i wyswietla
-    async function getDataFromFirebase() {
-
-      const collectionReference = tickets.collection('obecne').orderBy('timeStamp', 'desc')
-        .limit(limit.value || 10)
-
-      let data = await collectionReference.get()
-      lastDoc.value = data.docs[data.docs.length - 1]
-      items.value = data.docs.map(doc => doc.id)
-    }
-
-    async function getMoreData() {
-
-      const collectionReference = tickets.collection('obecne').orderBy('timeStamp', 'desc')
-        .startAfter(lastDoc.value || 0)
-        .limit(limit.value || 10)
-
-      let data = await collectionReference.get()
-      lastDoc.value = data.docs[data.docs.length - 1]
-      console.log("Ilosc doladowanych zlecen: " + data.docs.length)
-
-      if (!data.docs.length) {
-        disableNextButton.value = true
-        PopupFunc('warning', 'Wczytano już wszystkie zlecenia.')
-      } else {
-        items.value.push(...data.docs.map(doc => doc.id))
-        if (data.docs.length < limit.value) {
-          disableNextButton.value = true
-          PopupFunc('warning', 'Wczytano już wszystkie zlecenia.')
-        }
-      }
-
-    }
-
-    function sendDataToFirebase(preparedData){
+    function sendDataToFirebase(preparedData, picked){
       let Tel = Object.values(preparedData)[0].Tel
       let timeStamp = Object.values(preparedData)[0]['Dodane_Czas']
 
 
-         const collectionReference = tickets.collection('obecne')
+         const collectionReference = tickets.collection(picked)
         let docReference = collectionReference.doc(Tel)
 
         docReference.get().then(function (doc) {
@@ -218,7 +187,8 @@ export default {
               }).then(PopupFunc('success', 'Danie dodanie 👌'))
               .catch(err => PopupFunc("error", err.message))
           }
-          getDataFromFirebase()
+          store.commit('toggleRefresh')
+          
           disableNextButton.value = false
         }).catch(function (err) {
           PopupFunc("error", err.message)
@@ -247,39 +217,22 @@ export default {
     }
 
 
-    function openDetails(e) {
-
-      if (e.target.tagName == 'H1' && e.target.innerText) {
-        showDetailsWindow.value = true
-
-        // fetch data from database
-        tickets.collection('obecne').doc(e.target.innerText)
-          .get().then(showData => showNumberDetails(showData.data()))
-      } else return
-
-    }
-
-    function showNumberDetails(data) {
-
-      console.log(data);
-      console.log("Ilosc pojazdow: " + (Object.keys(data).length - 1))
-
-      // draw all cars assigned to this phoneNumber
-      // for (let key in data) {
-      //   // console.log(data[key])
-      //   template += `<li id="${data[key].Marka} ${data[key].Model} ${data[key].Dodane_Czas}">
-      //   <h1>${data[key].Marka} ${data[key].Model} ${data[key].Rok_prod}</h1>`
-
-      //   // sort elements that they will be always the same order
-      //   Object.entries(data[key]).sort((curr, prev) => curr[0] > prev[0] ? 1 : -1).map(obj => {
-      //     // console.log([obj[0], obj[1]])
-      //     template += `<div>${obj[0]}: <span> ${(obj[1] || 'Brak Danych')}</span></div>`
-      //   })
-    }
-
     function onItemClick(e) {
+      let ul = e.currentTarget.parentElement.parentElement
+
+      ul.children.forEach(child => child.classList.remove('customActive'))
+
+      e.currentTarget.classList.add('customActive')
+      // TODO
+      // Poprawic problem ze znikajaca klasa po odjechaniu myszka
+
       if (e.currentTarget.classList.contains('logout')) logOutFromAccount()
       if (e.currentTarget.classList.contains('newDataBtn')) showForm.value = true
+
+      if (e.currentTarget.classList.contains('freeTickets')) store.commit('setPath', 'wolne')
+      if (e.currentTarget.classList.contains('inProgressTickets')) store.commit('setPath', 'obecne')
+      if (e.currentTarget.classList.contains('doneTickets')) store.commit('setPath', 'zakonczone')
+
     }
 
     onMounted(() => {
@@ -295,16 +248,12 @@ export default {
 
       userSignedIn,
 
-      getDataFromFirebase,
-      getMoreData,
-
       CreateNewTicket,
       sendDataToFirebase,
 
       items,
       showForm,
 
-      openDetails,
       showDetailsWindow,
 
       SidebarMenu,
@@ -313,6 +262,8 @@ export default {
 
       disableNextButton,
       limit,
+
+      ShowTickets,
     }
   },
 
@@ -433,6 +384,11 @@ body{
     flex-direction: column;
     align-items: center;
     text-align: center;
+}
+
+.customActive{
+  background-color: black!important;
+  color:greenyellow!important;
 }
 
 

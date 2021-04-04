@@ -33,6 +33,16 @@
                 <label for="VIN">VIN:</label><input type="text" maxlength="17" v-model="VIN">
                 <label for="mileage">Przebieg:</label><input type="number" maxlength="7" v-model="milage">
                 <textarea name="description" cols="50" rows="10" placeholder="Opis usterki" v-model="description"></textarea>
+                <p>Dodaj zlecenie jako:</p>
+                <div>
+                  <input type="radio" id="waiting" name="ticket" value="wolne" checked v-model="picked">
+                  <label for="waiting">Wolne</label>
+                </div>
+
+                <div>
+                  <input type="radio" id="inprogress" name="ticket" value="obecne" v-model="picked">
+                  <label for="inprogress">W realizacji</label>
+                </div>
                 <button class="btn addData" @click="data($event)">Dodaj</button>
             </form>
         </div>
@@ -56,6 +66,7 @@ export default {
     let selectedModel = ref()
     let versions = ref()
     let selectedVersion = ref()
+    let picked = ref('wolne')
 
     const link = 'https://www.otomoto.pl/api/open/categories/29'
 
@@ -156,7 +167,8 @@ export default {
           wykonane_prace: [],
           Zakonczone_Czas: [],
         }
-        emit('EmitDataToParent', preparedData)
+        let pick = picked.value
+        emit('EmitDataToParent', {preparedData, pick})
         clearForm()
 
       } else PopupFunc('error', '⚠️ Upewnij się, że dane są prawidłowe! ⚠️')
@@ -247,7 +259,8 @@ export default {
       betterLooking,
       closeForm,
 
-      data
+      data,
+      picked
     }
   }
 }
