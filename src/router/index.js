@@ -24,11 +24,6 @@ const routes = [
     name: 'inProgress',
     component: () => import(/* webpackChunkName: "about" */ '../views/inProgress.vue')
   },
-  {
-    path: '/dodaj',
-    name: 'CreateNewTicket',
-    component: () => import(/* webpackChunkName: "about" */ '../views/CreateNewTicket.vue')
-  },
 ]
 
 const router = createRouter({
