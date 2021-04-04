@@ -12,7 +12,7 @@
       <div class="showElements" @click="openDetails($event)">
         <h1 v-for="item in items" :key="item">{{ item }}</h1>
         <button class="btn"
-          @click="getDataFromFirebase">{{ !disableNextButton ? "Załaduj kolejne zlecenia": "Załaduj ponownie"}}</button>
+          @click="getMoreData" v-if="!disableNextButton">Załaduj kolejne zlecenia</button>
       </div>
       <div class="newDataDiv" v-if="showForm">
         <div class="closeForm" @click="() => showForm = false">&times;</div>
@@ -114,8 +114,7 @@ export default {
     let showDetailsWindow = ref(false)
     let lastDoc = ref(0)
     let disableNextButton = ref(false)
-    let limit = ref(5) 
-    // TODO - pozniej zmienic na 10
+    let limit = ref(10) 
 
     const link = 'https://www.otomoto.pl/api/open/categories/29'
     const tickets = firebase.firestore()
@@ -182,7 +181,7 @@ export default {
     async function fetchBrands() {
 
       try {
-        //ten skurwialy cors...
+        //ten skurwialy cors na przegladarkach...
         const data = await axios.get(`${link}/makes`)
         let allMakes = data.data.options
         brands.value = Object.keys(allMakes).sort((next, current) => next > current ? 1 : -1)
@@ -261,22 +260,39 @@ export default {
     // Zbiera dane z bazy, nastepnie zapisuje je w zmiennej i wyswietla
     async function getDataFromFirebase() {
 
-      const collectionReference = tickets.collection('obecne').orderBy('timeStamp')
+      const collectionReference = tickets.collection('obecne').orderBy('timeStamp', 'desc')
+        .limit(limit.value || 10)
+
+      let data = await collectionReference.get()
+      lastDoc.value = data.docs[data.docs.length - 1]
+      items.value = data.docs.map(doc => doc.id)
+
+      // unsubscribe = collectionReference.onSnapshot(snapshot => {
+      //     items.value = snapshot.docs.map(doc => doc.id)
+      // })
+    }
+
+    async function getMoreData() {
+
+      const collectionReference = tickets.collection('obecne').orderBy('timeStamp', 'desc')
         .startAfter(lastDoc.value || 0)
         .limit(limit.value || 10)
 
       let data = await collectionReference.get()
       lastDoc.value = data.docs[data.docs.length - 1]
+      console.log("Ilosc doladowanych zlecen: " + data.docs.length)
 
-      console.log("Ilosc zlecen: " + data.docs.length)
       if (!data.docs.length) {
         disableNextButton.value = true
-        PopupFunc('warning', 'Nie ma więcej zleceń.\nWczytaj ponownie.')
-      } 
-      else unsubscribe = collectionReference.onSnapshot(snapshot => {
-        items.value = snapshot.docs.map(doc => doc.id)
-        disableNextButton.value = false
-      })
+        PopupFunc('warning', 'Wczytano już wszystkie zlecenia.')
+      } else {
+        items.value.push(...data.docs.map(doc => doc.id))
+        if (data.docs.length < limit.value) {
+          disableNextButton.value = true
+          PopupFunc('warning', 'Wczytano już wszystkie zlecenia.')
+        }
+      }
+
     }
 
 
@@ -312,6 +328,10 @@ export default {
         let preparedData = []
         let timeStamp = refTime()
         let title = `${betterLooking(selectedBrand.value)} ${selectedModel.value} ${timeStamp}`
+        if(selectedModel.value == null) {
+          PopupFunc('error', 'Uzupełnij brakujące informacje')
+          return
+          }
         // NaN array - id is name with time
         preparedData[title] = {
           // Dodane_Przez: user.displayName,
@@ -349,6 +369,8 @@ export default {
               }).then(PopupFunc('success', 'Danie dodanie 👌'))
               .catch(err => PopupFunc("error", err.message))
           }
+          getDataFromFirebase()
+          disableNextButton.value = false
         }).catch(function (err) {
           PopupFunc("error", err.message)
         })
@@ -465,6 +487,7 @@ export default {
       userSignedIn,
 
       getDataFromFirebase,
+      getMoreData,
       checkAndSendData,
 
       items,
