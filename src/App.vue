@@ -9,17 +9,11 @@
 
   <div class="signedIn" v-if="userSignedIn">
     <div class="container">
-      <CreateNewTicket v-if="showForm" 
-      @EmitDataToParent="({preparedData, pick}) => sendDataToFirebase(preparedData, pick)" 
-      @closeForm="(hide) => showForm = hide" 
-      />
 
-      <ShowTickets />
+      <router-view></router-view>
 
-      <div class="showDetails" v-if="showDetailsWindow"></div>
     </div>
     <sidebar-menu :menu="menu" width="250px" @item-click="onItemClick" />
-    <router-view></router-view>
   </div>
 
 </div>
@@ -30,10 +24,8 @@
 import { ref, onMounted } from 'vue'
 import firebase from 'firebase/app'
 import divider from '@/components/divider.vue'
-import CreateNewTicket from '@/components/CreateNewTicket.vue'
-import ShowTickets from '@/components/ShowTickets.vue'
 
-import { useStore } from 'vuex'
+import PopupFunc from '@/components/PopupFunc.js'
 
 import { SidebarMenu } from 'vue-sidebar-menu'
 import 'vue-sidebar-menu/dist/vue-sidebar-menu.css'
@@ -66,17 +58,6 @@ export default {
     let items = ref(null)
     let showForm = ref(false)
 
-    let showDetailsWindow = ref(false)
-    let disableNextButton = ref(false)
-    let limit = ref(10) 
-
-    const store = useStore()
-
-    const tickets = firebase.firestore()
-                                .collection('warsztat')
-                                .doc('zlecenia')
-
- 
     const menu = [
           {
             header: 'Warsztat',
@@ -95,21 +76,25 @@ export default {
             hiddenOnCollapse: true,
           },
           {
+            href: '/dodaj',
             class: 'newDataBtn',
             title: 'Dodaj nowe zlecenie',
             icon: 'fa fa-plus',
           },
           {
+            href: '/wolne',
             class: 'freeTickets',
             title: 'Wolne',
             icon: 'fa fa-parking',
           },
           {
+            href: '/obecne',
             class: 'inProgressTickets',
             title: 'W trakcie realizacji',
             icon: 'fa fa-tasks',
           },
           {
+            href: '/zakonczone',
             title: 'Zakończone',
             class: 'doneTickets',
             icon: 'fa fa-check',
@@ -165,73 +150,8 @@ export default {
       })
     }
 
-    function sendDataToFirebase(preparedData, picked){
-      let Tel = Object.values(preparedData)[0].Tel
-      let timeStamp = Object.values(preparedData)[0]['Dodane_Czas']
-
-
-         const collectionReference = tickets.collection(picked)
-        let docReference = collectionReference.doc(Tel)
-
-        docReference.get().then(function (doc) {
-          if (doc.exists) {
-            docReference.update({
-                ...preparedData,
-                timeStamp
-              }).then(PopupFunc('success', 'Kolejne danie dodanie 👌'))
-              .catch(err => PopupFunc("error", err.message))
-          } else {
-            docReference.set({
-                ...preparedData,
-                timeStamp
-              }).then(PopupFunc('success', 'Danie dodanie 👌'))
-              .catch(err => PopupFunc("error", err.message))
-          }
-          store.commit('toggleRefresh')
-          
-          disableNextButton.value = false
-        }).catch(function (err) {
-          PopupFunc("error", err.message)
-        })
-      
-    }
-
-    // Show proper popup message in left bottom corner
-    function PopupFunc(status, msg) {
-      // console.log(status);
-
-      const myNotification = window.createNotification({
-        closeOnClick: true,
-
-        displayCloseButton: false,
-        positionClass: 'nfc-bottom-right',
-        showDuration: 6000,
-
-        // success, info, warning, error, and none
-        theme: status
-      })
-      myNotification({
-        title: status,
-        message: msg,
-      })
-    }
-
-
     function onItemClick(e) {
-      let ul = e.currentTarget.parentElement.parentElement
-
-      ul.children.forEach(child => child.classList.remove('customActive'))
-
-      e.currentTarget.classList.add('customActive')
-      // TODO
-      // Poprawic problem ze znikajaca klasa po odjechaniu myszka
-
       if (e.currentTarget.classList.contains('logout')) logOutFromAccount()
-      if (e.currentTarget.classList.contains('newDataBtn')) showForm.value = true
-
-      if (e.currentTarget.classList.contains('freeTickets')) store.commit('setPath', 'wolne')
-      if (e.currentTarget.classList.contains('inProgressTickets')) store.commit('setPath', 'obecne')
-      if (e.currentTarget.classList.contains('doneTickets')) store.commit('setPath', 'zakonczone')
 
     }
 
@@ -248,22 +168,13 @@ export default {
 
       userSignedIn,
 
-      CreateNewTicket,
-      sendDataToFirebase,
-
       items,
       showForm,
-
-      showDetailsWindow,
 
       SidebarMenu,
       menu,
       onItemClick,
 
-      disableNextButton,
-      limit,
-
-      ShowTickets,
     }
   },
 
@@ -386,9 +297,10 @@ body{
     text-align: center;
 }
 
-.customActive{
+.v-sidebar-menu .vsm--link_active {
   background-color: black!important;
-  color:greenyellow!important;
+  box-shadow: inset 3px 0 0 0 greenyellow!important;;
+
 }
 
 

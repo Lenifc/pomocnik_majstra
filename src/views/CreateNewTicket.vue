@@ -1,7 +1,7 @@
 <template>
   <div class="newDataDiv">
 
-              <div class="closeForm" @click="closeForm">&times;</div>
+            <div class="closeForm" @click="$router.go(-1)">&times;</div>
 
             <!-- tutaj dodac lewa strone screena z autowyszukiwaniem danych -->
 
@@ -50,10 +50,14 @@
 
 <script>
 import { ref, onMounted, watch } from 'vue'
+
+import PopupFunc from '@/components/PopupFunc.js'
+
 import axios from 'axios'
+import firebase from 'firebase/app'
 
 export default {
-  setup(props, {emit}) {
+  setup() {
 
     let phoneNum = ref()
     let VIN = ref("")
@@ -67,6 +71,10 @@ export default {
     let versions = ref()
     let selectedVersion = ref()
     let picked = ref('wolne')
+
+    const tickets = firebase.firestore()
+      .collection('warsztat')
+      .doc('zlecenia')
 
     const link = 'https://www.otomoto.pl/api/open/categories/29'
 
@@ -168,12 +176,43 @@ export default {
           Zakonczone_Czas: [],
         }
         let pick = picked.value
-        emit('EmitDataToParent', {preparedData, pick})
+        sendDataToFirebase(preparedData, pick)
         clearForm()
 
       } else PopupFunc('error', '⚠️ Upewnij się, że dane są prawidłowe! ⚠️')
 
     }
+
+
+function sendDataToFirebase(preparedData, picked){
+      let Tel = Object.values(preparedData)[0].Tel
+      let timeStamp = Object.values(preparedData)[0]['Dodane_Czas']
+
+
+         const collectionReference = tickets.collection(picked)
+        let docReference = collectionReference.doc(Tel)
+
+        docReference.get().then(function (doc) {
+          if (doc.exists) {
+            docReference.update({
+                ...preparedData,
+                timeStamp
+              }).then(PopupFunc('success', 'Kolejne danie dodanie 👌'))
+              .catch(err => PopupFunc("error", err.message))
+          } else {
+            docReference.set({
+                ...preparedData,
+                timeStamp
+              }).then(PopupFunc('success', 'Danie dodanie 👌'))
+              .catch(err => PopupFunc("error", err.message))
+          }
+          
+        }).catch(function (err) {
+          PopupFunc("error", err.message)
+        })
+      
+    }
+
 
     function clearForm() {
       phoneNum.value = ""
@@ -188,11 +227,6 @@ export default {
       selectedVersion.value = null
     }
 
-    function closeForm() {
-      emit('closeForm', false)
-    }
-
-
 
     function betterLooking(value) {
       let temp = value
@@ -203,26 +237,6 @@ export default {
       return value
     }
 
-
-    // Show proper popup message in left bottom corner
-    function PopupFunc(status, msg) {
-      // console.log(status);
-
-      const myNotification = window.createNotification({
-        closeOnClick: true,
-
-        displayCloseButton: false,
-        positionClass: 'nfc-bottom-right',
-        showDuration: 6000,
-
-        // success, info, warning, error, and none
-        theme: status
-      })
-      myNotification({
-        title: status,
-        message: msg,
-      })
-    }
 
     function replaceSpaces(value) {
       value = value.replace(" ", "-")
@@ -257,7 +271,6 @@ export default {
 
       replaceSpaces,
       betterLooking,
-      closeForm,
 
       data,
       picked

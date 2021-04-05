@@ -10,8 +10,10 @@
 
 <script>
 
-import { onMounted, ref} from 'vue'
-import {useStore} from 'vuex'
+import { onMounted, ref, watch} from 'vue'
+import { useRoute } from 'vue-router'
+
+import PopupFunc from '@/components/PopupFunc.js'
 
 import firebase from 'firebase/app'
 require('firebase/firestore')
@@ -19,14 +21,14 @@ require('firebase/firestore')
 export default ({
 
   setup() {
+    const route = useRoute()
 
     let items = ref(null)
     let lastDoc = ref(0)
     let disableNextButton = ref(false)
     let limit = ref(10) 
-    let collectionPath = ref('obecne')
+    let collectionPath = ref(route.path.substring(1))
 
-    const store = useStore()
 
     const tickets = firebase.firestore()
                                 .collection('warsztat')
@@ -71,27 +73,7 @@ async function getDataFromFirebase() {
 
     }
 
-        function PopupFunc(status, msg) {
-      // console.log(status);
-
-      const myNotification = window.createNotification({
-        closeOnClick: true,
-
-        displayCloseButton: false,
-        positionClass: 'nfc-bottom-right',
-        showDuration: 6000,
-
-        // success, info, warning, error, and none
-        theme: status
-      })
-      myNotification({
-        title: status,
-        message: msg,
-      })
-    }
-
-
-        function openDetails(e) {
+      function openDetails(e) {
 
       if (e.target.tagName == 'H1' && e.target.innerText) {
         // showDetailsWindow.value = true
@@ -110,16 +92,17 @@ async function getDataFromFirebase() {
     }
 
     onMounted(() => {
+      collectionPath.value = route.path.substring(1)
       getDataFromFirebase()
     })
 
-    store.watch((state) => state.refreshTickets, () => {
-      getDataFromFirebase()
-    })
-    store.watch((state) => state.dataPath, (dataPath) => {
-      console.log('newPath: ' + dataPath);
-      collectionPath.value = dataPath
-      getDataFromFirebase()
+    watch(() => route.path, ()=> {
+      console.log(route.path);
+      if(route.path == '/obecne' || route.path == '/wolne' || route.path == '/zakonczone') {
+        collectionPath.value = route.path.substring(1)
+        getDataFromFirebase()
+        console.log(route.path) 
+      }
     })
 
   return{
