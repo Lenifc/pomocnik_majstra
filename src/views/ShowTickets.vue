@@ -1,8 +1,10 @@
 <template>
 <h1>{{collectionPath}}</h1>
 <!-- <input type="text" placeholder="searchbar" disabled> -->
-        <div class="showElements" @click="openDetails($event)">
-        <h1 v-for="item in items" :key="item">{{ item }}</h1>
+        <div class="showElements">
+        <h1 v-for="item in items" :key="item">
+          <router-link :to="'/details/' + collectionPath + '/' + item">{{ item }}</router-link>
+          </h1>
         <button class="btn"
           @click="getMoreData" v-if="!disableNextButton">Załaduj kolejne zlecenia</button>
       </div>
@@ -26,16 +28,16 @@ export default ({
     let items = ref(null)
     let lastDoc = ref(0)
     let disableNextButton = ref(false)
-    let limit = ref(10) 
+    let limit = ref(10)
     let collectionPath = ref(route.path.substring(1))
 
 
     const tickets = firebase.firestore()
-                                .collection('warsztat')
-                                .doc('zlecenia')
+      .collection('warsztat')
+      .doc('zlecenia')
 
-async function getDataFromFirebase() {
-  disableNextButton.value = false
+    async function getDataFromFirebase() {
+      disableNextButton.value = false
 
       const collectionReference = tickets.collection(collectionPath.value).orderBy('timeStamp', 'desc')
         .limit(limit.value || 10)
@@ -45,9 +47,9 @@ async function getDataFromFirebase() {
       items.value = data.docs.map(doc => doc.id)
 
       if (data.docs.length < limit.value) {
-          disableNextButton.value = true
-          PopupFunc('warning', 'Wczytano już wszystkie zlecenia.')
-        }
+        disableNextButton.value = true
+        PopupFunc('warning', 'Wczytano już wszystkie zlecenia.')
+      }
     }
 
     async function getMoreData() {
@@ -70,25 +72,6 @@ async function getDataFromFirebase() {
           PopupFunc('warning', 'Wczytano już wszystkie zlecenia.')
         }
       }
-
-    }
-
-      function openDetails(e) {
-
-      if (e.target.tagName == 'H1' && e.target.innerText) {
-        // showDetailsWindow.value = true
-
-        // fetch data from database
-        tickets.collection(collectionPath.value).doc(e.target.innerText)
-          .get().then(showData => showNumberDetails(showData.data()))
-      } else return
-
-    }
-
-    function showNumberDetails(data) {
-
-      console.log(data);
-      console.log("Ilosc pojazdow: " + (Object.keys(data).length - 1))
     }
 
     onMounted(() => {
@@ -96,25 +79,22 @@ async function getDataFromFirebase() {
       getDataFromFirebase()
     })
 
-    watch(() => route.path, ()=> {
-      console.log(route.path);
-      if(route.path == '/obecne' || route.path == '/wolne' || route.path == '/zakonczone') {
+    watch(() => route.path, () => {
+      // console.log(route.path)
+      if (route.path == '/obecne' || route.path == '/wolne' || route.path == '/zakonczone') {
         collectionPath.value = route.path.substring(1)
         getDataFromFirebase()
-        console.log(route.path) 
       }
     })
 
-  return{
-    getMoreData,
-    openDetails,
+    return {
+      getMoreData,
 
-    items, 
-    disableNextButton,
+      items,
+      disableNextButton,
 
-    collectionPath
-  }
-
+      collectionPath
+    }
 
   },
 })

@@ -27,6 +27,11 @@ const routes = [
     name: 'ShowTicketsDone',
     component: () => import('@/views/ShowTickets.vue'),
   },
+  {
+    path: '/details/:collectionPath/:ticketDetails',
+    name: 'TicketDetails',
+    component: () => import('@/views/TicketDetails.vue'),
+  },
 ]
 
 const router = createRouter({

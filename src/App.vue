@@ -13,7 +13,9 @@
       <router-view></router-view>
 
     </div>
-    <sidebar-menu :menu="menu" width="250px" @item-click="onItemClick" />
+    <sidebar-menu :menu="menu" width="255px" 
+    :collapsed="false" 
+    @item-click="onItemClick" />
   </div>
 
 </div>
@@ -83,20 +85,17 @@ export default {
           },
           {
             href: '/wolne',
-            class: 'freeTickets',
             title: 'Wolne',
             icon: 'fa fa-parking',
           },
           {
             href: '/obecne',
-            class: 'inProgressTickets',
             title: 'W trakcie realizacji',
             icon: 'fa fa-tasks',
           },
           {
             href: '/zakonczone',
             title: 'Zakończone',
-            class: 'doneTickets',
             icon: 'fa fa-check',
           },
           {
@@ -152,7 +151,6 @@ export default {
 
     function onItemClick(e) {
       if (e.currentTarget.classList.contains('logout')) logOutFromAccount()
-
     }
 
     onMounted(() => {
@@ -174,7 +172,6 @@ export default {
       SidebarMenu,
       menu,
       onItemClick,
-
     }
   },
 
@@ -197,7 +194,7 @@ export default {
 }
 
 body{
-    font-size: 16px;
+    font-size: 17px;
     background-color: #202847;
     color: white;
     position: relative;
@@ -220,6 +217,11 @@ body{
     justify-content: center;
     align-content: center;
 
+}
+
+a{
+  color:whitesmoke;
+  text-decoration: none;
 }
 
 

@@ -28,7 +28,9 @@
                     <option disabled selected value="">Wybierz generacje</option>
                     <option v-for="version in versions" :key="version" :value="version.pl">{{ version.pl }}</option>
                 </select>
-                
+                <!-- TODO -->
+                <!-- GDY BRAK WERSJI NIECH WYSKOCZY POLE DO WPISANIA RECZNIE ROCZNIKA -->
+                <input type="number" name="prod_year" v-if="false" placeholder="Wpisz rocznik pojazdu">
 
                 <label for="VIN">VIN:</label><input type="text" maxlength="17" v-model="VIN">
                 <label for="mileage">Przebieg:</label><input type="number" maxlength="7" v-model="milage">
@@ -43,7 +45,7 @@
                   <input type="radio" id="inprogress" name="ticket" value="obecne" v-model="picked">
                   <label for="inprogress">W realizacji</label>
                 </div>
-                <button class="btn addData" @click="data($event)">Dodaj</button>
+                <button class="btn addData" @click="validateData($event)">Dodaj</button>
             </form>
         </div>
 </template>
@@ -110,14 +112,9 @@ export default {
       selectedVersion.value = null
       versions.value = null
 
-      try {
         const data = await axios.get(`${link}/models/${selectedBrand.value}/versions/${selectedModel.value}`)
-        versions.value = data.data.options
-        console.log(data.data.options)
-      } catch {
-        (err) => console.log(err.message)
-      }
-
+        .catch(() => PopupFunc('info', 'Ten model nie posiada podziału na wersje.\nMożesz podać rocznik ręcznie.'))
+        versions.value = (data && data.data.options) ? data.data.options : null
     }
 
     // Generuje czas dodania, ktory sluzy za sortowanie w firestore
@@ -127,7 +124,7 @@ export default {
       return currTime
     }
 
-    const data = function (e) {
+     function validateData(e) {
       e.preventDefault()
 
       let convertedMilage = milage.value ? milage.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") : ''
@@ -179,7 +176,7 @@ export default {
         sendDataToFirebase(preparedData, pick)
         clearForm()
 
-      } else PopupFunc('error', '⚠️ Upewnij się, że dane są prawidłowe! ⚠️')
+      } else PopupFunc('error', 'Upewnij się, że dane są prawidłowe! ⚠️')
 
     }
 
@@ -197,13 +194,13 @@ function sendDataToFirebase(preparedData, picked){
             docReference.update({
                 ...preparedData,
                 timeStamp
-              }).then(PopupFunc('success', 'Kolejne danie dodanie 👌'))
+              }).then(PopupFunc('success', "Do podanego numeru dodano kolejny pojazd"))
               .catch(err => PopupFunc("error", err.message))
           } else {
             docReference.set({
                 ...preparedData,
                 timeStamp
-              }).then(PopupFunc('success', 'Danie dodanie 👌'))
+              }).then(PopupFunc('success', `Nowe zlecenie znajdziesz w zakładce "${picked}"`))
               .catch(err => PopupFunc("error", err.message))
           }
           
@@ -272,7 +269,7 @@ function sendDataToFirebase(preparedData, picked){
       replaceSpaces,
       betterLooking,
 
-      data,
+      validateData,
       picked
     }
   }
