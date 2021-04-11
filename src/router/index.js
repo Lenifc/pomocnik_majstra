@@ -13,18 +13,23 @@ const routes = [
     component: () => import('@/views/CreateNewTicket.vue')
   },
   {
+    path: '/edytuj/:collectionPath/:ticketDetails',
+    name: 'EditTicket',
+    component: () => import('@/views/CreateNewTicket.vue')
+  },
+  {
     path: '/wolne',
-    name: 'ShowTicketsFree',
+    name: 'ShowTickets_Free',
     component: () => import('@/views/ShowTickets.vue'),
   },
   {
     path: '/obecne',
-    name: 'ShowTicketsProgress',
+    name: 'ShowTickets_Progress',
     component: () => import('@/views/ShowTickets.vue'),
   },
   {
     path: '/zakonczone',
-    name: 'ShowTicketsDone',
+    name: 'ShowTickets_Done',
     component: () => import('@/views/ShowTickets.vue'),
   },
   {

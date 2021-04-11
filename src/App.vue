@@ -1,7 +1,7 @@
 <template>
 <div>
 
-  <div class="signedOut" v-if="!userSignedIn">
+  <div class="signedOut" v-if="!userSignedIn && showLogInButton">
     <div class="container">
       <button class="btn signInBtn" @click="logInToAccount()">Zaloguj</button>
     </div>
@@ -56,9 +56,10 @@ export default {
     let provider = new firebase.auth.GoogleAuthProvider();
     let auth = firebase.auth()
 
-    let userSignedIn = ref()
+    let userSignedIn = ref(false)
     let items = ref(null)
     let showForm = ref(false)
+    let showLogInButton = ref(false)
 
     const menu = [
           {
@@ -82,6 +83,7 @@ export default {
             class: 'newDataBtn',
             title: 'Dodaj nowe zlecenie',
             icon: 'fa fa-plus',
+            // icon: 'mdiMonitor', // customowa klasa
           },
           {
             href: '/wolne',
@@ -142,10 +144,14 @@ export default {
 
     function checkAuthStatus() {
       auth.onAuthStateChanged(user => {
+        console.log(user?.uid);
         if (user) {
           userSignedIn.value = true
-        } else userSignedIn.value = false
-        console.log("Zalogowany: " + userSignedIn.value);
+        } else {
+          userSignedIn.value = false
+          showLogInButton.value = true
+        }
+        // console.log("Zalogowany: " + userSignedIn.value);
       })
     }
 
@@ -172,6 +178,8 @@ export default {
       SidebarMenu,
       menu,
       onItemClick,
+
+      showLogInButton
     }
   },
 
@@ -203,6 +211,7 @@ body{
 
 .container{
     margin: 0 auto;
+    padding-left: min(100px, 16%);
     width: min(96%, 1200px);
     display: flex;
     justify-content: center;
@@ -232,28 +241,16 @@ a{
     box-shadow: 1px 1px 5px #555;
     font-size: 1.05rem;
 }
-.signOutBtn{
-    position: fixed;
-    padding-left: 8px;
-    top: 16px;
-    right: 32px;
-    font-size: 1.3rem;
-}
 
-.newDataDiv, 
-.showDataDiv{
+.newDataDiv{
     display: block;
     position: fixed;
     top:0;
     left: 0;
-    background-color: #eee;
+    background-color: rgb(204, 204, 204);
     color: black;
     width: 100vw;
     height: 100vh;
-}
-.newDataDiv.opened,
-.showDataDiv.opened{
-    display: block;
 }
 
 .newDataForm{
@@ -279,23 +276,13 @@ a{
     font-size: 4rem;
 }
 .closeForm:hover,
-.btn:hover{
+.btn:hover,
+h1:hover{
     cursor: pointer;
-}
-
-.newDataBtn{
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    font-size: 1.3rem;
 }
 
 .showElements{
     margin-top: 128px;
-    width: min(90%, 1000px);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     text-align: center;
 }
 
@@ -304,9 +291,21 @@ a{
   box-shadow: inset 3px 0 0 0 greenyellow!important;;
 
 }
+/* .mdiMonitor{
+  background-image: url('./assets/icons/monitor.svg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 80%;
+  fill: white;
+} */
 
-
-h1:hover{
-    cursor: pointer;
+.column{
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  width: 100%;
 }
 </style>

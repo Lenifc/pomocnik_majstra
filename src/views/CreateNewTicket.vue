@@ -3,9 +3,10 @@
 
             <div class="closeForm" @click="$router.go(-1)">&times;</div>
 
-            <!-- tutaj dodac lewa strone screena z autowyszukiwaniem danych -->
-
+            <!-- ZNALEZC JAKIS OGARNIETY VIN DECODER -->
+            <!-- YV1RS53K212038671 -->
             <!-- Podzielic screen na dwa, ponizej dac na prawa strone jaok reczne wypelnianie -->
+
             <form class="newDataForm">
                 
                 <label for="phoneNum">Number telefonu:</label>
@@ -30,7 +31,7 @@
                 </select>
                 <!-- TODO -->
                 <!-- GDY BRAK WERSJI NIECH WYSKOCZY POLE DO WPISANIA RECZNIE ROCZNIKA -->
-                <input type="number" name="prod_year" v-if="false" placeholder="Wpisz rocznik pojazdu">
+                <input type="number" name="prod_year" v-if="(selectedModel && showManualVersionInput)" v-model="selectedVersion" placeholder="Wpisz rocznik pojazdu">
 
                 <label for="VIN">VIN:</label><input type="text" maxlength="17" v-model="VIN">
                 <label for="mileage">Przebieg:</label><input type="number" maxlength="7" v-model="milage">
@@ -52,6 +53,7 @@
 
 <script>
 import { ref, onMounted, watch } from 'vue'
+import { useStore } from 'vuex'
 
 import PopupFunc from '@/components/PopupFunc.js'
 
@@ -73,24 +75,28 @@ export default {
     let versions = ref()
     let selectedVersion = ref()
     let picked = ref('wolne')
+    let showManualVersionInput = ref(false)
+
+    const store = useStore()
+
 
     const tickets = firebase.firestore()
       .collection('warsztat')
       .doc('zlecenia')
 
-    const link = 'https://www.otomoto.pl/api/open/categories/29'
+    // const link = 'https://www.otomoto.pl/api/open/categories/29'
 
 
     async function fetchBrands() {
+      showManualVersionInput.value = false
 
-      try {
-        //ten skurwialy cors na przegladarkach...
-        const data = await axios.get(`${link}/makes`)
-        let allMakes = data.data.options
-        brands.value = Object.keys(allMakes).sort((next, current) => next > current ? 1 : -1)
-      } catch {
-        err => console.log(err.message)
-      }
+      //ten skurwialy cors na przegladarkach...
+      // const data = await axios.get(`${link}/makes`)
+      const data = await axios.get('http://localhost:3000/dodaj/')
+        .catch(() => PopupFunc('warning', 'Wystąpił problem z pobraniem producentów pojazdów.'))
+
+      let allMakes = data?.data?.options
+      brands.value = Object.keys(allMakes).sort((next, current) => next > current ? 1 : -1)
     }
     async function fetchModels() {
       // Czyszczenie pozostalych zmiennych onChange
@@ -98,34 +104,46 @@ export default {
       selectedVersion.value = null
       models.value = null
       selectedModel.value = null
+      showManualVersionInput.value = false
 
-      try {
-        const data = await axios.get(`${link}/models/${selectedBrand.value}`)
-        models.value = data.data.options
-      } catch {
-        err => console.log(err.message)
-      }
 
+      // const data = await axios.get(`${link}/models/${selectedBrand.value}`)
+      const data = await axios.get(`http://localhost:3000/dodaj/${selectedBrand.value}/models`)
+        .catch(() => PopupFunc('warning', 'Wystąpił problem z pobraniem Modeli danego producenta.'))
+
+      models.value = data?.data?.options
     }
     async function fetchVersion() {
       // Czyszczenie pozostalych zmiennych onChange
       selectedVersion.value = null
       versions.value = null
+      showManualVersionInput.value = false
 
-        const data = await axios.get(`${link}/models/${selectedBrand.value}/versions/${selectedModel.value}`)
-        .catch(() => PopupFunc('info', 'Ten model nie posiada podziału na wersje.\nMożesz podać rocznik ręcznie.'))
-        versions.value = (data && data.data.options) ? data.data.options : null
+      // const data = await axios.get(`${link}/models/${selectedBrand.value}/versions/${selectedModel.value}`)
+      const data = await axios.get(`http://localhost:3000/dodaj/${selectedBrand.value}/${selectedModel.value}/versions`)
+        .catch(() => {
+          showManualVersionInput.value = true
+          PopupFunc('info', 'Ten model nie posiada podziału na wersje.\nMożesz podać rocznik ręcznie.')
+        })
+      // ?. jest jak if statement sprawdzajacy czy obiekt instnieje
+      versions.value = data?.data?.options
     }
 
     // Generuje czas dodania, ktory sluzy za sortowanie w firestore
     function refTime() {
       let time = new Date()
-      let currTime = `${time.getFullYear()}-${time.getMonth()+1}-${time.getDate()} ${time.getHours()}:${time.getMinutes()}:${time.getSeconds()}`
+      let currTime = `${time.getFullYear()}-${checkIfUnderTen(time.getMonth()+1)}-${checkIfUnderTen(time.getDate())} 
+      ${checkIfUnderTen(time.getHours())}:${checkIfUnderTen(time.getMinutes())}:${checkIfUnderTen(time.getSeconds())}`
       return currTime
     }
 
-     function validateData(e) {
+    function checkIfUnderTen(number) {
+      return number = number < 10 ? '0' + number : number
+    }
+
+    function validateData(e) {
       e.preventDefault()
+
 
       let convertedMilage = milage.value ? milage.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") : ''
       let temp_val = 0
@@ -173,6 +191,7 @@ export default {
           Zakonczone_Czas: [],
         }
         let pick = picked.value
+        console.log(preparedData);
         sendDataToFirebase(preparedData, pick)
         clearForm()
 
@@ -181,33 +200,33 @@ export default {
     }
 
 
-function sendDataToFirebase(preparedData, picked){
+    function sendDataToFirebase(preparedData, picked) {
       let Tel = Object.values(preparedData)[0].Tel
       let timeStamp = Object.values(preparedData)[0]['Dodane_Czas']
 
 
-         const collectionReference = tickets.collection(picked)
-        let docReference = collectionReference.doc(Tel)
+      const collectionReference = tickets.collection(picked)
+      let docReference = collectionReference.doc(Tel)
 
-        docReference.get().then(function (doc) {
-          if (doc.exists) {
-            docReference.update({
-                ...preparedData,
-                timeStamp
-              }).then(PopupFunc('success', "Do podanego numeru dodano kolejny pojazd"))
-              .catch(err => PopupFunc("error", err.message))
-          } else {
-            docReference.set({
-                ...preparedData,
-                timeStamp
-              }).then(PopupFunc('success', `Nowe zlecenie znajdziesz w zakładce "${picked}"`))
-              .catch(err => PopupFunc("error", err.message))
-          }
-          
-        }).catch(function (err) {
-          PopupFunc("error", err.message)
-        })
-      
+      docReference.get().then(function (doc) {
+        if (doc.exists) {
+          docReference.update({
+              ...preparedData,
+              timeStamp
+            }).then(PopupFunc('success', "Do podanego numeru dodano kolejny pojazd"))
+            .catch(err => PopupFunc("error", err.message))
+        } else {
+          docReference.set({
+              ...preparedData,
+              timeStamp
+            }).then(PopupFunc('success', `Nowe zlecenie znajdziesz w zakładce "${picked}"`))
+            .catch(err => PopupFunc("error", err.message))
+        }
+        showManualVersionInput.value = false
+
+      }).catch(function (err) {
+        PopupFunc("error", err.message)
+      })
     }
 
 
@@ -249,6 +268,8 @@ function sendDataToFirebase(preparedData, picked){
       if (newVal.length > 9) return phoneNum.value = oldVal
     })
 
+    watch(() => store.state.passedData, () => console.log('ZMIANY'))
+
     return {
 
       phoneNum,
@@ -270,7 +291,9 @@ function sendDataToFirebase(preparedData, picked){
       betterLooking,
 
       validateData,
-      picked
+      picked,
+
+      showManualVersionInput,
     }
   }
 }
