@@ -12,7 +12,7 @@ export default createStore({
     },
     setFetchedItems(state, data){
       state.fetchedItems = data
-      console.log(state.fetchedItems);
+      // console.log(state.fetchedItems);
     }
   },
   actions: {

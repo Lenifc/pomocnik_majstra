@@ -3,14 +3,19 @@
 
             <div class="closeForm" @click="$router.go(-1)">&times;</div>
 
-            <!-- ZNALEZC JAKIS OGARNIETY VIN DECODER -->
+            <!-- ZNALEZC JAKIS OGARNIETY VIN DECODER / SPRAWDZIC API CEPIKU -->
             <!-- YV1RS53K212038671 -->
             <!-- Podzielic screen na dwa, ponizej dac na prawa strone jaok reczne wypelnianie -->
+
+            <!-- https://intercars.pl/s/lp-czesci-zamienne/ Uzupelnic Firestore o te kategorie -->
 
             <form class="newDataForm">
                 
                 <label for="phoneNum">Number telefonu:</label>
                 <input type="number" id="phoneNum" placeholder="123456789 / 1234567" required v-model="phoneNum">
+
+                <label for="clientName">Imie klienta:</label>
+                <input type="text" id="clientName" required v-model="clientName">
 
                 <label for="brand">Marka:</label>
                 <select name="brand" required @change="fetchModels()" v-model="selectedBrand">
@@ -25,12 +30,10 @@
                 </select>
 
                   <label for="prod_year">Generacja:</label>
-                <select name="prod_year" v-model="selectedVersion" :disabled="!versions">
+                <select name="prod_year" v-model="selectedVersion" v-if="!showManualVersionInput" :disabled="!versions">
                     <option disabled selected value="">Wybierz generacje</option>
                     <option v-for="version in versions" :key="version" :value="version.pl">{{ version.pl }}</option>
                 </select>
-                <!-- TODO -->
-                <!-- GDY BRAK WERSJI NIECH WYSKOCZY POLE DO WPISANIA RECZNIE ROCZNIKA -->
                 <input type="number" name="prod_year" v-if="(selectedModel && showManualVersionInput)" v-model="selectedVersion" placeholder="Wpisz rocznik pojazdu">
 
                 <label for="VIN">VIN:</label><input type="text" maxlength="17" v-model="VIN">
@@ -53,9 +56,9 @@
 
 <script>
 import { ref, onMounted, watch } from 'vue'
-import { useStore } from 'vuex'
 
 import PopupFunc from '@/components/PopupFunc.js'
+import { getTime } from '@/components/getCurrentTime'
 
 import axios from 'axios'
 import firebase from 'firebase/app'
@@ -63,22 +66,20 @@ import firebase from 'firebase/app'
 export default {
   setup() {
 
-    let phoneNum = ref()
-    let VIN = ref("")
-    let milage = ref()
-    let description = ref()
+    const phoneNum = ref()
+    const VIN = ref("")
+    const milage = ref()
+    const description = ref()
+    const clientName = ref()
 
-    let brands = ref()
-    let selectedBrand = ref()
-    let models = ref()
-    let selectedModel = ref()
-    let versions = ref()
-    let selectedVersion = ref()
-    let picked = ref('wolne')
-    let showManualVersionInput = ref(false)
-
-    const store = useStore()
-
+    const brands = ref()
+    const selectedBrand = ref()
+    const models = ref()
+    const selectedModel = ref()
+    const versions = ref()
+    const selectedVersion = ref()
+    const picked = ref('wolne')
+    const showManualVersionInput = ref(false)
 
     const tickets = firebase.firestore()
       .collection('warsztat')
@@ -86,12 +87,9 @@ export default {
 
     // const link = 'https://www.otomoto.pl/api/open/categories/29'
 
-
     async function fetchBrands() {
       showManualVersionInput.value = false
 
-      //ten skurwialy cors na przegladarkach...
-      // const data = await axios.get(`${link}/makes`)
       const data = await axios.get('http://localhost:3000/dodaj/')
         .catch(() => PopupFunc('warning', 'Wystąpił problem z pobraniem producentów pojazdów.'))
 
@@ -129,18 +127,6 @@ export default {
       versions.value = data?.data?.options
     }
 
-    // Generuje czas dodania, ktory sluzy za sortowanie w firestore
-    function refTime() {
-      let time = new Date()
-      let currTime = `${time.getFullYear()}-${checkIfUnderTen(time.getMonth()+1)}-${checkIfUnderTen(time.getDate())} 
-      ${checkIfUnderTen(time.getHours())}:${checkIfUnderTen(time.getMinutes())}:${checkIfUnderTen(time.getSeconds())}`
-      return currTime
-    }
-
-    function checkIfUnderTen(number) {
-      return number = number < 10 ? '0' + number : number
-    }
-
     function validateData(e) {
       e.preventDefault()
 
@@ -170,21 +156,23 @@ export default {
         // const { serverTimestamp } = firebase.firestore.FieldValue;
 
         let preparedData = []
-        let timeStamp = refTime()
+        let timeStamp = getTime()
         let title = `${betterLooking(selectedBrand.value)} ${selectedModel.value} ${timeStamp}`
-        if (selectedModel.value == null) {
+        if (selectedModel.value == null || clientName.value == null) {
           PopupFunc('error', 'Uzupełnij brakujące informacje')
           return
         }
         preparedData[title] = {
-          // Dodane_Przez: user.displayName,
+          id: Date.now(),
           Tel: phoneNum.value,
+          Imie: clientName.value, 
           Marka: betterLooking(selectedBrand.value),
           Model: selectedModel.value,
           Rok_prod: selectedVersion.value,
           silnik: [],
-          VIN: VIN.value ? VIN.value.toUpperCase().trim() : "Brak danych",
-          Przebieg: convertedMilage ? convertedMilage : "Brak danych",
+          Numer_rejestracyjny: 'G0 TEST12',
+          VIN: VIN.value ? VIN.value.toUpperCase().trim() : "",
+          Przebieg: convertedMilage ? convertedMilage : "",
           Opis: description.value ? description.value : "",
           Dodane_Czas: timeStamp,
           wykonane_prace: [],
@@ -206,7 +194,7 @@ export default {
 
 
       const collectionReference = tickets.collection(picked)
-      let docReference = collectionReference.doc(Tel)
+      const docReference = collectionReference.doc(Tel)
 
       docReference.get().then(function (doc) {
         if (doc.exists) {
@@ -264,11 +252,10 @@ export default {
       fetchBrands()
     })
 
+// watch pozniej do usuniecia
     watch(phoneNum, (newVal, oldVal) => {
       if (newVal.length > 9) return phoneNum.value = oldVal
     })
-
-    watch(() => store.state.passedData, () => console.log('ZMIANY'))
 
     return {
 
@@ -276,6 +263,7 @@ export default {
       VIN,
       milage,
       description,
+      clientName,
 
       fetchModels,
       fetchVersion,

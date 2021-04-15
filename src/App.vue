@@ -1,6 +1,8 @@
 <template>
 <div>
 
+<!--  -->
+<!-- Przerobic aby osoba niezalogowana widziala tylko podstawowe dane kontaktowe do warsztatu(tel, mail,adres) i maly przycisk zaloguj dla admina-->
   <div class="signedOut" v-if="!userSignedIn && showLogInButton">
     <div class="container">
       <button class="btn signInBtn" @click="logInToAccount()">Zaloguj</button>
@@ -104,6 +106,15 @@ export default {
             component: divider
           },
           {
+            // href: '/szukaj',
+            title: 'Szukaj numer telefonu',
+            icon: 'fa fa-search',
+            disabled: true
+          },
+          {
+            component: divider
+          },
+          {
             header: 'Ustawienia',
             hiddenOnCollapse: true,
           },
@@ -202,11 +213,52 @@ export default {
 }
 
 body{
-    font-size: 17px;
+    font-size: 18px;
     background-color: #202847;
     color: white;
     position: relative;
     font-family: 'Source Sans Pro', sans-serif;
+}
+
+i{
+  font-size: 1.5rem;
+}
+
+table{
+  width: min(1500px, 100%);
+  border-collapse: collapse;
+}
+
+tr{
+  margin: 0;
+}
+
+td{
+  width: max-content;
+  padding: 0 10px;
+  white-space:wrap;
+  overflow: hidden;
+  border: 3px solid green;
+}
+
+.moreOptions{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.noWrap{
+  white-space:nowrap;
+}
+
+.details a{
+  color:crimson;
+  font-weight: bold;
+}
+
+.loader {
+  width: 150px;
 }
 
 .container{
@@ -307,5 +359,10 @@ h1:hover{
   align-content: center;
   justify-content: center;
   width: 100%;
+}
+
+
+@media (max-width: 1050px) {
+  
 }
 </style>

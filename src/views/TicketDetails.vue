@@ -21,10 +21,6 @@
           <div>Przebieg: {{ car[1]['Przebieg'] }}</div>
           <div>Opis: {{ car[1]['Opis'] }}</div>
 
-          <!-- <button class="btn" @click="HandleFunc($event)"><router-link :to="'/edytuj/' + $route.params.collectionPath + '/' + $route.params.ticketDetails">Edytuj</router-link></button> -->
-          <!--  -->
-          <!-- OGARNAC JAK ZROBIC REDIRECT ORAZ ZAPIS DO STORE JEDNOCZESNIE -->
-          <!--  -->
           <button class="btn" @click="HandleFunc($event)">Edytuj</button>
           <button class="btn" @click="HandleFunc($event)">Usuń</button>
           <button class="btn" @click="HandleFunc($event)">Przenieś</button>
@@ -46,9 +42,10 @@
 import firebase from 'firebase/app'
 import PopupFunc from '@/components/PopupFunc.js'
 import CreateNewTicket from '@/views/CreateNewTicket.vue'
+import { DeleteFunc } from '@/components/EditMoveDeleteOptions'
 
 import { ref, onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 
 import { VueCollapsiblePanelGroup, VueCollapsiblePanel } from '@dafcoe/vue-collapsible-panel'
@@ -57,6 +54,7 @@ import '@dafcoe/vue-collapsible-panel/dist/vue-collapsible-panel.css'
 export default {
   setup() {
     const route = useRoute()
+    const router = useRouter()
     const store = useStore()
     const openEditor = ref(false)
     // console.log(route.params)
@@ -86,49 +84,9 @@ export default {
     function HandleFunc(e) {
       const target = e.target.innerText
       const id = e.target.parentElement.parentElement.parentElement.id
-      if (target == 'Usuń') DeleteFunc(id)
+      if (target == 'Usuń') DeleteFunc(id, route.params.collectionPath, route.params.ticketDetails)
       if (target == 'Edytuj') EditFunc(id)
       // if (target == 'Przenieś') MoveFunc(id)
-    }
-
-    function refTime() {
-      let time = new Date()
-      let currTime = 
-      `${time.getFullYear()}-${checkIfUnderTen(time.getMonth()+1)}-${checkIfUnderTen(time.getDate())} ${checkIfUnderTen(time.getHours())}:${checkIfUnderTen(time.getMinutes())}:${checkIfUnderTen(time.getSeconds())}`
-      return currTime
-    }
-
-    function checkIfUnderTen(number) {
-      return number = number < 10 ? '0' + number : ''
-    }
-
-    function DeleteFunc(id) {
-
-      const collectionReference = tickets.collection(route.params.collectionPath)
-      let docReference = collectionReference.doc(route.params.ticketDetails)
-
-      docReference.get().then(function (doc) {
-
-        // Jezeli dany numer posiada tylko jeden pojazd to nie ma sensu pozostawiac pustego numeru, wiec usuwam caly dokument
-        if (Object.keys(doc.data()).length - 1 == 1) {
-          docReference.delete().then(
-            PopupFunc('success', 'Pomyślnie usunięto zlecenie z numeru: \n' + route.params.ticketDetails)
-          ).catch(err => PopupFunc("error", err.message))
-        } else {
-          const timeStamp = refTime()
-
-          // Jezeli w dokumencie znajduje sie kilka pojazdow to usuwam tylko pole z danym pojazdem
-          docReference.update({
-              [`${id}`]: firebase.firestore.FieldValue.delete(),
-              timeStamp
-            }).then(PopupFunc('success', 'Pomyślnie usunięto zlecenie z numeru: \n' + route.params.ticketDetails))
-            .catch(err => PopupFunc("error", err.message))
-        }
-      }).then(() => {
-        // 
-        console.log("POWINNISMY SIE COFNAC ZE STRONA")
-        // 
-      })
     }
 
     function EditFunc(id) {
@@ -137,6 +95,8 @@ export default {
       let storeIt = JSON.parse(JSON.stringify(...findNeededCar))
       store.commit('fillPassedData', storeIt)
       openEditor.value = true
+
+      router.push(`/edytuj/${route.params.collectionPath}/${route.params.ticketDetails}`)
     }
 
     onMounted(() => {
