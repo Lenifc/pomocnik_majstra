@@ -9,13 +9,13 @@ const routes = [
   },
   {
     path: '/dodaj',
-    name: 'CreateNewTicket',
-    component: () => import('@/views/CreateNewTicket.vue')
+    name: 'CreateTicket',
+    component: () => import('@/views/OrderForm.vue')
   },
   {
     path: '/edytuj/:collectionPath/:ticketDetails',
     name: 'EditTicket',
-    component: () => import('@/views/CreateNewTicket.vue')
+    component: () => import('@/views/OrderForm.vue')
   },
   {
     path: '/wolne',
@@ -36,6 +36,11 @@ const routes = [
     path: '/details/:collectionPath/:ticketDetails',
     name: 'TicketDetails',
     component: () => import('@/views/TicketDetails.vue'),
+  },
+  {
+    path: '/daneWarsztatu',
+    name: 'daneWarsztatu',
+    component: () => import('@/views/daneWarsztatu.vue'),
   },
 ]
 

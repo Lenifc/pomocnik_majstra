@@ -8,30 +8,32 @@ const tickets = firebase.firestore()
 //
 // Usuwanie danych z koleksji firebase
 //
-export function DeleteFunc(id, collectionPath, phoneNumber) {
+export async function DeleteFunc(id, collectionPath, phoneNumber) {
   console.log(id, collectionPath, phoneNumber);
 
   const collectionReference = tickets.collection(collectionPath)
   const docReference = collectionReference.doc(phoneNumber)
 
-  docReference.get().then(function (doc) {
-
+  
+  await docReference.get().then(function (doc) {
+    
     // Jezeli dany numer posiada tylko jeden pojazd to nie ma sensu pozostawiac pustego numeru, wiec usuwam caly dokument
     if (Object.keys(doc.data()).length - 1 == 1) {
       docReference.delete().then(
         PopupFunc('success', 'Pomyślnie usunięto zlecenie')
-      ).catch(err => PopupFunc("error", err.message))
-    } else {
-      const timeStamp = getTime()
-
-      // Jezeli w dokumencie znajduje sie kilka pojazdow to usuwam tylko pole z danym pojazdem
-      docReference.update({
+        ).catch(err => PopupFunc("error", err.message))
+      } else {
+        const timeStamp = getTime()
+        
+        // Jezeli w dokumencie znajduje sie kilka pojazdow to usuwam tylko pole z danym pojazdem
+        docReference.update({
           [`${id}`]: firebase.firestore.FieldValue.delete(),
           timeStamp
-        }).then(PopupFunc('success', 'Pomyślnie usunięto zlecenie'))
+        }).then( PopupFunc('success', 'Pomyślnie usunięto zlecenie'))
         .catch(err => PopupFunc("error", err.message))
     }
-  }).catch(err => PopupFunc("error", err.message))
+  }).then( tickets.update("IloscZlecen", firebase.firestore.FieldValue.increment(-1)))
+  .catch(err => PopupFunc("error", err.message))
 }
 
 export function RelocateTicket(id, object, currentCollectionPath, newCollectionPath, phoneNumber) {
@@ -60,5 +62,5 @@ export function RelocateTicket(id, object, currentCollectionPath, newCollectionP
       .catch(function (err) {
         PopupFunc("error", err.message)
       })
-  } else PopupFunc("info", 'Nie można przenieść zlecenia do dokładnie tej samej lokalizacji')
+  } else PopupFunc("info", 'Nie można przenieść zlecenia do dokładnie tej samej lokalizacji...')
 }

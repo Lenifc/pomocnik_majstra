@@ -1,8 +1,9 @@
     // Generuje czas dodania, ktory sluzy za sortowanie w firestore
     export function getTime() {
         let time = new Date()
-        let currTime = `${time.getFullYear()}-${checkIfUnderTen(time.getMonth()+1)}-${checkIfUnderTen(time.getDate())} 
-        ${checkIfUnderTen(time.getHours())}:${checkIfUnderTen(time.getMinutes())}:${checkIfUnderTen(time.getSeconds())}`
+        // NIE DZIELIC PONIZSZEJ LINII NA DWIE!!!!!
+        let currTime = `${time.getFullYear()}-${checkIfUnderTen(time.getMonth()+1)}-${checkIfUnderTen(time.getDate())} ${checkIfUnderTen(time.getHours())}:${checkIfUnderTen(time.getMinutes())}:${checkIfUnderTen(time.getSeconds())}`
+        // NIE DZIELIC POWYZSZEJ LINII NA DWIE!!!!!
         return currTime
       }
   
