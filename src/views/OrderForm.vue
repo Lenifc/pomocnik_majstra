@@ -15,7 +15,7 @@
         <div class="required column">
           <h2>Pola obowiązkowe: </h2>
           <label for="phoneNum">Number telefonu:</label>
-          <input type="number" id="phoneNum" placeholder="123456789 / 1234567" required v-model="phoneNum">
+          <input type="text" id="phoneNum" placeholder="123456789 / 1234567" required v-model="phoneNum">
 
           <label for="clientName">Imie klienta:</label>
           <input type="text" id="clientName" required v-model="clientName">
@@ -29,19 +29,19 @@
             v-model="selectedBrand" placeholder="Wpisz marke pojazdu">
 
           <label for="model">Model:</label>
-          <select name="model" @change="fetchVersion()" v-model="selectedModel" :disabled="!models" v-if="!manualBrandModelVersionInput" required>
+          <select name="model" @change="fetchVersion()" v-model="selectedModel" :disabled="!models" v-if="!manualBrandModelVersionInput && !manualModelVersionInput" required>
             <option disabled selected value="">Wybierz model</option>
             <option v-for="model in models" :key="model" :value="replaceSpaces(model.pl)">{{ model.pl }}</option>
           </select>
-          <input type="text" name="model" v-if="manualBrandModelVersionInput" required
+          <input type="text" name="model" v-if="manualBrandModelVersionInput || manualModelVersionInput" required
             v-model="selectedModel" placeholder="Wpisz model pojazdu">
 
           <label for="prod_year">Generacja:</label>
-          <select name="prod_year" v-model="selectedVersion" v-if="!showManualVersionInput" :disabled="!versions">
+          <select name="prod_year" v-model="selectedVersion" v-if="!manualVersionInput && !manualBrandModelVersionInput && !manualModelVersionInput" :disabled="!versions">
             <option disabled selected value="">Wybierz generacje</option>
             <option v-for="version in versions" :key="version" :value="version.pl">{{ version.pl }}</option>
           </select>
-          <input type="text" name="prod_year" v-if="(selectedModel && showManualVersionInput)"
+          <input type="text" name="prod_year" v-if="(selectedModel && manualVersionInput) || manualBrandModelVersionInput || manualModelVersionInput"
             v-model="selectedVersion" placeholder="Wpisz rocznik pojazdu">
 
           <label for="fuel">Rodzaj paliwa:</label>
@@ -75,9 +75,12 @@
             <option value="4x4"> 4x4 </option>
           </select>
 
-          <label for="numberPlates">Tablica rejestracyjna:</label><input type="text" maxlength="9" v-model="numberPlates">
-          <label for="VIN">VIN:</label><input name="VIN" type="text" maxlength="17" v-model="VIN">
-          <label for="mileage">Przebieg:</label><input name="mileage" type="number" maxlength="7" v-model="milage">
+          <label for="numberPlates">Tablica rejestracyjna:</label>
+          <input id="numberPlates" type="text" maxlength="9" v-model="numberPlates">
+          <label for="VIN">VIN:</label>
+          <input id="VIN" type="text" maxlength="17" v-model="VIN">
+          <label for="mileage">Przebieg:</label>
+          <input id="mileage" type="text" maxlength="7" v-model="mileage">
 
         </div>
       </div>
@@ -103,7 +106,9 @@
 </template>
 
 <script>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, onBeforeUnmount } from 'vue'
+import { useRoute } from 'vue-router'
+import { useStore } from 'vuex'
 
 import PopupFunc from '@/components/PopupFunc.js'
 import { getTime } from '@/components/getCurrentTime'
@@ -111,63 +116,74 @@ import { getTime } from '@/components/getCurrentTime'
 import axios from 'axios'
 import firebase from 'firebase/app'
 
+
 export default {
   setup() {
+    const route = useRoute()
+    const store = useStore()
 
-    const phoneNum = ref()
-    const clientName = ref()
+    const phoneNum = ref('')
+    const clientName = ref('')
     const brands = ref()
-    const selectedBrand = ref()
+    const selectedBrand = ref('')
     const models = ref()
-    const selectedModel = ref()
+    const selectedModel = ref('')
     const versions = ref()
-    const selectedVersion = ref()
-    const selectedFuel = ref()
+    const selectedVersion = ref('')
+    const selectedFuel = ref('')
 
-    const engine = ref()
-    const selectedTransmission = ref()
-    const selectedDriveTrain = ref()
-    const numberPlates = ref()
-    const VIN = ref("")
-    const milage = ref()
-    const description = ref()
+    const engine = ref('')
+    const selectedTransmission = ref('')
+    const selectedDriveTrain = ref('')
+    const numberPlates = ref('')
+    const VIN = ref('')
+    const mileage = ref('')
+    const description = ref('')
+
+    let controller = new AbortController()
 
     const picked = ref('wolne')
 
     const manualBrandModelVersionInput = ref(false)
-    const showManualVersionInput = ref(false)
+    const manualModelVersionInput = ref(false)
+    const manualVersionInput = ref(false)
 
     const tickets = firebase.firestore()
       .collection('warsztat')
       .doc('zlecenia')
 
-    // const link = 'https://www.otomoto.pl/api/open/categories/29'
+    const link = 'https://europe-west1-baza-mech.cloudfunctions.net/fetchData' // PRODUKCYJNY
 
     async function fetchBrands() {
       manualBrandModelVersionInput.value = false
-      showManualVersionInput.value = false
+      manualModelVersionInput.value = false
+      manualVersionInput.value = false
 
-      const data = await axios.get('http://localhost:3000/dodaj/')
-        .catch(() => {
+      // let data = await fetch(`/dodaj`, { signal: controller.signal }).then(response => response.json()) // DEBUGOWY LOKALNIE
+      let data = await fetch(`${link}/dodaj`, { signal: controller.signal }).then(response => response.json()) // PRODUKCYJNY
+        .catch((err) => {
           manualBrandModelVersionInput.value = true
-          PopupFunc('warning', 'Wystąpił problem z pobraniem producentów pojazdów.')
+          if(err.message.indexOf('Failed to fetch') >= 0) PopupFunc('warning', 'Wystąpił problem z pobraniem producentów pojazdów.')
         })
 
-      let allMakes = data?.data?.options
-      brands.value = Object.keys(allMakes).sort((next, current) => next > current ? 1 : -1)
+      let allMakes = data?.options
+      if(allMakes) brands.value = Object.keys(allMakes).sort((next, current) => next > current ? 1 : -1)
     }
     async function fetchModels() {
       // Czyszczenie pozostalych zmiennych onChange
-      versions.value = null
-      selectedVersion.value = null
-      models.value = null
       selectedModel.value = null
-      showManualVersionInput.value = false
+      models.value = null
+      selectedVersion.value = null
+      versions.value = null
+      manualModelVersionInput.value = false
+      manualVersionInput.value = false
 
-
-      // const data = await axios.get(`${link}/models/${selectedBrand.value}`)
-      const data = await axios.get(`http://localhost:3000/dodaj/${selectedBrand.value}/models`)
-        .catch(() => PopupFunc('warning', 'Wystąpił problem z pobraniem Modeli danego producenta.'))
+      // const data =  await axios.get(`/dodaj/${selectedBrand.value}`) // DEBUGOWY LOKALNIE
+      const data =  await axios.get(`${link}/dodaj/${selectedBrand.value}`) // PRODUKCYJNY
+        .catch(() => {
+          manualModelVersionInput.value = true
+          PopupFunc('warning', 'Wystąpił problem z pobraniem Modeli danego producenta.')
+        })
 
       models.value = data?.data?.options
     }
@@ -175,49 +191,41 @@ export default {
       // Czyszczenie pozostalych zmiennych onChange
       selectedVersion.value = null
       versions.value = null
-      showManualVersionInput.value = false
+      manualVersionInput.value = false
 
-      // const data = await axios.get(`${link}/models/${selectedBrand.value}/versions/${selectedModel.value}`)
-      const data = await axios.get(`http://localhost:3000/dodaj/${selectedBrand.value}/${selectedModel.value}/versions`)
+  
+      // const data = await axios.get(`/dodaj/${selectedBrand.value}/${selectedModel.value}`) // DEBUGOWY LOKALNIE
+      const data = await axios.get(`${link}/dodaj/${selectedBrand.value}/${selectedModel.value}`) // PRODUKCYJNY
         .catch(() => {
-          showManualVersionInput.value = true
+          manualVersionInput.value = true
           PopupFunc('info', 'Ten model nie posiada podziału na wersje.\nMożesz podać rocznik ręcznie.')
         })
-      // ?. jest jak if statement sprawdzajacy czy obiekt instnieje
+      // ?. jest jak if statement sprawdzajacy czy obiekt istnieje
       versions.value = data?.data?.options
+    }
+
+    function validPhoneNum(number){
+      let temp = number.replace(/[^0-9]+/g, '');
+      if (temp.length == 9) {
+        return phoneNum.value = temp.slice(0, 3) + "-" + temp.slice(3, 6) + "-" + temp.slice(6, 9);
+      }
+      if (temp.length == 7) {
+        return phoneNum.value = temp.slice(0, 3) + "-" + temp.slice(3, 5) + "-" + temp.slice(5, 8);
+      }
+      else return false
     }
 
     function validateData(e) {
       e.preventDefault()
 
+      let convertedMileage = mileage.value ? mileage.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") : ''
 
-      let convertedMilage = milage.value ? milage.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") : ''
-      let temp_val = 0
-      let valid
-
-
-      if (phoneNum.value && (phoneNum.value.length == 9 || phoneNum.value.length == 7)) {
-        if (phoneNum.value.length == 9) {
-          temp_val = phoneNum.value
-          phoneNum.value = temp_val.slice(0, 3) + "-" + temp_val.slice(3, 6) + "-" + temp_val.slice(6, 9);
-        }
-        if (phoneNum.value.length == 7) {
-          temp_val = phoneNum.value
-          phoneNum.value = temp_val.slice(0, 3) + "-" + temp_val.slice(3, 5) + "-" + temp_val.slice(5, 8);
-        }
-        //validate only if phoneNumber length is 7 or 9
-        valid = true
-      } else {
-        valid = false
-      }
-
-
-      if (valid && selectedBrand.value) {
+      if (validPhoneNum(phoneNum.value) && selectedBrand.value) {
         // const { serverTimestamp } = firebase.firestore.FieldValue;
 
         let preparedData = []
         let timeStamp = getTime()
-        let ID = Date.now()
+        let ID = store.state.targetCar['Tel'] == phoneNum.value ? store.state.targetCar['id'] : Date.now()
         if (selectedModel.value == null || clientName.value == null) {
           PopupFunc('error', 'Uzupełnij brakujące informacje')
           return
@@ -237,16 +245,16 @@ export default {
           Naped: selectedDriveTrain.value || '',
           Numer_rejestracyjny: numberPlates.value ? numberPlates.value.toUpperCase() : "",
           VIN: VIN.value ? VIN.value.toUpperCase().trim() : "",
-          Przebieg: convertedMilage || "",
+          Przebieg: convertedMileage || "",
 
           Opis: description.value || "",
           Wykonane_uslugi_czesci: [],
           Koszt: 0,
-          Dodane_Czas: timeStamp,
+          Dodane_Czas: store.state.targetCar['Dodane_Czas'] || timeStamp,
           Zakonczone_Czas: '',
         }
         let pick = picked.value
-        console.log(preparedData);
+        // console.log(preparedData);
         sendDataToFirebase(preparedData, pick)
 
       } else PopupFunc('error', 'Upewnij się, że dane są prawidłowe! ⚠️')
@@ -276,9 +284,11 @@ export default {
             }).then(() => PopupFunc('success', `Nowe zlecenie znajdziesz w zakładce "${picked}"`))
             .catch(err => PopupFunc("error", err.message))
         }
-        showManualVersionInput.value = false
+        if(store.state.targetCar['Tel'] != phoneNum.value) tickets.update("IloscZlecen", firebase.firestore.FieldValue.increment(1))
+        
+        manualVersionInput.value = false
         clearForm()
-        tickets.update("IloscZlecen", firebase.firestore.FieldValue.increment(1))
+        store.commit('setTargetCar', '')
 
       }).catch(function (err) {
         PopupFunc("error", err.message)
@@ -301,9 +311,29 @@ export default {
       selectedDriveTrain.value = null
       numberPlates.value = null
       VIN.value = null
-      milage.value = null
+      mileage.value = null
 
       description.value = null
+    }
+
+    function autoFillData(){
+      const fill = store.state.targetCar
+
+      phoneNum.value = fill['Tel'] || ''
+      clientName.value = fill['Imie'] || ''
+      selectedBrand.value = fill['Marka'] || ''
+      selectedModel.value = fill['Model'] || ''
+      selectedVersion.value = fill['Wersja_Rocznik'] || ''
+      selectedFuel.value = fill['Paliwo'] || ''
+
+      engine.value = fill['Silnik'] || ''
+      selectedTransmission.value = fill['SkrzyniaBiegow'] || ''
+      selectedDriveTrain.value = fill['Naped'] || ''
+      numberPlates.value = fill['Numer_rejestracyjny'] || ''
+      VIN.value = fill['VIN'] || ''
+      mileage.value = fill['Przebieg'] || ''
+
+      description.value = fill['Opis'] || ''
     }
 
 
@@ -324,20 +354,33 @@ export default {
 
 
     onMounted(() => {
-      fetchBrands()
+      if(route.path.indexOf('edytuj') > 0) {
+        manualBrandModelVersionInput.value = true
+        autoFillData()
+      }
+      else {
+        clearForm()
+        store.commit('setTargetCar', '')
+        fetchBrands()
+      }
     })
 
-// watch pozniej do usuniecia
-    watch(phoneNum, (newVal, oldVal) => {
-      if (newVal.length > 9) return phoneNum.value = oldVal
+    watch(() => route.path, () =>{
+      if(route.path.indexOf('edytuj') <= 0) {
+        clearForm()
+        store.commit('setTargetCar', '')
+        if(route.path.indexOf('dodaj') <= 0) fetchBrands()
+      }
     })
+
+    onBeforeUnmount(() => controller.abort())
 
     return {
 
       phoneNum,
       VIN,
       numberPlates,
-      milage,
+      mileage,
       description,
       clientName,
 
@@ -363,7 +406,8 @@ export default {
       picked,
 
       manualBrandModelVersionInput,
-      showManualVersionInput,
+      manualModelVersionInput,
+      manualVersionInput,
 
       clearForm
     }

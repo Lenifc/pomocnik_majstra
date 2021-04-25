@@ -6,10 +6,10 @@ const tickets = firebase.firestore()
   .doc('zlecenia')
 
 //
-// Usuwanie danych z koleksji firebase
+// Usuwanie danych z kolekcji firebase
 //
-export async function DeleteFunc(id, collectionPath, phoneNumber) {
-  console.log(id, collectionPath, phoneNumber);
+export async function DeleteFunc(id, collectionPath, phoneNumber, showIfRelocate) {
+  // console.log(id, collectionPath, phoneNumber);
 
   const collectionReference = tickets.collection(collectionPath)
   const docReference = collectionReference.doc(phoneNumber)
@@ -32,7 +32,9 @@ export async function DeleteFunc(id, collectionPath, phoneNumber) {
         }).then( PopupFunc('success', 'Pomyślnie usunięto zlecenie'))
         .catch(err => PopupFunc("error", err.message))
     }
-  }).then( tickets.update("IloscZlecen", firebase.firestore.FieldValue.increment(-1)))
+  }).then(() =>{
+    if(showIfRelocate != 'justRelocate') tickets.update("IloscZlecen", firebase.firestore.FieldValue.increment(-1))
+  })
   .catch(err => PopupFunc("error", err.message))
 }
 
@@ -58,7 +60,7 @@ export function RelocateTicket(id, object, currentCollectionPath, newCollectionP
             .catch(err => PopupFunc("error", err.message))
         }
 
-      }).then(DeleteFunc(id, currentCollectionPath, phoneNumber))
+      }).then(DeleteFunc(id, currentCollectionPath, phoneNumber, 'justRelocate'))
       .catch(function (err) {
         PopupFunc("error", err.message)
       })

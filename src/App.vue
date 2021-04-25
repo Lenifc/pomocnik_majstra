@@ -1,7 +1,6 @@
 <template>
 <div>
 
-<!--  -->
 <!-- Przerobic aby osoba niezalogowana widziala tylko podstawowe dane kontaktowe do warsztatu(tel, mail,adres) i maly przycisk zaloguj dla admina-->
   <div class="signedOut" v-if="!userSignedIn && showLogInButton">
     <div class="container">
@@ -263,6 +262,19 @@ td{
   white-space:nowrap;
 }
 
+.wrap{
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  overflow: hidden;
+}
+
+.width-110{
+  max-width: 110px;
+}
+.width-200{
+  max-width: 200px;
+}
+
 .details a{
   color:crimson;
   font-weight: bold;
@@ -275,7 +287,7 @@ td{
 .container{
     margin: 0 auto;
     padding-left: min(100px, 16%);
-    width: min(96%, 1200px);
+    width: min(94%, 1300px);
     display: flex;
     justify-content: center;
 }
@@ -303,7 +315,7 @@ a{
     border-radius: 4px;
     box-shadow: 1px 1px 5px #555;
     font-size: 1.05rem;
-    color: white;
+    color: rgb(50, 50, 50);
     font-weight: bold;
 }
 
@@ -380,82 +392,20 @@ h1:hover{
   width: 90%;
 }
 
-
-.modal-mask {
-  position: fixed;
-  z-index: 9998;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.4);
-  display: table;
-  transition: opacity 0.3s ease;
-}
-
-.modal-wrapper {
-  display: table-cell;
-  vertical-align: middle;
-  color: black
-}
-
-.modal-container {
-  width: min(600px, 80%);
-  margin: 0px auto;
-  padding: 20px 30px;
-  background-color: #fff;
-  border-radius: 2px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
-  transition: all 0.3s ease;
-}
-
-.modal-body {
-  margin: 20px 0;
-}
-
-.modal-footer{
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  gap: 16px;
-}
-
-.modal-default-button {
-  display: block;
-  margin-top: 1rem;
-  font-weight: bold;
-  color: white
-}
-
 .btn.success{
   background-color: #42b983;
+  color: white;
 }
 
 .btn.failed{
   background-color: crimson;
+  color: white;
 }
 
 
-
-.modal-enter {
-  opacity: 0;
+@media (max-width: 1400px) {
+  
 }
-
-.modal-leave-active {
-  opacity: 0;
-}
-
-.modal-enter .modal-container,
-.modal-leave-active .modal-container {
-  -webkit-transform: scale(1.1);
-  transform: scale(1.1);
-}
-
-
-
-
-
-
 
 @media (max-width: 1050px) {
   

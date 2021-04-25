@@ -18,13 +18,13 @@
           </tr>
         <tr v-for="(car, index) in allCars" :id="car['id']" :key="car['id']" class="mainTicketDetails">
               <td>{{ index+1 }}</td>
-              <td class="details" @click="redirectToDetails(car)" style="cursor: pointer; font-weight: bold">Szczegóły zlecenia</td>
-              <td class="dodane_czas">{{ car['Dodane_Czas'] }}</td>
-              <td class="imieKlienta">{{ car['Imie'] }}</td>
+              <td class="details" @click="redirectToDetails(car)" style="cursor: pointer; font-weight: bold">Szczegóły</td>
+              <td class="dodane_czas width-110">{{ car['Dodane_Czas'] }}</td>
+              <td class="imieKlienta wrap width-200">{{ car['Imie'] }}</td>
               <td class="numerTelefonu noWrap">{{ car['Tel'] }}</td>
               <td class="marka_model_wersja">{{ `${car['Marka']} ${car['Model']} ${(car['Wersja_Rocznik'] || "")}`}}</td>
               <td class="VIN noWrap">{{ car['VIN'] }}</td>
-              <td class="numer_rejestracyjny">{{ car['Numer_rejestracyjny'] }}</td>
+              <td class="numer_rejestracyjny noWrap">{{ car['Numer_rejestracyjny'] }}</td>
               <td class="Zakonczone_Czas" v-if='collectionPath == "zakonczone"'>{{ car['Zakonczone_Czas'] }}</td>
               <td class="Koszt" v-if='collectionPath == "zakonczone"'>{{ car['Koszt'] }}</td>
               <td>
@@ -41,7 +41,7 @@
           @click="getMoreData" v-if="!disableNextButton">Załaduj kolejne zlecenia</button>
         <img class="loader" src="@/assets/spinner.gif" v-if="isLoading">
           <transition name="modal">
-            <Modal :message="modalMsg" v-if="showModal" @true="modalResponse(true)" @false="modalResponse(false)" />
+            <Modal :message="modalMsg" :operation="Operation" v-if="showModal" @true="(status, newLocation) => modalResponse(status, newLocation || '')" @false="modalResponse(false)" />
           </transition>
       </div>
 </template>
@@ -72,7 +72,7 @@ export default ({
     const allCars = ref()
 
     const lastDoc = ref(0)
-    const disableNextButton = ref(false)
+    const disableNextButton = ref(true)
     const limit = ref(10)
     const collectionPath = ref(route.path.substring(1))
     const isLoading = ref(true)
@@ -87,8 +87,7 @@ export default ({
 
 
     async function getDataFromFirebase() {
-      disableNextButton.value = false
-
+      
       const collectionReference = tickets.collection(collectionPath.value).orderBy('timeStamp', 'desc')
         .limit(limit.value || 10)
 
@@ -103,6 +102,7 @@ export default ({
 
       isLoading.value = false
 
+      disableNextButton.value = false
       if (data.docs.length < limit.value) {
         disableNextButton.value = true
         PopupFunc('warning', 'Wczytano już wszystkie zlecenia.')
@@ -152,19 +152,24 @@ export default ({
       if (button.classList.contains('fa-trash-alt')) openModal(car, 'remove')
     }
 
-    function openEditor(data) {
-      console.log(data)
+    function openEditor(carInfo) {
+      store.commit('setTargetCar', carInfo)
+      router.push(`/edytuj/${collectionPath.value}/${carInfo['Tel']}`)
+      console.log(carInfo)
     }
 
     function openModal(carInfo, operation) {
       Operation.value = operation
       store.commit('setTargetCar', carInfo)
       if (operation == 'remove') modalMsg.value = `Czy na pewno chcesz usunąć zlecenie numeru ${carInfo['Tel']}?`
-      if (operation == 'relocate') modalMsg.value = `Gdzie przenosimy zlecenie ${carInfo['Tel']}?`
+      if (operation == 'relocate') {
+        modalMsg.value = `Gdzie przenosimy zlecenie ${carInfo['Tel']}?`
+
+      }
       showModal.value = true
     }
 
-    async function modalResponse(response) {
+    async function modalResponse(response, newLocation) {
       const { id,Tel } = store.state.targetCar
 
       if (Operation.value == 'remove') {
@@ -185,7 +190,7 @@ export default ({
               store.commit('setTargetCar', carData)
             }
           }
-          await RelocateTicket(id, carData, collectionPath.value, 'zakonczone', Tel)
+          await RelocateTicket(id, carData, collectionPath.value, newLocation, Tel)
           document.querySelector('.showElements').removeChild(document.getElementById(id)) // usuwam go z widoku tabeli
         }
       }
@@ -223,7 +228,8 @@ export default ({
       Modal,
       showModal,
       modalResponse,
-      modalMsg
+      modalMsg,
+      Operation
     }
 
   },

@@ -5,7 +5,7 @@
 
         <h1 style="color: red"> {{carDetails[0]}} </h1>
 
-        <div :id="carDetails[0]" style="color: white" >
+        <div :id="title" style="color: white" >
 
           <div>Dodane_Czas: {{ carDetails[1]['Dodane_Czas'] }}</div>
           <div>Marka: {{ carDetails[1]['Marka'] }}</div>

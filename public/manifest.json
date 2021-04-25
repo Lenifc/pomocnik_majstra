@@ -1,8 +1,9 @@
 {
-    "name": "TEST",
-    "short_name": "TEST",
+    "name": "Mechanic Stonks",
+    "short_name": "Karol Mechanik",
     "start_url": "/",
     "display": "standalone",
-    "theme_color": "#ddd",
-    "background_color": "#fff"
+    "theme_color": "#202847",
+    "background_color": "#202847",
+    "orientation": "portrait"
 }
