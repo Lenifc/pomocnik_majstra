@@ -21,7 +21,7 @@
               <td class="details" @click="redirectToDetails(car)" style="cursor: pointer; font-weight: bold">Szczegóły</td>
               <td class="dodane_czas width-110">{{ car['Dodane_Czas'] }}</td>
               <td class="imieKlienta wrap width-200">{{ car['Imie'] }}</td>
-              <td class="numerTelefonu noWrap">{{ car['Tel'] }}</td>
+              <td class="numerTelefonu noWrap bold">{{ car['Tel'] }}</td>
               <td class="marka_model_wersja">{{ `${car['Marka']} ${car['Model']} ${(car['Wersja_Rocznik'] || "")}`}}</td>
               <td class="VIN noWrap">{{ car['VIN'] }}</td>
               <td class="numer_rejestracyjny noWrap">{{ car['Numer_rejestracyjny'] }}</td>
@@ -73,7 +73,7 @@ export default ({
 
     const lastDoc = ref(0)
     const disableNextButton = ref(true)
-    const limit = ref(10)
+    const limit = ref(15)
     const collectionPath = ref(route.path.substring(1))
     const isLoading = ref(true)
     const showModal = ref(false)
@@ -89,7 +89,7 @@ export default ({
     async function getDataFromFirebase() {
       
       const collectionReference = tickets.collection(collectionPath.value).orderBy('timeStamp', 'desc')
-        .limit(limit.value || 10)
+        .limit(limit.value || 20)
 
       let data = await collectionReference.get()
       lastDoc.value = data.docs[data.docs.length - 1]
@@ -174,8 +174,8 @@ export default ({
 
       if (Operation.value == 'remove') {
         if (response == true) {
-          await DeleteFunc(id, collectionPath.value, Tel)
-          document.querySelector('.showElements').removeChild(document.getElementById(id)) // usuwam go z widoku tabeli
+          const confirmDelete = await DeleteFunc(id, collectionPath.value, Tel)
+          if(confirmDelete !== false) document.querySelector('.showElements').removeChild(document.getElementById(id)) // usuwam go z widoku tabeli
         }
         return showModal.value = false
       }
@@ -190,8 +190,9 @@ export default ({
               store.commit('setTargetCar', carData)
             }
           }
-          await RelocateTicket(id, carData, collectionPath.value, newLocation, Tel)
-          document.querySelector('.showElements').removeChild(document.getElementById(id)) // usuwam go z widoku tabeli
+          const confirmDelete = await RelocateTicket(id, carData, collectionPath.value, newLocation, Tel)
+          console.log(confirmDelete);
+         if(confirmDelete !== false) document.querySelector('.showElements').removeChild(document.getElementById(id)) // usuwam go z widoku tabeli
         }
       }
       return showModal.value = false

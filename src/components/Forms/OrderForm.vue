@@ -3,13 +3,22 @@
 
     <div class="closeForm" @click="$router.go(-1)">&times;</div>
 
-    <!-- ZNALEZC JAKIS OGARNIETY VIN DECODER / SPRAWDZIC API CEPIKU -->
-    <!-- YV1RS53K212038671 -->
-    <!-- Podzielic screen na dwa, ponizej dac na prawa strone jaok reczne wypelnianie -->
+    <!-- Po zaladowaniu zrobic zapytanie czy klient obecny czy nowy i doladowac 
+    ClientForm/VehicleForm, a ten znacznie skrocic tylko do danych zlecenia, a reszte pobierze 
+    z tamtych formularzy-->
+    <!-- Prawdopodobnie odczyt danych zwiekszy sie 3x -->
 
     <!-- https://intercars.pl/s/lp-czesci-zamienne/ Uzupelnic Firestore o te kategorie -->
 
-    <form class="newDataForm">
+    <div class="container">
+      <button class="btn">Klient nowy</button>
+      <button class="btn">Klient obecny</button>
+    </div>
+
+    <ClientForm v-if="false"/>
+    <VehicleForm v-if="false"/>
+
+    <!-- <form class="newDataForm">
 
       <div class="row">
         <div class="required column">
@@ -101,7 +110,7 @@
         <button class="btn addData success" @click="validateData($event)">Dodaj</button>
         <button class="btn clearForm failed" @click="clearForm" disabled>Wyczyść formularz</button>
       </div>
-    </form>
+    </form> -->
   </div>
 </template>
 
@@ -116,8 +125,15 @@ import { getTime } from '@/components/getCurrentTime'
 import axios from 'axios'
 import firebase from 'firebase/app'
 
+import ClientForm from '@/components/Forms/ClientForm.vue'
+import VehicleForm from '@/components/Forms/VehicleForm.vue'
+
 
 export default {
+  components:{
+    ClientForm, 
+    VehicleForm
+  },
   setup() {
     const route = useRoute()
     const store = useStore()

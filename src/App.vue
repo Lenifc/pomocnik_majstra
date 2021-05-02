@@ -128,9 +128,14 @@ export default {
             icon: 'fas fa-file-invoice-dollar'
           },
           {
-            title: 'Zarządzaj stanowiskami',
+            href: '/klienci',
+            title: 'Zarządzaj klientami',
+            icon: 'fa fa-user',
+          },
+          {
+            disabled: true,
+            title: 'Zarządzaj pojazdami',
             icon: 'fa fa-car',
-            disabled: true
           },
           {
             component: divider
@@ -287,7 +292,7 @@ td{
 .container{
     margin: 0 auto;
     padding-left: min(100px, 16%);
-    width: min(94%, 1300px);
+    width: min(94%, 1400px);
     display: flex;
     justify-content: center;
 }
@@ -400,6 +405,14 @@ h1:hover{
 .btn.failed{
   background-color: crimson;
   color: white;
+}
+
+.bold{
+  font-weight: bold;
+}
+
+i{
+  cursor: pointer;
 }
 
 

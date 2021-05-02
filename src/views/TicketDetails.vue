@@ -31,7 +31,7 @@
 <script>
 import firebase from 'firebase/app'
 import PopupFunc from '@/components/PopupFunc.js'
-import OrderForm from '@/views/OrderForm.vue'
+import OrderForm from '@/components/Forms/OrderForm.vue'
 import { DeleteFunc } from '@/components/EditMoveDeleteOptions'
   
 import { ref, onMounted, watch } from 'vue'

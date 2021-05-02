@@ -1,68 +1,102 @@
-import firebase from 'firebase/app'
+// import firebase from 'firebase/app'
 import PopupFunc from '@/components/PopupFunc.js'
 import { getTime } from '@/components/getCurrentTime'
-const tickets = firebase.firestore()
-  .collection('warsztat')
-  .doc('zlecenia')
 
 //
 // Usuwanie danych z kolekcji firebase
 //
-export async function DeleteFunc(id, collectionPath, phoneNumber, showIfRelocate) {
-  // console.log(id, collectionPath, phoneNumber);
+export async function DeleteFunc(id, docPath, phoneNumber, target, extraData) {
+  // console.log(id, docPath, phoneNumber);
 
-  const collectionReference = tickets.collection(collectionPath)
-  const docReference = collectionReference.doc(phoneNumber)
+  const docReference = docPath.doc(phoneNumber)
+  let ConfirmDelete
 
   
-  await docReference.get().then(function (doc) {
-    
-    // Jezeli dany numer posiada tylko jeden pojazd to nie ma sensu pozostawiac pustego numeru, wiec usuwam caly dokument
-    if (Object.keys(doc.data()).length - 1 == 1) {
+  await docReference.get().then(function () {
+    if(id == 'client'){
       docReference.delete().then(
-        PopupFunc('success', 'Pomyślnie usunięto zlecenie')
-        ).catch(err => PopupFunc("error", err.message))
-      } else {
-        const timeStamp = getTime()
-        
-        // Jezeli w dokumencie znajduje sie kilka pojazdow to usuwam tylko pole z danym pojazdem
-        docReference.update({
-          [`${id}`]: firebase.firestore.FieldValue.delete(),
-          timeStamp
-        }).then( PopupFunc('success', 'Pomyślnie usunięto zlecenie'))
-        .catch(err => PopupFunc("error", err.message))
-    }
-  }).then(() =>{
-    if(showIfRelocate != 'justRelocate') tickets.update("IloscZlecen", firebase.firestore.FieldValue.increment(-1))
+        PopupFunc('success', 'Klient został usunięty z bazy.')
+        ).catch(err => {
+          PopupFunc("error", err.message)
+          ConfirmDelete = false
+        })
+      .then(() =>{
+    // if(showIfRelocate != 'justRelocate') docPath.update("IloscZlecen", firebase.firestore.FieldValue.increment(-1))
+    ConfirmDelete = true
   })
-  .catch(err => PopupFunc("error", err.message))
+  .catch(err => {
+    PopupFunc("error", err.message)
+    ConfirmDelete = false
+  })
+  return ConfirmDelete
+}
+if(id == 'car'){
+
+  delete extraData[`${target}`]
+
+  extraData['Ostatnia_Aktualizacja'] = getTime()
+
+  docReference.set({...extraData}).then(
+    PopupFunc('success', 'Pojazd został usunięty z bazy')
+    ).catch(err => {
+      PopupFunc("error", err.message)
+      ConfirmDelete = false
+    })
+  .then(() =>{
+// if(showIfRelocate != 'justRelocate') docPath.update("IloscZlecen", firebase.firestore.FieldValue.increment(-1))
+ConfirmDelete = true
+})
+.catch(err => {
+PopupFunc("error", err.message)
+ConfirmDelete = false
+})
+return ConfirmDelete
+}
+return false
+  })
 }
 
-export function RelocateTicket(id, object, currentCollectionPath, newCollectionPath, phoneNumber) {
+// export function RelocateTicket(id, object, currentdocPath, newdocPath, phoneNumber) {
 
-  const collectionReference = tickets.collection(newCollectionPath)
-  const docReference = collectionReference.doc(phoneNumber)
-  const timeStamp = getTime()
+//   const collectionReference = tickets.collection(newdocPath)
+//   const docReference = collectionReference.doc(phoneNumber)
+//   const timeStamp = getTime()
+//   let ConfirmRelocate
 
-  if (currentCollectionPath != newCollectionPath) {
-    docReference.get().then(function (doc) {
-        if (doc.exists) {
-          docReference.update({
-              ...object,
-              timeStamp
-            }).then(PopupFunc('success', `Do danego numeru dodano kolejny pojazd w zakładce ${newCollectionPath}`))
-            .catch(err => PopupFunc("error", err.message))
-        } else {
-          docReference.set({
-              ...object,
-              timeStamp
-            }).then(PopupFunc('success', `Pomyślnie przeniesiono zlecenie do ${newCollectionPath}`))
-            .catch(err => PopupFunc("error", err.message))
-        }
+//   if (currentdocPath != newdocPath) {
+//     docReference.get().then(function (doc) {
+//         if (doc.exists) {
+//           docReference.update({
+//               ...object,
+//               timeStamp
+//             }).then(PopupFunc('success', `Do danego numeru dodano kolejny pojazd w zakładce ${newdocPath}`))
+//             .catch(err => {
+//               PopupFunc("error", err.message)
+//               ConfirmRelocate = false
+//             })
+//         } else {
+//           docReference.set({
+//               ...object,
+//               timeStamp
+//             }).then(PopupFunc('success', `Pomyślnie przeniesiono zlecenie do ${newdocPath}`))
+//             .catch(err => {
+//               PopupFunc("error", err.message)
+//               ConfirmRelocate = false
+//             })
+//         }
 
-      }).then(DeleteFunc(id, currentCollectionPath, phoneNumber, 'justRelocate'))
-      .catch(function (err) {
-        PopupFunc("error", err.message)
-      })
-  } else PopupFunc("info", 'Nie można przenieść zlecenia do dokładnie tej samej lokalizacji...')
-}
+//       }).then( () => {
+//         ConfirmRelocate = true
+//         DeleteFunc(id, currentdocPath, phoneNumber, 'justRelocate')
+//       })
+//       .catch(function (err) {
+//         PopupFunc("error", err.message)
+//         ConfirmRelocate = false
+//       })
+//   } else {
+//     PopupFunc("info", 'Nie można przenieść zlecenia do dokładnie tej samej lokalizacji...')
+//     ConfirmRelocate = false
+// }
+// return ConfirmRelocate
+// }
+//

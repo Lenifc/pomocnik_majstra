@@ -4,18 +4,18 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: () => import(/* webpackChunkName: "about" */ '../views/Home.vue')
+    name: 'Dashboard',
+    component: () => import('@/views/Dashboard.vue')
   },
   {
     path: '/dodaj',
     name: 'CreateTicket',
-    component: () => import('@/views/OrderForm.vue')
+    component: () => import('@/components/Forms/OrderForm.vue')
   },
   {
     path: '/edytuj/:collectionPath/:ticketDetails',
     name: 'EditTicket',
-    component: () => import('@/views/OrderForm.vue')
+    component: () => import('@/components/Forms/OrderForm.vue')
   },
   {
     path: '/wolne',
@@ -40,7 +40,37 @@ const routes = [
   {
     path: '/daneWarsztatu',
     name: 'daneWarsztatu',
-    component: () => import('@/views/daneWarsztatu.vue'),
+    component: () => import('@/views/WorkshopDetails.vue'),
+  },
+  {
+    path: '/klienci',
+    name: 'Zarządzaj klientami',
+    component: () => import('@/views/ShowClients.vue'),
+  },
+  {
+    path: '/klient/:numerTel/edytuj',
+    name: 'Edytuj klienta',
+    component: () => import('@/components/Forms/ClientForm.vue'),
+  },
+  {
+    path: '/klient/dodaj',
+    name: 'Dodaj klienta',
+    component: () => import('@/components/Forms/ClientForm.vue'),
+  },
+  {
+    path: '/pojazdy',
+    name: 'Zarządzaj pojazdami',
+    component: () => import('@/views/ShowClients.vue'),
+  },
+  {
+    path: '/pojazd/dodaj',
+    name: 'Dodaj pojazd',
+    component: () => import('@/components/Forms/VehicleForm.vue'),
+  },
+  {
+    path: '/pojazd/:VIN/edytuj',
+    name: 'Edytuj pojazd',
+    component: () => import('@/components/Forms/VehicleForm.vue'),
   },
 ]
 
