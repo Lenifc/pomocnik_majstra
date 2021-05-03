@@ -48,8 +48,13 @@ const firebaseConfig = {
   messagingSenderId: "413485233738",
   appId: "1:413485233738:web:0209efffbb22a6fab098b3"
 };
-
 firebase.initializeApp(firebaseConfig)
+
+firebase.firestore().settings({
+  cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
+});
+
+firebase.firestore().enablePersistence()
 
 
 export default {
@@ -185,6 +190,10 @@ export default {
       checkAuthStatus()
     })
 
+    window.onerror = function(message, source, lineno, colno, error) {
+  console.log(message, error);
+};
+
     return {
       provider,
       auth,
@@ -275,6 +284,9 @@ td{
 
 .width-110{
   max-width: 110px;
+}
+.width-150{
+  width: 150px;
 }
 .width-200{
   max-width: 200px;

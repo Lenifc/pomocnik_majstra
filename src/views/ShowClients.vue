@@ -2,42 +2,45 @@
   <div class="container column">
     <button class="btn" @click="openClientAddForm()">Dodaj Klienta</button>
 
-    <table class="showElements" v-for="client in recivedClients" :key="client.id" :id="`id${client.Tel}`">
+    <table class="showElements" v-if="recivedClients">
       <tr>
+        <th></th>
         <th></th>
         <th>Imie klienta:</th>
         <th>Numer telefonu:</th>
-        <th :class="{hide: !client.Tel2}">Dodatkowy numer telefonu:</th>
-        <th :class="{hide: !client.Adres}">Adres:</th>
+        <th>Adres:</th>
+        <th>Uwagi:</th>
         <th>Pojazdy:</th>
       </tr>
 
-      <tr :id="`id${client.Tel}`">
-        <td>
+      <tr v-for="(client, index) in recivedClients" :key="client.id" :id="`id${client.Tel}`">
+        <td class="id">{{index+1}}</td>
+        <td class="width-60 buttons-section">
           <i class="fas fa-edit" @click="openClientEditForm(client)"></i>
-          <i class="fas fa-plus"><i class="fas fa-car" @click="openVehicleAddForm(client.Tel)"></i></i>
+          <i class="fas fa-plus" @click="openVehicleAddForm(client.Tel)"><i class="fas fa-car"></i></i>
           <i class="fas fa-trash-alt" @click="openDeleteModal(client, 'removeClient')"></i>
           </td>
         <td class="wrap">{{client.Imie }}</td>
-        <td class="noWrap bold">{{client.Tel }}</td>
-        <td :class="{hide: !client.Tel2}">{{client.Tel2 }}</td>
-        <td :class="{hide: !client.Adres}">{{ client.Adres }}</td>
+        <td class="wrapSpace bold width-140">{{client.Tel }} {{ client.Tel2 ? `(${client.Tel2})` : ''}}</td>
+        <td>{{ client.Adres }}</td>
+        <td class="wrap width-200">{{ client.Opis }}</td>
 
-        <div v-for="car in client" :id="`id${car.VIN}`" :key="car.VIN" class="mainTicketDetails">
-          <div v-if="car.VIN" class="borders">
-            <div>{{ car.Marka }} {{ car.Model }}</div>
-            <div>{{ car.VIN }}</div>
-            <div class="row">
+        <div v-for="car in onlyCars(client)" :id="`id${car.VIN}`" :key="car.VIN" class="borders row align-center">
+          <div v-if="car.VIN" class="row">
+            <div class="left">
+              <div>{{ car.Marka }} {{ car.Model }}</div>
+              <div>{{ car.VIN }}</div>
+            </div>
+            <div class="right row">
               <i class="fas fa-edit" @click="openVehicleEditForm(car)"></i>
               <i class="fas fa-trash-alt" @click="openDeleteModal(client, 'removeCar', car.VIN)"></i>
             </div>
           </div>
-<Modal :message="modalMsg" :operation="Operation" v-if="showModal" @true="(status, newLocation) => modalResponse(status, newLocation || '')" @false="modalResponse(false)" />
-
         </div>
       </tr>
 
     </table>
+        <Modal :message="modalMsg" :operation="Operation" v-if="showModal" @true="(status) => modalResponse(status)" @false="modalResponse(false)" />
 
   </div>
 </template>
@@ -69,19 +72,21 @@ require('firebase/firestore')
      const Operation = ref()
      const DeleteTargetCar = ref()
 
-     const clientPath = firebase.firestore()
+     const MainPath = firebase.firestore()
        .collection('warsztat').doc('Klienci').collection('Numery')
+
+      const clientPath = MainPath.orderBy('Ostatnia_Aktualizacja', 'desc')
+       .limit(30)
 
 
      async function getClientsFromFirebase() {
-       let clientResponse = await clientPath.get()
+       let clientResponse = await clientPath.get({ includeMetadataChanges: true })
 
        recivedClients.value = clientResponse.docs.map(doc => doc.data())
      }
 
      function openClientEditForm(item) {
        store.commit('setTargetClient', item)
-
        Router.push(`/klient/${item.Tel}/edytuj`)
      }
 
@@ -91,13 +96,11 @@ require('firebase/firestore')
 
      function openVehicleEditForm(item) {
        store.commit('setTargetCar', item)
-
        Router.push(`/pojazd/${item.VIN}/edytuj`)
      }
 
      function openVehicleAddForm(Tel){
        store.commit('setNumberForNewVehicle', Tel)
-
        Router.push('/pojazd/dodaj')
      }
 
@@ -111,24 +114,24 @@ require('firebase/firestore')
       showModal.value = true
     }
 
+    function onlyCars(client){
+      return Object.values(client).filter(item => item instanceof Object)
+    }
+
      async function modalResponse(response) {
-      const { Tel } = store.state.clientData
+         const { Tel } = store.state.clientData
 
-      if (Operation.value == 'removeClient') {
-        if (response == true) {
-          const confirmDelete = await DeleteFunc('client', clientPath, Tel)
-          if(confirmDelete !== false) document.querySelector(`#id${Tel}`).remove() // usuwam go z widoku tabeli
-        }
+         if (response == true) {
+           if (Operation.value == 'removeClient') {
+             const confirmDelete = await DeleteFunc('client', MainPath, Tel)
+             if (confirmDelete !== false) document.querySelector(`#id${Tel}`).remove() // usuwam go z widoku tabeli
+           }
+           if (Operation.value == 'removeCar') {
+             const confirmDelete = await DeleteFunc('car', MainPath, Tel, DeleteTargetCar.value, JSON.parse(JSON.stringify(store.state.clientData))) // prosta konwersja proxy do objektu
+             if (confirmDelete !== false) document.querySelector(`#id${DeleteTargetCar.value}`).remove() // usuwam go z widoku tabeli
+           }
+         }
         return showModal.value = false
-      }
-      if(Operation.value == 'removeCar'){
-        if (response == true) {
-          const confirmDelete = await DeleteFunc('car', clientPath, Tel, DeleteTargetCar.value , JSON.parse(JSON.stringify(store.state.clientData)))
-          if(confirmDelete !== false) document.querySelector(`#id${DeleteTargetCar.value}`).remove() // usuwam go z widoku tabeli
-        }
-      }
-
-      return showModal.value = false
     }
 
      onMounted(() => getClientsFromFirebase())
@@ -146,7 +149,9 @@ require('firebase/firestore')
        openDeleteModal,
        Operation,
        openVehicleAddForm,
-       openClientAddForm
+       openClientAddForm,
+
+       onlyCars
      }
 
    }
@@ -154,6 +159,14 @@ require('firebase/firestore')
 </script>
 
 <style scoped>
+table{
+  width: fit-content;
+  height: fit-content;
+}
+
+.buttons-section{
+  padding: 8px 0;
+}
 
 .borders{
   border-right: 3px solid green;
@@ -175,28 +188,60 @@ require('firebase/firestore')
   content: '';
   position: absolute;
   bottom: -2px;
-  left: 0px;
+  left: -2px;
   width: 101%;
   height: 3px;
   background-color: green;
-
-
-}
-
-.hide{
-  display: none;
 }
 
 .fa-plus{
   font-size: 0.85rem!important;
-  padding: 10px 0;
+  padding: 12px 0;
   display: flex;
-  justify-content: center;
   align-items: center;
+  margin-left: 50%;
+  transform: translateX(-50%)
 }
 
-
-table{
-  margin: 12px 0;
+i{
+  width: fit-content;
+  font-size: 1.66rem;
 }
+.left,
+.right{
+  padding: 8px 0;
+}
+
+.left{
+  border: 2px solid yellow;
+  width: 150%;
+}
+
+.right.row{
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0;
+}
+
+.width-60{
+  width: 60px;
+}
+.width-140{
+  width: 140px;
+  min-width: 130px;
+  max-width: 140px;
+}
+.width-200{
+  width: 200px;
+}
+
+.align-center{
+  align-items: center;
+  width: 100%;
+}
+
+tr:nth-child(even){
+  background-color: #444;
+}
+
 </style>

@@ -16,7 +16,7 @@
       <div class="extraInformation column">
         <h2>Dodatkowe informacje: </h2>
         <label for="phoneNum2">Dodatkowy numer telefonu::</label><input name="phoneNum2" type="text"
-          v-model="phoneNum2">
+          v-model="phoneNum2" maxlength="12">
         <label for="address">Adres:</label><input name="address" type="text" v-model="address">
 
         <textarea name="client_description" cols="50" rows="10" placeholder="Dodatkowe informacje"
@@ -113,6 +113,9 @@ export default {
 
       docReference.get().then(function (doc) {
         if (doc.exists) {
+          if(route.path.indexOf('edytuj') <= 0) {
+            return PopupFunc('error', 'Klient o podanym numerze już istnieje!')
+            }
           docReference.update({
               ...preparedData
             }).then(() => PopupFunc('success', `Zaaktualizowano klienta o podanym numerze telefonu: \n${Tel}`))

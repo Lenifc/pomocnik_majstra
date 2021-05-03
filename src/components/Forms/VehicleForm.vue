@@ -186,16 +186,26 @@ export default {
       versions.value = data?.data?.options
     }
 
+    function validPhoneNum(number) {
+      let temp = number.replace(/[^0-9]+/g, '');
+      if (temp.length == 9) {
+        return phoneNum.value = temp.slice(0, 3) + "-" + temp.slice(3, 6) + "-" + temp.slice(6, 9);
+      }
+      if (temp.length == 7) {
+        return phoneNum.value = temp.slice(0, 3) + "-" + temp.slice(3, 5) + "-" + temp.slice(5, 8);
+      } else return false
+    }
+
     function validateData(e) {
       e.preventDefault()
 
       let convertedMileage = mileage.value ? mileage.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") : ''
 
-      if (phoneNum.value && selectedBrand.value) {
+      if (validPhoneNum(phoneNum.value) && selectedBrand.value) {
 
         let preparedData = []
         let timeStamp = getTime()
-        let ID = store.state.targetCar['Tel'] == phoneNum.value ? store.state.targetCar['id'] : Date.now()
+        let ID = (store.state.targetCar && store.state?.targetCar['Tel']) == phoneNum.value ? store.state.targetCar['id'] : Date.now()
         if (selectedModel.value == null || VIN.value == null) {
           PopupFunc('error', 'Uzupełnij brakujące informacje')
           return
@@ -221,7 +231,7 @@ export default {
           Przebieg: convertedMileage || "",
 
           Opis: description.value || "",
-          Ostatnia_Aktualizacja: store.state.targetCar['Ostatnia_Aktualizacja'] || timeStamp,
+          Ostatnia_Aktualizacja: (store.state.targetCar && store.state.targetCar['Ostatnia_Aktualizacja']) || timeStamp,
 
         }
         sendDataToFirebase(preparedData)
