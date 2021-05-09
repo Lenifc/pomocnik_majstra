@@ -99,6 +99,7 @@ import { useStore } from 'vuex'
 
 import PopupFunc from '@/components/PopupFunc.js'
 import { getTime } from '@/components/getCurrentTime'
+import validPhoneNum from '@/components/validPhoneNum.js'
 
 import axios from 'axios'
 import firebase from 'firebase/app'
@@ -186,16 +187,6 @@ export default {
       versions.value = data?.data?.options
     }
 
-    function validPhoneNum(number) {
-      let temp = number.replace(/[^0-9]+/g, '');
-      if (temp.length == 9) {
-        return phoneNum.value = temp.slice(0, 3) + "-" + temp.slice(3, 6) + "-" + temp.slice(6, 9);
-      }
-      if (temp.length == 7) {
-        return phoneNum.value = temp.slice(0, 3) + "-" + temp.slice(3, 5) + "-" + temp.slice(5, 8);
-      } else return false
-    }
-
     function validateData(e) {
       e.preventDefault()
 
@@ -217,7 +208,7 @@ export default {
         preparedData[VIN.value.toUpperCase().trim()] = {
           id: ID,
 
-          Tel: phoneNum.value,
+          Tel: validPhoneNum(phoneNum.value),
           Marka: betterLooking(selectedBrand.value),
           Model: selectedModel.value,
           Wersja_Rocznik: selectedVersion.value,

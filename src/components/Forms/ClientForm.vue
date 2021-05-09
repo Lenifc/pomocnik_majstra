@@ -43,6 +43,7 @@ import { useStore } from 'vuex'
 
 import PopupFunc from '@/components/PopupFunc.js'
 import { getTime } from '@/components/getCurrentTime'
+import validPhoneNum from '@/components/validPhoneNum.js'
 
 import firebase from 'firebase/app'
 
@@ -64,17 +65,6 @@ export default {
       .collection('warsztat')
       .doc('Klienci')
 
-
-    function validPhoneNum(number) {
-      let temp = number.replace(/[^0-9]+/g, '');
-      if (temp.length == 9) {
-        return phoneNum.value = temp.slice(0, 3) + "-" + temp.slice(3, 6) + "-" + temp.slice(6, 9);
-      }
-      if (temp.length == 7) {
-        return phoneNum.value = temp.slice(0, 3) + "-" + temp.slice(3, 5) + "-" + temp.slice(5, 8);
-      } else return false
-    }
-
     function validateData(e) {
       e.preventDefault()
 
@@ -91,7 +81,7 @@ export default {
         preparedData = {
           id: ID,
 
-          Tel: phoneNum.value,
+          Tel: validPhoneNum(phoneNum.value),
           Tel2: phoneNum2.value || "",
           Imie: clientName.value,
           Adres: address.value,

@@ -38,7 +38,7 @@
         </tr>
       </table>
         <button class="btn"
-          @click="getMoreData" v-if="!disableNextButton">Załaduj kolejne zlecenia</button>
+          @click="getDataFromFirebase('more')" v-if="!disableNextButton">Załaduj kolejne zlecenia</button>
         <img class="loader" src="@/assets/spinner.gif" v-if="isLoading">
           <transition name="modal">
             <Modal :message="modalMsg" :operation="Operation" v-if="showModal" @true="(status, newLocation) => modalResponse(status, newLocation || '')" @false="modalResponse(false)" />
@@ -73,7 +73,7 @@ export default ({
 
     const lastDoc = ref(0)
     const disableNextButton = ref(true)
-    const limit = ref(15)
+    const limit = ref(20)
     const collectionPath = ref(route.path.substring(1))
     const isLoading = ref(true)
     const showModal = ref(false)
@@ -86,7 +86,8 @@ export default ({
       .doc('zlecenia')
 
 
-    async function getDataFromFirebase() {
+    async function getDataFromFirebase(req) {
+      if(req == 'more') limit.value += 20
       
       const collectionReference = tickets.collection(collectionPath.value).orderBy('timeStamp', 'desc')
         .limit(limit.value || 20)
@@ -106,34 +107,6 @@ export default ({
       if (data.docs.length < limit.value) {
         disableNextButton.value = true
         PopupFunc('warning', 'Wczytano już wszystkie zlecenia.')
-      }
-    }
-
-    async function getMoreData() {
-
-      const collectionReference = tickets.collection(collectionPath.value).orderBy('timeStamp', 'desc')
-        .startAfter(lastDoc.value || 0)
-        .limit(limit.value || 10)
-
-      let data = await collectionReference.get()
-      lastDoc.value = data.docs[data.docs.length - 1]
-      console.log("Ilosc doladowanych zlecen: " + data.docs.length)
-
-      if (!data.docs.length) {
-        disableNextButton.value = true
-        PopupFunc('warning', 'Wczytano już wszystkie zlecenia.')
-      } else {
-
-        recivedItems.value.push(...data.docs.map(doc => Object.entries(doc.data()).filter(item => item[0] != 'timeStamp')))
-        recivedItems.value = _.flattenDeep(recivedItems.value)
-        store.commit('setFetchedItems', recivedItems.value)
-
-        allCars.value = recivedItems.value.filter(item => item instanceof Object ? item : '')
-
-        if (data.docs.length < limit.value) {
-          disableNextButton.value = true
-          PopupFunc('warning', 'Wczytano już wszystkie zlecenia.')
-        }
       }
     }
 
@@ -201,10 +174,12 @@ export default ({
 
     onMounted(() => {
       collectionPath.value = route.path.substring(1)
+      limit.value = 20
       getDataFromFirebase()
     })
 
     watch(() => route.path, () => {
+      limit.value = 20
       // console.log(route.path)
       if (route.path == '/obecne' || route.path == '/wolne' || route.path == '/zakonczone') {
         collectionPath.value = route.path.substring(1)
@@ -214,7 +189,7 @@ export default ({
 
 
     return {
-      getMoreData,
+      getDataFromFirebase,
 
       recivedItems,
       disableNextButton,

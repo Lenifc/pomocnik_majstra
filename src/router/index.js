@@ -72,6 +72,11 @@ const routes = [
     name: 'Edytuj pojazd',
     component: () => import('@/components/Forms/VehicleForm.vue'),
   },
+  {
+    path: '/szukaj',
+    name: 'Szukaj',
+    component: () => import('@/components/Forms/SearchForm.vue'),
+  },
 ]
 
 const router = createRouter({

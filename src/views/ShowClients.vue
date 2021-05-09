@@ -4,42 +4,49 @@
 
     <table class="showElements" v-if="recivedClients">
       <tr>
-        <th></th>
+        <th class="hideUnder900"></th>
         <th></th>
         <th>Imie klienta:</th>
         <th>Numer telefonu:</th>
-        <th>Adres:</th>
-        <th>Uwagi:</th>
+        <th class="hideUnder1340">Adres:</th>
+        <th class="hideUnder1100">Uwagi:</th>
         <th>Pojazdy:</th>
       </tr>
 
       <tr v-for="(client, index) in recivedClients" :key="client.id" :id="`id${client.Tel}`">
-        <td class="id">{{index+1}}</td>
-        <td class="width-60 buttons-section">
+        <td class="id hideUnder900">{{index+1}}</td>
+        <td class="buttons-section width-42">
+          <i class="fas fa-info"></i>
           <i class="fas fa-edit" @click="openClientEditForm(client)"></i>
           <i class="fas fa-plus" @click="openVehicleAddForm(client.Tel)"><i class="fas fa-car"></i></i>
           <i class="fas fa-trash-alt" @click="openDeleteModal(client, 'removeClient')"></i>
           </td>
         <td class="wrap">{{client.Imie }}</td>
         <td class="wrapSpace bold width-140">{{client.Tel }} {{ client.Tel2 ? `(${client.Tel2})` : ''}}</td>
-        <td>{{ client.Adres }}</td>
-        <td class="wrap width-200">{{ client.Opis }}</td>
+        <td class="hideUnder1340">{{ client.Adres }}</td>
+        <td class="wrap width-280 hideUnder1100">{{ client.Opis }}</td>
 
-        <div v-for="car in onlyCars(client)" :id="`id${car.VIN}`" :key="car.VIN" class="borders row align-center">
-          <div v-if="car.VIN" class="row">
-            <div class="left">
-              <div>{{ car.Marka }} {{ car.Model }}</div>
-              <div>{{ car.VIN }}</div>
-            </div>
-            <div class="right row">
-              <i class="fas fa-edit" @click="openVehicleEditForm(car)"></i>
-              <i class="fas fa-trash-alt" @click="openDeleteModal(client, 'removeCar', car.VIN)"></i>
+        <div class="borders width-300">
+          <div v-for="car in onlyCars(client)" :id="`id${car.VIN}`" :key="car.VIN">
+            <div v-if="car.VIN" class="row">
+              <div class="left column">
+                <div>{{ car.Marka }} {{ car.Model }}</div>
+                <div>{{ car.VIN }}</div>
+              </div>
+              <div class="right row">
+                <i class="fas fa-info"></i>
+                <i class="fas fa-edit" @click="openVehicleEditForm(car)"></i>
+                <i class="fas fa-trash-alt" @click="openDeleteModal(client, 'removeCar', car.VIN)"></i>
+              </div>
             </div>
           </div>
         </div>
+        
       </tr>
 
     </table>
+    <button class="btn"
+          @click="getClientsFromFirebase('more')" v-if="!disableNextButton">Załaduj więcej klientów</button>
         <Modal :message="modalMsg" :operation="Operation" v-if="showModal" @true="(status) => modalResponse(status)" @false="modalResponse(false)" />
 
   </div>
@@ -50,6 +57,7 @@ import firebase from 'firebase/app'
 import { onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
+import PopupFunc from '@/components/PopupFunc'
 
 import Modal from '@/components/Modal.vue'
 
@@ -71,18 +79,36 @@ require('firebase/firestore')
      const modalMsg = ref('')
      const Operation = ref()
      const DeleteTargetCar = ref()
+     const limit = ref(30) // sprawdzic pozniej dla 40 jak to smiga
+     const lastDoc = ref(0)
+     const disableNextButton = ref(true)
 
      const MainPath = firebase.firestore()
        .collection('warsztat').doc('Klienci').collection('Numery')
 
-      const clientPath = MainPath.orderBy('Ostatnia_Aktualizacja', 'desc')
-       .limit(30)
+     async function getClientsFromFirebase(req) {
+       if(req == 'more') limit.value += 30
 
+      const clientPath = MainPath
+      .orderBy("Ostatnia_Aktualizacja", "desc") // jak ujebie orderBy to doladowanie smiga i domyslnie sortuje po numerze tel.
+       .limit(limit.value)
 
-     async function getClientsFromFirebase() {
-       let clientResponse = await clientPath.get({ includeMetadataChanges: true })
+       let clientResponse = await clientPath.get()
+
+       lastDoc.value = clientResponse.docs[clientResponse.docs.length - 1]
+
+       if (!clientResponse.docs.length) {
+        disableNextButton.value = true
+        PopupFunc('warning', 'Wczytano już wszystkich klientów.')
+       }
 
        recivedClients.value = clientResponse.docs.map(doc => doc.data())
+
+      disableNextButton.value = false
+        if (clientResponse.docs.length < limit.value) {
+          disableNextButton.value = true
+          PopupFunc('warning', 'Wczytano już wszystkich klientów.')
+        }
      }
 
      function openClientEditForm(item) {
@@ -134,7 +160,11 @@ require('firebase/firestore')
         return showModal.value = false
     }
 
-     onMounted(() => getClientsFromFirebase())
+     onMounted(() => {
+       getClientsFromFirebase()
+        limit.value = 30 
+     })
+
      return {
 
        recivedClients,
@@ -151,7 +181,9 @@ require('firebase/firestore')
        openVehicleAddForm,
        openClientAddForm,
 
-       onlyCars
+       onlyCars,
+       getClientsFromFirebase,
+       disableNextButton
      }
 
    }
@@ -167,12 +199,17 @@ table{
 .buttons-section{
   padding: 8px 0;
 }
+.buttons-section i{
+  padding: 4px 0;
+}
 
 .borders{
   border-right: 3px solid green;
   height: 100%;
   padding: 6px 4px;
   position: relative;
+  display: grid;
+  align-items: center;
 }
 
 .borders::after{
@@ -181,17 +218,22 @@ table{
   top: -1px;
   left: 0px;
   width: 100%;
-  height: 2px;
+  height: 3px;
   background-color: green; 
 }
 .borders::before{
   content: '';
   position: absolute;
-  bottom: -2px;
-  left: -2px;
+  bottom: -1px;
+  left: -1px;
   width: 101%;
-  height: 3px;
+  height: 2px;
   background-color: green;
+}
+
+.row{
+  gap: 10px;
+  width: 100%;
 }
 
 .fa-plus{
@@ -212,9 +254,9 @@ i{
   padding: 8px 0;
 }
 
-.left{
-  border: 2px solid yellow;
-  width: 150%;
+.left.column{
+  width: fit-content;
+  padding-left: 4px;
 }
 
 .right.row{
@@ -223,25 +265,27 @@ i{
   padding: 0;
 }
 
-.width-60{
-  width: 60px;
+.width-50{
+  width: 50px;
 }
 .width-140{
   width: 140px;
   min-width: 130px;
-  max-width: 140px;
 }
-.width-200{
-  width: 200px;
+.width-280{
+  min-width: 200px;
+  width: 280px;
 }
 
-.align-center{
-  align-items: center;
-  width: 100%;
+.width-300{
+  max-width: 300px;
+}
+
+.width-42{
+  width: 42px;
 }
 
 tr:nth-child(even){
   background-color: #444;
 }
-
 </style>

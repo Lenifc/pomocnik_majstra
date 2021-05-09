@@ -54,7 +54,7 @@ firebase.firestore().settings({
   cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
 });
 
-firebase.firestore().enablePersistence()
+firebase.firestore().enablePersistence() // daje dostep do danych w trybie offline poprzez cache
 
 
 export default {
@@ -110,10 +110,9 @@ export default {
             component: divider
           },
           {
-            // href: '/szukaj',
-            title: 'Szukaj numer telefonu',
+            href: '/szukaj',
+            title: 'Szukaj pojazd/klienta',
             icon: 'fa fa-search',
-            disabled: true
           },
           {
             component: divider
@@ -155,7 +154,9 @@ export default {
 
     // Log in with Google auth 
     function logInToAccount() {
-      auth.signInWithPopup(provider).then(() => checkAuthStatus()).catch((error) => {
+      auth.signInWithPopup(provider).then(() => {
+        checkAuthStatus()
+        }).catch((error) => {
         PopupFunc('error', error.message)
       })
     }
@@ -164,6 +165,8 @@ export default {
       auth.signOut().then(() => {
         checkAuthStatus()
         PopupFunc('info', 'Zostałeś wylogowany.')
+        indexedDB.deleteDatabase('firebaseLocalStorageDb');
+        indexedDB.deleteDatabase('firestore/[DEFAULT]/baza-mech/main');
       }).catch((error) => {
         PopupFunc('error', error.message)
       })
@@ -233,7 +236,7 @@ export default {
 }
 
 body{
-    font-size: 18px;
+    font-size: 17px;
     background-color: #202847;
     color: white;
     position: relative;
@@ -245,7 +248,8 @@ i{
 }
 
 table{
-  width: min(1500px, 100%);
+  width: min(1400px, fit-content);
+  max-width: 100%;
   border-collapse: collapse;
 }
 
@@ -303,7 +307,7 @@ td{
 
 .container{
     margin: 0 auto;
-    padding-left: min(100px, 16%);
+    padding-left: min(60px, 10%);
     width: min(94%, 1400px);
     display: flex;
     justify-content: center;
@@ -398,15 +402,12 @@ h1:hover{
   flex-direction: column;
   align-items: center;
   width: 100%;
-  border: 2px solid red;
 }
 
 .row{
   display: flex;
   flex-direction: row;
   justify-content: center;
-  gap: 24px;
-  width: 90%;
 }
 
 .btn.success{
@@ -428,11 +429,31 @@ i{
 }
 
 
-@media (max-width: 1400px) {
-  
+@media(max-width: 1230px){ 
+  /* media bierze chyba viewport containera, a nie window... */
+  .hideUnder1340{
+    display: none;
+  }
 }
 
-@media (max-width: 1050px) {
-  
+@media (max-width: 1010px) {
+  .hideUnder1100{
+    display: none;
+  }
+  .container{
+    padding-left: 45px;
+}
+}
+
+@media (max-width: 805px) {
+  .hideUnder900{
+    display: none;
+  }
+  .container{
+    padding-left: 5%;
+}
+
+/* PONIZEJ 720 DAC POJAZDY DO NOWEJ LINI */
+/* ALBO PODMIENIC 3 IKONKI NA JEDNA Z 3KROPKAMI OZNACZAJACA WIECEJ OPCJI  */
 }
 </style>
