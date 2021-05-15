@@ -100,6 +100,7 @@ import { useStore } from 'vuex'
 import PopupFunc from '@/components/PopupFunc.js'
 import { getTime } from '@/components/getCurrentTime'
 import validPhoneNum from '@/components/validPhoneNum.js'
+import validateVIN from '@/components/validateVIN.js'
 
 import axios from 'axios'
 import firebase from 'firebase/app'
@@ -201,11 +202,12 @@ export default {
           PopupFunc('error', 'Uzupełnij brakujące informacje')
           return
         }
-        if (VIN.value.length < 16 || VIN.value.length > 17) {
+        let VIN_Number = validateVIN(VIN.value)
+        if (!VIN_Number) {
           PopupFunc('error', 'Numer VIN nieprawidłowy')
           return
         }
-        preparedData[VIN.value.toUpperCase().trim()] = {
+        preparedData[VIN_Number] = {
           id: ID,
 
           Tel: validPhoneNum(phoneNum.value),
@@ -218,7 +220,7 @@ export default {
           SkrzyniaBiegow: selectedTransmission.value || '',
           Naped: selectedDriveTrain.value || '',
           Numer_rejestracyjny: numberPlates.value ? numberPlates.value.toUpperCase() : "",
-          VIN: VIN.value.toUpperCase().trim(),
+          VIN: VIN_Number,
           Przebieg: convertedMileage || "",
 
           Opis: description.value || "",
@@ -248,7 +250,7 @@ export default {
           }
 
           docReference.update({
-              ...preparedData
+              ...preparedData, Ostatnia_Aktualizacja: getTime()
             }).then(() => PopupFunc('success', `Dodano nowy pojazd do numeru telefonu: ${Tel}`))
             .catch(err => PopupFunc("error", err.message))
         }
@@ -321,7 +323,6 @@ export default {
       value = temp.replace(' ', '-')
       return value
     }
-
 
     function replaceSpaces(value) {
       value = value.replace(" ", "-")

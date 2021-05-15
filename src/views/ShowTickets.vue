@@ -147,7 +147,8 @@ export default ({
 
       if (Operation.value == 'remove') {
         if (response == true) {
-          const confirmDelete = await DeleteFunc(id, collectionPath.value, Tel)
+          const currentPath = tickets.collection(collectionPath.value)
+          const confirmDelete = await DeleteFunc('ticket', currentPath, Tel)
           if(confirmDelete !== false) document.querySelector('.showElements').removeChild(document.getElementById(id)) // usuwam go z widoku tabeli
         }
         return showModal.value = false
@@ -163,8 +164,7 @@ export default ({
               store.commit('setTargetCar', carData)
             }
           }
-          const confirmDelete = await RelocateTicket(id, carData, collectionPath.value, newLocation, Tel)
-          console.log(confirmDelete);
+          const confirmDelete = await RelocateTicket('ticket', carData, tickets, collectionPath.value, newLocation, Tel)
          if(confirmDelete !== false) document.querySelector('.showElements').removeChild(document.getElementById(id)) // usuwam go z widoku tabeli
         }
       }

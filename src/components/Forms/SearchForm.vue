@@ -57,6 +57,8 @@ function validSearchData() {
 }
 
     async function searchInFirestore(searchData, searchType) {
+      outputData.value = ""
+
       if (searchType == 'VIN') {
         const clients = firebase.firestore()
           .collection('warsztat')
@@ -88,7 +90,9 @@ function validSearchData() {
         searchNumber,
         searchVIN,
         validSearchData,
-        outputData
+        outputData,
+
+        searchInFirestore
     }
 }
 }

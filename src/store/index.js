@@ -7,7 +7,8 @@ export default createStore({
     targetCar: null,
     targetClient: null,
     clientData: null,
-    numberForNewVehicle: null
+    numberForNewVehicle: null,
+    selectedCarForTicket: null
 
   },
   mutations: {
@@ -30,6 +31,10 @@ export default createStore({
     },
     setNumberForNewVehicle(state, data){
       state.numberForNewVehicle = data
+    },
+    setSelectedCarForTicket(state, data){
+      state.selectedCarForTicket = data
+      console.log(data);
     }
   },
   actions: {

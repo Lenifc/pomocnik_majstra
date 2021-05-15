@@ -1,29 +1,19 @@
 <template>
   <div class="container column">
-    <button class="btn" @click="openClientAddForm()">Dodaj Klienta</button>
+    <input type="text" class="filterCars" placeholder="Znajdź klienta/pojazd">
 
     <table class="showElements" v-if="recivedClients">
       <tr>
-        <th class="hideUnder900"></th>
         <th></th>
         <th>Imie klienta:</th>
         <th>Numer telefonu:</th>
-        <th class="hideUnder1340">Adres:</th>
-        <th class="hideUnder1100">Uwagi:</th>
-        <th>Pojazdy:</th>
+        <th>Wybierz Pojazd:</th>
       </tr>
 
       <tr v-for="(client, index) in recivedClients" :key="client.id" :id="`id${client.Tel}`">
         <td class="id hideUnder900">{{index+1}}</td>
-        <td class="buttons-section width-42">
-          <i class="fas fa-edit" @click="openClientEditForm(client)"></i>
-          <i class="fas fa-plus" @click="openVehicleAddForm(client.Tel)"><i class="fas fa-car"></i></i>
-          <i class="fas fa-trash-alt" @click="openDeleteModal(client, 'removeClient')"></i>
-          </td>
         <td class="wrap">{{client.Imie }}</td>
         <td class="wrapSpace bold width-140">{{client.Tel }} {{ client.Tel2 ? `(${client.Tel2})` : ''}}</td>
-        <td class="hideUnder1340">{{ client.Adres }}</td>
-        <td class="wrap width-280 hideUnder1100">{{ client.Opis }}</td>
 
         <div class="borders width-300">
           <div v-for="car in onlyCars(client)" :id="`id${car.VIN}`" :key="car.VIN">
@@ -33,9 +23,8 @@
                 <div>{{ car.VIN }}</div>
               </div>
               <div class="right row">
-                <router-link :to="`/details/${car.VIN}`"><i class="fas fa-info"></i></router-link>
-                <i class="fas fa-edit" @click="openVehicleEditForm(car)"></i>
-                <i class="fas fa-trash-alt" @click="openDeleteModal(client, 'removeCar', car.VIN)"></i>
+                <button class="btn submit" v-if="selectedCar?.[0] == car" @click="$emit('openClientModal', 'false')">Zatwierdź</button>
+                <input type="radio" name="select" v-model="selectedCar" :value="[car, client]">
               </div>
             </div>
           </div>
@@ -46,41 +35,29 @@
     </table>
     <button class="btn"
           @click="getClientsFromFirebase('more')" v-if="!disableNextButton">Załaduj więcej klientów</button>
-        <Modal :message="modalMsg" :operation="Operation" v-if="showModal" @true="(status) => modalResponse(status)" @false="modalResponse(false)" />
-
   </div>
 </template>
 
 <script>
 import firebase from 'firebase/app'
-import { onMounted, ref } from 'vue'
-import { useStore } from 'vuex'
-import { useRouter } from 'vue-router'
+import { onMounted, ref, watch } from 'vue'
 import PopupFunc from '@/components/PopupFunc'
+import { useStore } from 'vuex'
 
-import Modal from '@/components/Modal.vue'
-
-import { DeleteFunc } from '@/components/EditMoveDeleteOptions.js'
 
 require('firebase/firestore')
 
  export default {
-   components:{
-     Modal
-   },
+   emits:['openClientModal'],
    setup() {
+     
      const store = useStore()
-     const Router = useRouter()
 
      const recivedClients = ref()
-     const recivedVehicles = ref()
-     const showModal = ref(false)
-     const modalMsg = ref('')
-     const Operation = ref()
-     const DeleteTargetCar = ref()
-     const limit = ref(30) // sprawdzic pozniej dla 40 jak to smiga
+     const limit = ref(20) // sprawdzic pozniej dla 40 jak to smiga
      const lastDoc = ref(0)
      const disableNextButton = ref(true)
+     const selectedCar = ref()
 
      const MainPath = firebase.firestore()
        .collection('warsztat').doc('Klienci').collection('Numery')
@@ -110,79 +87,25 @@ require('firebase/firestore')
         }
      }
 
-     function openClientEditForm(item) {
-       store.commit('setTargetClient', item)
-       Router.push(`/klient/${item.Tel}/edytuj`)
-     }
-
-     function openClientAddForm(){
-       Router.push(`/klient/dodaj`)
-     }
-
-     function openVehicleEditForm(item) {
-       store.commit('setTargetCar', item)
-       Router.push(`/pojazd/${item.VIN}/edytuj`)
-     }
-
-     function openVehicleAddForm(Tel){
-       store.commit('setNumberForNewVehicle', Tel)
-       Router.push('/pojazd/dodaj')
-     }
-
-
-    function openDeleteModal(data, operation, target) {
-      Operation.value = operation
-      DeleteTargetCar.value = target
-      store.commit('setClientData', data)
-      if (operation == 'removeClient') modalMsg.value = `Czy na pewno chcesz usunąć klienta o numerze ${data['Tel']}?`
-      if (operation == 'removeCar') modalMsg.value = `Czy na pewno chcesz usunąć pojazd klienta ${data.Tel}\n o numerze VIN: ${target}?`
-      showModal.value = true
-    }
-
     function onlyCars(client){
       return Object.values(client).filter(item => item instanceof Object)
     }
 
-     async function modalResponse(response) {
-         const { Tel } = store.state.clientData
-
-         if (response == true) {
-           if (Operation.value == 'removeClient') {
-             const confirmDelete = await DeleteFunc('client', MainPath, Tel)
-             if (confirmDelete !== false) document.querySelector(`#id${Tel}`).remove() // usuwam go z widoku tabeli
-           }
-           if (Operation.value == 'removeCar') {
-             const confirmDelete = await DeleteFunc('car', MainPath, Tel, DeleteTargetCar.value, JSON.parse(JSON.stringify(store.state.clientData))) // prosta konwersja proxy do objektu
-             if (confirmDelete !== false) document.querySelector(`#id${DeleteTargetCar.value}`).remove() // usuwam go z widoku tabeli
-           }
-         }
-        return showModal.value = false
-    }
-
      onMounted(() => {
        getClientsFromFirebase()
-        limit.value = 30 
      })
+
+     watch(() => selectedCar.value, () => store.commit('setSelectedCarForTicket', selectedCar.value))
 
      return {
 
        recivedClients,
-       recivedVehicles,
-
-       openClientEditForm,
-       openVehicleEditForm,
-
-       showModal,
-       modalMsg,
-       modalResponse,
-       openDeleteModal,
-       Operation,
-       openVehicleAddForm,
-       openClientAddForm,
 
        onlyCars,
        getClientsFromFirebase,
-       disableNextButton
+       disableNextButton,
+
+       selectedCar
      }
 
    }
