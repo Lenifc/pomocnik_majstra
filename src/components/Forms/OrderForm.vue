@@ -8,7 +8,8 @@
 
     <form class="newDataForm" v-if="!openClientsModal">
       <button class="btn" @click="openAvailableClients($event)">Wybierz klienta</button>
-      <div class="selectedClient" v-if="selectedCar">
+      <div v-if="selectedCar" class="newDataForm">
+      <div class="selectedClient">
         <h3>Aktualnie wybrano:</h3>
         <p>Pojazd: </p>
         {{ `${selectedCar.Marka} ${selectedCar.Model} ${selectedCar.VIN}`}}
@@ -18,28 +19,7 @@
 
       <textarea name="description" cols="50" rows="10" placeholder="Opis usterki" v-model="description"></textarea>
 
-      <ul class="workOrder">
-        <li class="workOrderItem row align-center">
-          <div class="column">
-            <label for="">Towar / usługa</label>
-            <input type="text">
-          </div>
-          <div class="column">
-            <label for="">Ilość</label>
-            <input type="number">
-          </div>
-          <div class="column">
-            <label for="">Cena [zł]</label>
-            <input type="number">
-          </div>
-          <div class="column">
-            <label for="">VAT</label>
-            <input type="text" value="23%">
-          </div>
-        </li>
-      </ul>
-      <div><i class="fa fa-plus"></i></div>
-      <div class="totalCost">Łącznie: {{ 0 }} PLN</div>
+      <WorkOrderForm @WOItems="(data) => setWOItems(data)" />
 
       <p>Dodaj zlecenie jako:</p>
       <div>
@@ -55,6 +35,7 @@
         <button class="btn addData success" @click="validateData($event)">Dodaj</button>
         <button class="btn clearForm failed" @click="clearForm($event)">Wyczyść formularz</button>
       </div>
+      </div>
     </form>
   </div>
 </template>
@@ -64,6 +45,7 @@ import { onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
  
 import MINIShowClients from '@/views/MINIShowClients'
+import WorkOrderForm from '@/components/Forms/WorkOrderForm.vue'
 
 import PopupFunc from '@/components/PopupFunc.js'
 import { getTime } from '@/components/getCurrentTime'
@@ -72,7 +54,8 @@ import firebase from 'firebase/app'
 
 export default {
   components:{
-    MINIShowClients
+    MINIShowClients,
+    WorkOrderForm
   },
   setup() {
     
@@ -83,6 +66,7 @@ export default {
     const selectedCar = ref()
     const clientPhoneNum = ref()
     const clientName = ref()
+    const WOItems = ref([])
 
     const picked = ref('wolne')
 
@@ -134,20 +118,17 @@ export default {
 
 
           Opis: description.value || "",
-          Wykonane_uslugi_czesci: [],
+          Wykonane_uslugi_czesci: WOItems.value,
           Koszt: 0,
           Dodane_Czas: store.state.targetCar?.['Dodane_Czas'] || timeStamp,
           Zakonczone_Czas: '',
         }
         let pick = picked.value
-        // console.log(preparedData);
+
         sendDataToFirebase(preparedData, pick)
     }
-    
-
 
     function sendDataToFirebase(preparedData, picked) {
-      console.log("UZUPELNIC");
       let Tel = Object.values(preparedData)[0].Tel
       let timeStamp = Object.values(preparedData)[0]['Dodane_Czas']
 
@@ -179,6 +160,9 @@ export default {
       })
     }
 
+    function setWOItems(data){
+      WOItems.value = data
+    }
 
     function clearForm(e) {
       e?.preventDefault()
@@ -189,7 +173,6 @@ export default {
       description.value = ''
       store.commit('setSelectedCarForTicket', '')
     }
-
 
     onMounted(() => {
       if(store.state.selectedCarForTicket) {
@@ -210,7 +193,9 @@ export default {
       setAllData,
       clientPhoneNum,
       selectedCar,
-      clientName
+      clientName,
+      WOItems,
+      setWOItems
     }
   }
 }

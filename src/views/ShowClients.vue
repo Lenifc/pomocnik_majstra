@@ -21,7 +21,7 @@
           <i class="fas fa-trash-alt" @click="openDeleteModal(client, 'removeClient')"></i>
           </td>
         <td class="wrap">{{client.Imie }}</td>
-        <td class="wrapSpace bold width-140">{{client.Tel }} {{ client.Tel2 ? `(${client.Tel2})` : ''}}</td>
+        <td class="wrapSpace bold width-130">{{client.Tel }} {{ client.Tel2 ? `(${client.Tel2})` : ''}}</td>
         <td class="hideUnder1340">{{ client.Adres }}</td>
         <td class="wrap width-280 hideUnder1100">{{ client.Opis }}</td>
 
@@ -78,7 +78,7 @@ require('firebase/firestore')
      const modalMsg = ref('')
      const Operation = ref()
      const DeleteTargetCar = ref()
-     const limit = ref(30) // sprawdzic pozniej dla 40 jak to smiga
+     const limit = ref(50)
      const lastDoc = ref(0)
      const disableNextButton = ref(true)
 
@@ -86,7 +86,7 @@ require('firebase/firestore')
        .collection('warsztat').doc('Klienci').collection('Numery')
 
      async function getClientsFromFirebase(req) {
-       if(req == 'more') limit.value += 30
+       if(req == 'more') limit.value += 50
 
       const clientPath = MainPath
       .orderBy("Ostatnia_Aktualizacja", "desc") // jak ujebie orderBy to doladowanie smiga i domyslnie sortuje po numerze tel.
@@ -161,7 +161,7 @@ require('firebase/firestore')
 
      onMounted(() => {
        getClientsFromFirebase()
-        limit.value = 30 
+        limit.value = 50
      })
 
      return {
@@ -267,8 +267,8 @@ i{
 .width-50{
   width: 50px;
 }
-.width-140{
-  width: 140px;
+.width-130{
+  width: 130px;
   min-width: 130px;
 }
 .width-280{

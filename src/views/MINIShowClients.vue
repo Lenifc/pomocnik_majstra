@@ -54,7 +54,7 @@ require('firebase/firestore')
      const store = useStore()
 
      const recivedClients = ref()
-     const limit = ref(20) // sprawdzic pozniej dla 40 jak to smiga
+     const limit = ref(40) // sprawdzic pozniej dla 40 jak to smiga
      const lastDoc = ref(0)
      const disableNextButton = ref(true)
      const selectedCar = ref()

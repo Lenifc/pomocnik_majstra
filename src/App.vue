@@ -165,23 +165,25 @@ export default {
       auth.signOut().then(() => {
         checkAuthStatus()
         PopupFunc('info', 'Zostałeś wylogowany.')
+        // ponizej zerujemy wszystko co zostalo w pamieci
+        firebase.firestore().terminate()
+        // localStorage.clear();
         indexedDB.deleteDatabase('firebaseLocalStorageDb');
-        indexedDB.deleteDatabase('firestore/[DEFAULT]/baza-mech/main');
-      }).catch((error) => {
+        indexedDB.deleteDatabase('firestore/[DEFAULT]/baza-mech/main/');
+        //
+      }).then(() => firebase.firestore().clearPersistence()).catch((error) => {
         PopupFunc('error', error.message)
       })
     }
 
     function checkAuthStatus() {
       auth.onAuthStateChanged(user => {
-        console.log(user?.uid);
         if (user) {
           userSignedIn.value = true
         } else {
           userSignedIn.value = false
           showLogInButton.value = true
         }
-        // console.log("Zalogowany: " + userSignedIn.value);
       })
     }
 
@@ -192,10 +194,6 @@ export default {
     onMounted(() => {
       checkAuthStatus()
     })
-
-    window.onerror = function(message, source, lineno, colno, error) {
-  console.log(message, error);
-};
 
     return {
       provider,

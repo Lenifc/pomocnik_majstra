@@ -73,7 +73,7 @@ export default ({
 
     const lastDoc = ref(0)
     const disableNextButton = ref(true)
-    const limit = ref(20)
+    const limit = ref(40)
     const collectionPath = ref(route.path.substring(1))
     const isLoading = ref(true)
     const showModal = ref(false)
@@ -87,10 +87,10 @@ export default ({
 
 
     async function getDataFromFirebase(req) {
-      if(req == 'more') limit.value += 20
+      if(req == 'more') limit.value += 40
       
       const collectionReference = tickets.collection(collectionPath.value).orderBy('timeStamp', 'desc')
-        .limit(limit.value || 20)
+        .limit(limit.value || 40)
 
       let data = await collectionReference.get()
       lastDoc.value = data.docs[data.docs.length - 1]
@@ -113,7 +113,7 @@ export default ({
     function redirectToDetails(carData) {
 
       store.commit('setCarDetails', carData)
-      router.push(`/details/${collectionPath.value}/${carData['Tel']}`)
+      router.push(`/details/${collectionPath.value}/${carData['Tel']}/${carData['id']}`)
     }
 
     function HandleOptions(e, car) {
@@ -128,7 +128,6 @@ export default ({
     function openEditor(carInfo) {
       store.commit('setTargetCar', carInfo)
       router.push(`/edytuj/${collectionPath.value}/${carInfo['Tel']}`)
-      console.log(carInfo)
     }
 
     function openModal(carInfo, operation) {
@@ -148,7 +147,7 @@ export default ({
       if (Operation.value == 'remove') {
         if (response == true) {
           const currentPath = tickets.collection(collectionPath.value)
-          const confirmDelete = await DeleteFunc('ticket', currentPath, Tel)
+          const confirmDelete = await DeleteFunc('ticket', currentPath, Tel, '', id)
           if(confirmDelete !== false) document.querySelector('.showElements').removeChild(document.getElementById(id)) // usuwam go z widoku tabeli
         }
         return showModal.value = false
@@ -174,13 +173,12 @@ export default ({
 
     onMounted(() => {
       collectionPath.value = route.path.substring(1)
-      limit.value = 20
+      limit.value = 40
       getDataFromFirebase()
     })
 
     watch(() => route.path, () => {
-      limit.value = 20
-      // console.log(route.path)
+      limit.value = 40
       if (route.path == '/obecne' || route.path == '/wolne' || route.path == '/zakonczone') {
         collectionPath.value = route.path.substring(1)
         getDataFromFirebase()

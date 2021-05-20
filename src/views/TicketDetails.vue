@@ -1,42 +1,93 @@
 <template>
-<div class="column">
-  <h1>SZCZEGÓŁY numeru {{$route.params.ticketDetails}}</h1>
-  <div class="cars-details" v-if="carDetails">
+  <div class="column">
+    <h1>SZCZEGÓŁY zlecenia {{$route.params.ticketDetails}}</h1>
+    <div class="cars-details" v-if="carDetails">
 
-        <h1 style="color: red"> {{carDetails[0]}} </h1>
+      <div :id="carDetails['id']" style="color: white" class="column">
+        <div class="row">
+          <div class="client">
+            <div class="row">
+              <h3>Klient:</h3>
+              <div><i class="fas fa-edit"></i></div>
+            </div>
+            <div>Imie: {{ carDetails['Imie'] }}</div>
+            <div>Numer Telefonu: {{ carDetails['Tel'] }}</div>
+          </div>
+          <div class="vehicle">
+            <div class="row">
+              <h3>Pojazd:</h3>
+              <div><i class="fas fa-edit"></i></div>
+            </div>
+            <div>Marka: {{ carDetails['Marka'] }}</div>
+            <div>Model: {{ carDetails['Model'] }}</div>
+            <div v-if="carDetails['Rok_prod']">Rok_prod: {{ carDetails['Rok_prod'] }}</div>
+            <div v-if="carDetails['VIN']"> VIN: {{ carDetails['VIN'] }}</div>
+            <div v-if="carDetails['Numer_rejestracyjny']">Tablice: {{ carDetails['Numer_rejestracyjny'] }}</div>
+            <div v-if="carDetails['Paliwo']">Paliwo: {{ carDetails['Paliwo'] }}</div>
+            <div v-if="carDetails['Silnik']">Silnik: {{ carDetails['Silnik'] }}</div>
+            <div v-if="carDetails['Naped']">Napęd: {{ carDetails['Naped'] }}</div>
+            <div v-if="carDetails['SkrzyniaBiegow']">Skrzynia biegów: {{ carDetails['SkrzyniaBiegow'] }}</div>
+            <div v-if="carDetails['Przebieg']">Przebieg: {{ carDetails['Przebieg'] }}</div>
+            <div v-if="carDetails['Opis']">Opis: {{ carDetails['Opis'] }}</div>
+          </div>
+        </div>
+            <div class="row">
+              <h3>Szczegóły zlecenia:</h3>
+              <div><i class="fas fa-edit"></i></div>
+            </div>
+        <div>Zlecenie dodane: {{ carDetails['Dodane_Czas'] }}</div>
+        <div v-if="$route.params.collectionPath == 'zakonczone'">Zlecenie zakonczone:
+          {{ carDetails['Zakonczone_Czas'] }}</div>
+        <table v-if="carDetails['Wykonane_uslugi_czesci'].length">
+          <tr>
+            <th>Nazwa:</th>
+            <th>Ilość:</th>
+            <th>Netto[PLN]:</th>
+            <th>Netto całość[PLN]:</th>
+            <th>Stawka VAT:</th>
+            <th>Brutto[PLN]:</th>
+            <th>Brutto całość[PLN]:</th>
+          </tr>
+          <tr v-for="item in carDetails['Wykonane_uslugi_czesci']" :key="item">
+            <td>{{ item['part_service_Name'] }}</td>
+            <td>{{ item['quantity']}}</td>
+            <td>{{ item['price_net']}}</td>
+            <td>{{ item['totalCost_net']}}</td>
+            <td>{{ item['tax']}}%</td>
+            <td>{{ item['price_gross']}}</td>
+            <td>{{ item['totalCost_gross']}}</td>
+          </tr>
+          <tr>
+            <td>Suma Netto: </td>
+            <td colspan="2">{{ ComputedShowTotalNet }} PLN</td>
+          </tr>
+          <tr>
+            <td>Suma Brutto: </td>
+            <td colspan="2">{{ ComputedShowTotalGross }} PLN</td>
+          </tr>
+        </table>
 
-        <div :id="title" style="color: white" >
-
-          <div>Dodane_Czas: {{ carDetails[1]['Dodane_Czas'] }}</div>
-          <div>Marka: {{ carDetails[1]['Marka'] }}</div>
-          <div>Model: {{ carDetails[1]['Model'] }}</div>
-          <div>Rok_prod: {{ carDetails[1]['Rok_prod'] || 'Brak danych!'}}</div>
-          <div>VIN: {{ carDetails[1]['VIN'] }}</div>
-          <div>Przebieg: {{ carDetails[1]['Przebieg'] }}</div>
-          <div>Opis: {{ carDetails[1]['Opis'] }}</div>
-
-          <button class="btn" @click="HandleFunc($event)">Edytuj</button>
+        <div class="row">
+          <button class="btn" @click="HandleFunc($event)">Edytuj(zrobic pelny formularz)</button>
           <button class="btn" @click="HandleFunc($event)">Usuń</button>
           <button class="btn" @click="HandleFunc($event)">Przenieś</button>
-          <button class="btn" @click="HandleFunc($event)">PDF</button>
+          <button class="btn" @click="HandleFunc($event)"
+            v-if="$route.params.collectionPath == 'zakonczone'">PDF</button>
         </div>
 
-  </div>
-</div>
-<OrderForm v-if="openEditor" :edit="openEditor" /> 
-<!-- Jezeli createTicket wczyta prop edit to pobierze ze store dane pojazdu do autouzupelnienia - funkcje zrobic w createTicket i watch na edit -->
+      </div>
 
+    </div>
+  </div>
 </template>
 
 <script>
 import firebase from 'firebase/app'
 import PopupFunc from '@/components/PopupFunc.js'
-import OrderForm from '@/components/Forms/OrderForm.vue'
 import { DeleteFunc } from '@/components/EditMoveDeleteOptions'
   
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useStore } from 'vuex'
 
 import createPDF from '@/components/CreatePDF'
 
@@ -44,41 +95,46 @@ export default {
   setup() {
     const route = useRoute()
     const router = useRouter()
-    const store = useStore()
     const openEditor = ref(false)
 
     const carDetails = ref()
-    const cars = ref()
+    const showTotalNet = ref(0)
+    const showTotalGross = ref(0)
+    const ComputedShowTotalNet = computed(() => showTotalNet.value.toFixed(2))
+    const ComputedShowTotalGross = computed(() => showTotalGross.value.toFixed(2))
 
     const tickets = firebase.firestore()
       .collection('warsztat')
       .doc('zlecenia')
 
+    const currentPath = tickets.collection(route.params.collectionPath)
+
 
     function fetchData() {
-      tickets.collection(route.params.collectionPath).doc(route.params.ticketDetails)
+      tickets.collection(route.params.collectionPath).doc(route.params.phoneNum)
         .get().then(recived => {
-          console.log(recived.data())
-          // console.log(Object.entries(recived.data()))
-          cars.value = Object.entries(recived.data()).filter(item => item[0] != 'timeStamp')
+          // console.log(recived.data())
+          let response = Object.entries(recived.data()).filter(item => item?.[1]['id'] == route.params.ticketDetails)
+          carDetails.value = response[0][1]
 
-          const directCar = (cars.value.filter(car => car[1].id == store.state.carDetails.id))[0]
-          carDetails.value = directCar ? directCar : cars.value[1]
-          
-          console.log(carDetails.value);
-
-          console.log(`Ilosc pojazdow: ${cars.value.length}`)
+          if(carDetails.value['Wykonane_uslugi_czesci']){
+            carDetails.value['Wykonane_uslugi_czesci'].forEach(item =>{
+              showTotalGross.value += Number(item['totalCost_gross'])
+              showTotalNet.value += Number(item['totalCost_net'])
+            })
+          }
 
         }).catch(() => {
-          cars.value = ''
-          PopupFunc('error', 'Wystąpił problem ze znalezieniem danego numeru: \n' + route.params.ticketDetails)
+          carDetails.value = ''
+          PopupFunc('error', 'Wystąpił problem ze znalezieniem danego numeru: \n' + route.params.phoneNum)
         })
     }
+      
 
     function HandleFunc(e) {
       const target = e.target.innerText
       const id = e.target.parentElement.parentElement.parentElement.id
-      if (target == 'Usuń') DeleteFunc(id, route.params.collectionPath, route.params.ticketDetails)
+      if (target == 'Usuń') DeleteFunc('ticket', currentPath, route.params.phoneNum)
       if (target == 'Edytuj') EditFunc(id)
       if(target == 'PDF') createPDF()
       // if (target == 'Przenieś') MoveFunc(id)
@@ -87,11 +143,10 @@ export default {
     function EditFunc() {
       openEditor.value = true
 
-      router.push(`/edytuj/${route.params.collectionPath}/${route.params.ticketDetails}`)
+      router.push(`/edytuj/${route.params.collectionPath}/${route.params.phoneNum}/${route.params.ticketDetails}`)
     }
 
     onMounted(() => {
-      //tutaj zrobic sprawdzenie czy cos jest w localstorage / indexedDB
       fetchData()
     })
 
@@ -105,8 +160,9 @@ export default {
       carDetails,
 
       HandleFunc,
-      OrderForm,
-      openEditor
+      openEditor,
+      ComputedShowTotalNet,
+      ComputedShowTotalGross
     }
   }
 }
