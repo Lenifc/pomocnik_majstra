@@ -140,6 +140,10 @@ export default {
       .collection('warsztat')
       .doc('Klienci').collection("Numery")
 
+    const counterPath = firebase.firestore()
+      .collection('warsztat')
+      .doc('Klienci')
+
     const link = 'https://europe-west1-baza-mech.cloudfunctions.net/fetchData' // PRODUKCYJNY
 
     async function fetchBrands() {
@@ -255,7 +259,7 @@ export default {
             .catch(err => PopupFunc("error", err.message))
         }
 
-
+        if(route.path.indexOf('edytuj') < 0) counterPath.update("Pojazdy", firebase.firestore.FieldValue.increment(1))
         manualVersionInput.value = false
         clearForm()
         router.go(-1)

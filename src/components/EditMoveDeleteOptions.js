@@ -9,7 +9,8 @@ import firebase from 'firebase/app'
 export async function DeleteFunc(id, docPath, phoneNumber, target, extraData) {
   // console.log(id, docPath, phoneNumber, target, extraData);
 
-  const counterPath = firebase.firestore().collection('warsztat').doc('zlecenia')
+  const counterPathTickets = firebase.firestore().collection('warsztat').doc('zlecenia')
+  const counterPathClients = firebase.firestore().collection('warsztat').doc('Klienci')
 
   const docReference = docPath.doc(phoneNumber)
   let ConfirmDelete
@@ -23,6 +24,8 @@ export async function DeleteFunc(id, docPath, phoneNumber, target, extraData) {
           ConfirmDelete = false
         })
         .then(() => {
+          counterPathClients.update("Klienci", firebase.firestore.FieldValue.increment(-1))
+          if(target != 0) counterPathClients.update("Pojazdy", firebase.firestore.FieldValue.increment(-target)) 
           ConfirmDelete = true
         })
         .catch(err => {
@@ -46,6 +49,7 @@ export async function DeleteFunc(id, docPath, phoneNumber, target, extraData) {
           ConfirmDelete = false
         })
         .then(() => {
+          counterPathClients.update("Pojazdy", firebase.firestore.FieldValue.increment(-1))
           ConfirmDelete = true
         })
         .catch(err => {
@@ -57,8 +61,14 @@ export async function DeleteFunc(id, docPath, phoneNumber, target, extraData) {
     if (id == 'ticket') {
       docReference.get().then(doc => {
         if (Object.keys(doc.data()).length - 1 == 1) {
-          docReference.delete().then(
-            PopupFunc('success', 'Pomyślnie usunięto zlecenie')
+          docReference.delete().then(() => {
+        if (target != 'justRelocate') counterPathTickets.update("IloscZlecen", firebase.firestore.FieldValue.increment(-1))
+        if (docPath.id == 'wolne' && target != 'justRelocate') counterPathTickets.update("Wolne", firebase.firestore.FieldValue.increment(-1))
+        if (docPath.id == 'obecne' && target != 'justRelocate') counterPathTickets.update("Obecne", firebase.firestore.FieldValue.increment(-1))
+        if (docPath.id == 'zakonczone' && target != 'justRelocate') counterPathTickets.update("Zakonczone", firebase.firestore.FieldValue.increment(-1))
+        PopupFunc('success', 'Pomyślnie usunięto zlecenie')
+
+          }
           ).catch(err => PopupFunc("error", err.message))
         } else {
           const timeStamp = getTime()
@@ -67,12 +77,17 @@ export async function DeleteFunc(id, docPath, phoneNumber, target, extraData) {
           docReference.update({
               [`${extraData}`]: firebase.firestore.FieldValue.delete(),
               timeStamp
-            }).then(PopupFunc('success', 'Pomyślnie usunięto zlecenie'))
+            }).then(() => {
+        if (target != 'justRelocate') counterPathTickets.update("IloscZlecen", firebase.firestore.FieldValue.increment(-1))
+        if (docPath.id == 'wolne' && target != 'justRelocate') counterPathTickets.update("Wolne", firebase.firestore.FieldValue.increment(-1))
+        if (docPath.id == 'obecne' && target != 'justRelocate') counterPathTickets.update("Obecne", firebase.firestore.FieldValue.increment(-1))
+        if (docPath.id == 'zakonczone' && target != 'justRelocate') counterPathTickets.update("Zakonczone", firebase.firestore.FieldValue.increment(-1))
+        PopupFunc('success', 'Pomyślnie usunięto zlecenie')
+            })
             .catch(err => PopupFunc("error", err.message))
         }
       }).catch(err => PopupFunc("error", err.message))
     }
-    if (id == 'ticket' && target != 'justRelocate') counterPath.update("IloscZlecen", firebase.firestore.FieldValue.increment(-1))
   })
 }
 
@@ -82,6 +97,7 @@ export async function DeleteFunc(id, docPath, phoneNumber, target, extraData) {
 //
 export function RelocateTicket(id, object, ticketsPath, currentdocPath, newdocPath, phoneNumber) {
 
+  const counterPathTickets = firebase.firestore().collection('warsztat').doc('zlecenia')
   const docReference = ticketsPath.collection(newdocPath).doc(phoneNumber)
   const timeStamp = getTime()
   let ConfirmRelocate
@@ -108,7 +124,13 @@ export function RelocateTicket(id, object, ticketsPath, currentdocPath, newdocPa
             })
         }
 
-      }).then( () => {
+      }).then(() => {
+        if(currentdocPath == 'wolne') counterPathTickets.update("Wolne", firebase.firestore.FieldValue.increment(-1))
+        if(currentdocPath == 'obecne') counterPathTickets.update("Obecne", firebase.firestore.FieldValue.increment(-1))
+        if(currentdocPath == 'zakonczone') counterPathTickets.update("Zakonczone", firebase.firestore.FieldValue.increment(-1))
+        if(newdocPath == 'wolne') counterPathTickets.update("Wolne", firebase.firestore.FieldValue.increment(1))
+        if(newdocPath == 'obecne') counterPathTickets.update("Obecne", firebase.firestore.FieldValue.increment(1))
+        if(newdocPath == 'zakonczone') counterPathTickets.update("Zakonczone", firebase.firestore.FieldValue.increment(1))
         ConfirmRelocate = true
         let deleteThis = ticketsPath.collection(currentdocPath)
         DeleteFunc(id, deleteThis, phoneNumber, 'justRelocate', ...Object.keys(object))

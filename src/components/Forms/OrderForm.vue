@@ -151,6 +151,9 @@ export default {
         }
         // tutaj dodac sprawdzenie w przypadku edycji ticketu, aby nadmiernie nie podbijac licznika
          tickets.update("IloscZlecen", firebase.firestore.FieldValue.increment(1))
+         if(picked == 'zakonczone') tickets.update("Zakonczone", firebase.firestore.FieldValue.increment(1))
+         if(picked == 'obecne') tickets.update("Obecne", firebase.firestore.FieldValue.increment(1))
+         if(picked == 'wolne') tickets.update("Wolne", firebase.firestore.FieldValue.increment(1))
         
         clearForm()
         store.commit('setTargetCar', '')

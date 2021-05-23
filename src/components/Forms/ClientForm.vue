@@ -117,6 +117,7 @@ export default {
             .catch(err => PopupFunc("error", err.message))
         }
 
+        if(route.path.indexOf('edytuj') <= 0) clients.update("Klienci", firebase.firestore.FieldValue.increment(1))
         clearForm()
         store.commit('setTargetClient', '')
         Router.go(-1)

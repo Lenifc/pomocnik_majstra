@@ -18,7 +18,7 @@
         <td class="buttons-section width-42">
           <i class="fas fa-edit" @click="openClientEditForm(client)"></i>
           <i class="fas fa-plus" @click="openVehicleAddForm(client.Tel)"><i class="fas fa-car"></i></i>
-          <i class="fas fa-trash-alt" @click="openDeleteModal(client, 'removeClient')"></i>
+          <i class="fas fa-trash-alt" @click="openDeleteModal(client, 'removeClient', onlyCars(client).length)"></i>
           </td>
         <td class="wrap">{{client.Imie }}</td>
         <td class="wrapSpace bold width-130">{{client.Tel }} {{ client.Tel2 ? `(${client.Tel2})` : ''}}</td>
@@ -81,6 +81,7 @@ require('firebase/firestore')
      const limit = ref(50)
      const lastDoc = ref(0)
      const disableNextButton = ref(true)
+     const countClientCars = ref(0)
 
      const MainPath = firebase.firestore()
        .collection('warsztat').doc('Klienci').collection('Numery')
@@ -134,7 +135,10 @@ require('firebase/firestore')
       Operation.value = operation
       DeleteTargetCar.value = target
       store.commit('setClientData', data)
-      if (operation == 'removeClient') modalMsg.value = `Czy na pewno chcesz usunąć klienta o numerze ${data['Tel']}?`
+      if (operation == 'removeClient') {
+        modalMsg.value = `Czy na pewno chcesz usunąć klienta o numerze ${data['Tel']}?`
+        countClientCars.value = target
+      }
       if (operation == 'removeCar') modalMsg.value = `Czy na pewno chcesz usunąć pojazd klienta ${data.Tel}\n o numerze VIN: ${target}?`
       showModal.value = true
     }
@@ -148,7 +152,8 @@ require('firebase/firestore')
 
          if (response == true) {
            if (Operation.value == 'removeClient') {
-             const confirmDelete = await DeleteFunc('client', MainPath, Tel)
+
+             const confirmDelete = await DeleteFunc('client', MainPath, Tel, countClientCars.value)
              if (confirmDelete !== false) document.querySelector(`#id${Tel}`).remove() // usuwam go z widoku tabeli
            }
            if (Operation.value == 'removeCar') {
@@ -182,7 +187,8 @@ require('firebase/firestore')
 
        onlyCars,
        getClientsFromFirebase,
-       disableNextButton
+       disableNextButton,
+       countClientCars
      }
 
    }

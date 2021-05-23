@@ -87,6 +87,10 @@ export default ({
 
 
     async function getDataFromFirebase(req) {
+      recivedItems.value = ''
+      allCars.value = ''
+
+
       if(req == 'more') limit.value += 40
       
       const collectionReference = tickets.collection(collectionPath.value).orderBy('timeStamp', 'desc')

@@ -1,8 +1,8 @@
 <template>
   <div class="container column">
-    <input type="text" class="filterCars" placeholder="Znajdź klienta/pojazd">
+    <input type="text" class="filterNumbers" placeholder="Znajdź klienta/pojazd" @keyup="filterNumbers()" v-model="filterInput">
 
-    <table class="showElements" v-if="recivedClients">
+    <table class="showElements" v-if="(recivedClients && !filterInput) || (filterInput && filteredNumbers.length)">
       <tr>
         <th></th>
         <th>Imie klienta:</th>
@@ -10,7 +10,7 @@
         <th>Wybierz Pojazd:</th>
       </tr>
 
-      <tr v-for="(client, index) in recivedClients" :key="client.id" :id="`id${client.Tel}`">
+      <tr v-for="(client, index) in filteredNumbers || recivedClients" :key="client.id" :id="`id${client.Tel}`">
         <td class="id hideUnder900">{{index+1}}</td>
         <td class="wrap">{{client.Imie }}</td>
         <td class="wrapSpace bold width-140">{{client.Tel }} {{ client.Tel2 ? `(${client.Tel2})` : ''}}</td>
@@ -33,8 +33,9 @@
       </tr>
 
     </table>
-    <button class="btn"
-          @click="getClientsFromFirebase('more')" v-if="!disableNextButton">Załaduj więcej klientów</button>
+    <div v-else>Brak wyników wyszukiwania</div>
+    <!-- <button class="btn"
+          @click="getClientsFromFirebase('more')" v-if="!disableNextButton">Załaduj więcej klientów</button> -->
   </div>
 </template>
 
@@ -54,22 +55,25 @@ require('firebase/firestore')
      const store = useStore()
 
      const recivedClients = ref()
-     const limit = ref(40) // sprawdzic pozniej dla 40 jak to smiga
+     const filteredNumbers = ref()
+
+     const limit = ref(100)
      const lastDoc = ref(0)
      const disableNextButton = ref(true)
      const selectedCar = ref()
+     const filterInput = ref('')
 
      const MainPath = firebase.firestore()
        .collection('warsztat').doc('Klienci').collection('Numery')
 
      async function getClientsFromFirebase(req) {
-       if(req == 'more') limit.value += 30
+       if(req == 'more') limit.value += 100
 
       const clientPath = MainPath
-      .orderBy("Ostatnia_Aktualizacja", "desc") // jak ujebie orderBy to doladowanie smiga i domyslnie sortuje po numerze tel.
-       .limit(limit.value)
+      .orderBy("Ostatnia_Aktualizacja", "desc") // StartAt nie dziala wraz z poprawnym zapisem w indexedDB
+      //  .limit(limit.value)
 
-       let clientResponse = await clientPath.get()
+       let clientResponse = await clientPath.get({source: 'cache'})
 
        lastDoc.value = clientResponse.docs[clientResponse.docs.length - 1]
 
@@ -91,21 +95,43 @@ require('firebase/firestore')
       return Object.values(client).filter(item => item instanceof Object)
     }
 
+    function filterNumbers() {
+      if (filterInput.value.trim() != '') {
+        let tempInput = filterInput.value.trim().replace(/[^0-9]+/g, '');
+        console.log(filterInput.value);
+
+        filteredNumbers.value = recivedClients.value.filter(item => {
+          let tempOutput = item.Tel.replace(/[^0-9]+/g, '');
+          if(item[tempInput]) return item
+          if (tempOutput.indexOf(tempInput) > -1) return item
+        })
+      }
+      else filteredNumbers.value = null
+
+    }
+
      onMounted(() => {
        getClientsFromFirebase()
      })
 
      watch(() => selectedCar.value, () => store.commit('setSelectedCarForTicket', selectedCar.value))
 
+    //  watch(() => filterInput.value, () => filterNumbers())
+
      return {
 
        recivedClients,
+       filteredNumbers,
+
+       filterNumbers,
+       filterInput,
 
        onlyCars,
        getClientsFromFirebase,
        disableNextButton,
 
-       selectedCar
+       selectedCar,
+       
      }
 
    }
