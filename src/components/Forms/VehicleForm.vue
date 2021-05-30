@@ -7,78 +7,104 @@
       <div class="required column">
         <h2>Pola obowiązkowe: </h2>
         <label for="phoneNum" v-if="phoneNumNotStored">Number telefonu:</label>
-          <input type="text" id="phoneNum" placeholder="123456789 / 1234567" required v-model="phoneNum" v-if="phoneNumNotStored">
+          <InputText name="phoneNum" placeholder="123-456-789 / 123-45-67" required v-model="phoneNum" 
+          v-if="phoneNumNotStored"/>
 
         <label for="brand">Marka:</label>
-        <select name="brand" required @change="fetchModels()" v-model="selectedBrand"
-          v-if="!manualBrandModelVersionInput">
-          <option disabled selected value="">Wybierz marke</option>
-          <option v-for="brand in brands" :key="brand" :value="brand">{{ betterLooking(brand) }}</option>
-        </select>
-        <input type="text" name="brand" v-if="manualBrandModelVersionInput" required v-model="selectedBrand"
-          placeholder="Wpisz marke pojazdu">
+        <Dropdown v-model="selectedBrand" :options="brands" optionLabel="brand" optionValue="brand" 
+        :filter="true" placeholder="Wybierz marke" :showClear="true" @change="fetchModels()" 
+        v-if="!manualBrandModelVersionInput" scrollHeight="60vh" required>
+          <template #value="slotProps"> <!-- ten template odpowiada za aktualnie wybrany pojazd -->
+            <div v-if="slotProps.value">
+              <span>{{betterLooking(slotProps.value)}}</span>
+            </div>
+            <span v-else> {{slotProps.placeholder}} </span>
+          </template> <!-- ten template odpowiada za wyswietlenie calej listy -->
+          <template #option="slotProps">
+            <div>
+              <span>{{betterLooking(slotProps.option.brand)}}</span>
+            </div>
+          </template>
+        </Dropdown>
+        <InputText type="text" name="brand" v-if="manualBrandModelVersionInput" required v-model="selectedBrand"
+          placeholder="Wpisz marke pojazdu" />
 
         <label for="model">Model:</label>
-        <select name="model" @change="fetchVersion()" v-model="selectedModel" :disabled="!models"
-          v-if="!manualBrandModelVersionInput && !manualModelVersionInput" required>
-          <option disabled selected value="">Wybierz model</option>
-          <option v-for="model in models" :key="model" :value="replaceSpaces(model.pl)">{{ model.pl }}</option>
-        </select>
-        <input type="text" name="model" v-if="manualBrandModelVersionInput || manualModelVersionInput" required
-          v-model="selectedModel" placeholder="Wpisz model pojazdu">
+        <Dropdown v-model="selectedModel" :options="models" optionLabel="pl" optionValue="pl" placeholder="Wybierz model" 
+        :filter="true" :showClear="true" @change="fetchVersion()" v-if="!manualBrandModelVersionInput && !manualModelVersionInput" 
+                :disabled="!models" scrollHeight="60vh" required>
+         <template #value="slotProps">
+            <div v-if="slotProps.value">
+              <span>{{replaceSpaces(slotProps.value)}}</span>
+            </div>
+            <span v-else> {{slotProps.placeholder}} </span>
+          </template>
+          <template #option="slotProps">
+            <div>
+              <span>{{replaceSpaces(slotProps.option.pl)}}</span>
+            </div>
+          </template>
+          </Dropdown>
+        <InputText type="text" name="model" v-if="manualBrandModelVersionInput || manualModelVersionInput" required
+          v-model="selectedModel" placeholder="Wpisz model pojazdu" />
 
         <label for="prod_year">Generacja:</label>
-        <select name="prod_year" v-model="selectedVersion"
-          v-if="!manualVersionInput && !manualBrandModelVersionInput && !manualModelVersionInput" :disabled="!versions">
-          <option disabled selected value="">Wybierz generacje</option>
-          <option v-for="version in versions" :key="version" :value="version.pl">{{ version.pl }}</option>
-        </select>
-        <input type="text" name="prod_year"
+        <Dropdown v-model="selectedVersion" :options="versions" optionLabel="version" placeholder="Wybierz generacje"
+                  v-if="!manualVersionInput && !manualBrandModelVersionInput && !manualModelVersionInput"
+                  :disabled="!versions" required scrollHeight="60vh" :showClear="true">
+         <template #value="slotProps">
+            <div v-if="slotProps.value">
+              <span>{{slotProps.value}}</span>
+            </div>
+            <span v-else> {{slotProps.placeholder}} </span>
+          </template>
+          <template #option="slotProps">
+            <div>
+              <span>{{slotProps.option}}</span>
+            </div>
+          </template> 
+          </Dropdown>
+        <InputText type="text" name="prod_year"
           v-if="(selectedModel && manualVersionInput) || manualBrandModelVersionInput || manualModelVersionInput"
-          v-model="selectedVersion" placeholder="Wpisz rocznik pojazdu">
+          v-model="selectedVersion" placeholder="Wpisz rocznik pojazdu" />
 
         <label for="fuel">Rodzaj paliwa:</label>
-        <select name="fuel" v-model="selectedFuel" required>
-          <option disabled selected value="">Wybierz rodzaj paliwa</option>
-          <option value="Benzyna"> Benzyna </option>
-          <option value="Benzyna LPG"> Benzyna + LPG </option>
-          <option value="Diesel"> Diesel </option>
-          <option value="Elektryczny"> Elektryczny </option>
-          <option value="Hybryda"> Hybryda </option>
-        </select>
+        <Dropdown name="fuel" v-model="selectedFuel" :options="fuelOptions" optionLabel="name" optionValue="name" 
+        required placeholder="Wybierz rodzaj paliwa" :showClear="true" scrollHeight="60vh" />
         <label for="VIN">VIN:</label>
-        <input id="VIN" type="text" maxlength="17" v-model="VIN" required>
+        <InputText id="VIN" type="text" maxlength="17" v-model="VIN" required />
       </div>
 
       <div class="extraInformation column">
         <h2>Dodatkowe informacje: </h2>
-        <label for="engine">Silnik:</label><input name="engine" type="text" v-model="engine"
-          placeholder="Pojemność / Moc">
+        <label for="engine">Silnik:</label>
+        <InputText name="engine" type="text" v-model="engine" placeholder="Pojemność / Moc" />
 
         <label for="transmission">Rodzaj skrzyni:</label>
-        <select name="transmission" v-model="selectedTransmission">
-          <option disabled selected value="">Wybierz rodzaj skrzyni biegów</option>
-          <option value="Automatyczna"> Automatyczna </option>
-          <option value="Manualna"> Manualna </option>
-        </select>
+        <Dropdown name="transmission" v-model="selectedTransmission" :options="gearboxOptions" optionLabel="name" 
+        optionValue="name" required placeholder="Wybierz rodzaj skrzyni" :showClear="true" scrollHeight="60vh"/>
 
         <label for="drivetrain">Rodzaj napędu:</label>
-        <select name="drivetrain" v-model="selectedDriveTrain">
-          <option disabled selected value="">Wybierz napęd</option>
-          <option value="Przod"> Przód </option>
-          <option value="Tyl"> Tył </option>
-          <option value="4x4"> 4x4 </option>
-        </select>
+        <Dropdown name="drivetrain" v-model="selectedDriveTrain" :options="drivetrainOptions" optionLabel="name" 
+        optionValue="name" required placeholder="Wybierz rodzaj napędu" :showClear="true" scrollHeight="60vh"/>
 
         <label for="numberPlates">Tablica rejestracyjna:</label>
-        <input id="numberPlates" type="text" maxlength="9" v-model="numberPlates">
+        <InputText id="numberPlates" type="text" maxlength="9" v-model="numberPlates" />
         <label for="mileage">Przebieg:</label>
-        <input id="mileage" type="text" maxlength="7" v-model="mileage">
+        <InputText id="mileage" type="text" maxlength="7" v-model="mileage" />
 
-        <textarea name="description" cols="50" rows="10" placeholder="Dodatkowe informacje"
-          v-model="description"></textarea>
-      </div>
-    </div>
+       </div>
+        </div>
+        <Editor v-model="description" editorStyle="height: 250px; min-width: 70vw">
+          <template #toolbar>
+            <span class="ql-formats">
+              <button class="ql-bold"></button>
+              <button class="ql-italic"></button>
+              <button class="ql-underline"></button>
+              <button class="ql-list" value="bullet"></button>
+            </span>
+          </template>
+        </Editor>
 
 
     <div class="row buildIn-buttons">
@@ -96,6 +122,10 @@ import { ref, onMounted, watch, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
+
+import Dropdown from 'primevue/dropdown';
+import InputText from 'primevue/inputtext';
+import Editor from 'primevue/editor';
 
 import PopupFunc from '@/components/PopupFunc.js'
 import { getTime } from '@/components/getCurrentTime'
@@ -144,6 +174,26 @@ export default {
       .collection('warsztat')
       .doc('Klienci')
 
+    const fuelOptions = [
+      {name: 'Benzyna'},
+      {name: 'Benzyna LPG'},
+      {name: 'Diesel'},
+      {name: 'Elektryczny'},
+      {name: 'Hybryda'}
+    ]
+
+    const gearboxOptions = [
+      {name: 'Automatyczna'},
+      {name: 'Manulana'},
+      {name: 'Brak (Elektryk)'}
+    ]
+
+    const drivetrainOptions = [
+      {name: 'Przód'},
+      {name: 'Tył'},
+      {name: '4x4'}
+    ]
+
     const link = 'https://europe-west1-baza-mech.cloudfunctions.net/fetchData' // PRODUKCYJNY
 
     async function fetchBrands() {
@@ -153,14 +203,16 @@ export default {
 
       let data = await fetch(`${link}/dodaj`, {
           signal: controller.signal
-        }).then(response => response.json()) // PRODUKCYJNY
+        }).then(response => response.json())
         .catch((err) => {
           manualBrandModelVersionInput.value = true
           if (err.message.indexOf('Failed to fetch') >= 0) PopupFunc('warning', 'Wystąpił problem z pobraniem producentów pojazdów.')
         })
 
       let allMakes = data?.options
-      if (allMakes) brands.value = Object.keys(allMakes).sort((next, current) => next > current ? 1 : -1)
+      if (allMakes) brands.value = Object.keys(allMakes).sort((next, current) => next > current ? 1 : -1).map(item => {
+        return {brand: item}
+      })
     }
     async function fetchModels() {
       selectedModel.value = null
@@ -170,26 +222,33 @@ export default {
       manualModelVersionInput.value = false
       manualVersionInput.value = false
 
-      const data = await axios.get(`${link}/dodaj/${selectedBrand.value}`) // PRODUKCYJNY
+      if(selectedBrand.value !== null){
+
+      const data = await axios.get(`${link}/dodaj/${selectedBrand.value}`)
         .catch(() => {
           manualModelVersionInput.value = true
           PopupFunc('warning', 'Wystąpił problem z pobraniem Modeli danego producenta.')
         })
 
-      models.value = data?.data?.options
+      // models.value = Object.entries(data?.data?.options).map(item => item[1].pl)
+      if(data?.data?.options) models.value = Object.values(data?.data?.options)
+      }
     }
     async function fetchVersion() {
       selectedVersion.value = null
       versions.value = null
       manualVersionInput.value = false
 
-      const data = await axios.get(`${link}/dodaj/${selectedBrand.value}/${selectedModel.value}`) // PRODUKCYJNY
+      if(selectedModel.value !== null){
+
+      const data = await axios.get(`${link}/dodaj/${selectedBrand.value}/${replaceSpaces(selectedModel.value)}`)
         .catch(() => {
           manualVersionInput.value = true
           PopupFunc('info', 'Ten model nie posiada podziału na wersje.\nMożesz podać rocznik ręcznie.')
         })
       // ?. jest jak if statement sprawdzajacy czy obiekt istnieje
-      versions.value = data?.data?.options
+      if(data?.data?.options) versions.value = Object.entries(data?.data?.options).map(item => item[1].pl)
+      }
     }
 
     function validateData(e) {
@@ -329,8 +388,10 @@ export default {
     }
 
     function replaceSpaces(value) {
-      value = value.replace(" ", "-")
-      return value.replace(/[!@#$%^&*(){}<>?.;+_]/g, '')
+      if(value.length){
+        value = value.replace(" ", "-")
+        return value.replace(/[!@#$%^&*(){}<>?.;+_]/g, '')
+      }
     }
 
 
@@ -377,8 +438,11 @@ export default {
 
       engine,
       selectedFuel,
+      fuelOptions,
       selectedTransmission,
+      gearboxOptions,
       selectedDriveTrain,
+      drivetrainOptions,
 
       replaceSpaces,
       betterLooking,
@@ -390,7 +454,11 @@ export default {
       manualVersionInput,
       phoneNumNotStored,
 
-      clearForm
+      clearForm,
+
+      Dropdown,
+      InputText,
+      Editor
     }
   }
 }

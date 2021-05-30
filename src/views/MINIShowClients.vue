@@ -2,7 +2,7 @@
   <div class="container column">
     <input type="text" class="filterNumbers" placeholder="Znajdź klienta/pojazd" @keyup="filterNumbers()" v-model="filterInput">
 
-    <table class="showElements" v-if="(recivedClients && !filterInput) || (filterInput && filteredNumbers.length)">
+    <table class="showElements" v-if="(recivedClients && !filterInput) || (filterInput && filteredNumbers && filteredNumbers.length)">
       <tr>
         <th></th>
         <th>Imie klienta:</th>
@@ -54,7 +54,7 @@ require('firebase/firestore')
      
      const store = useStore()
 
-     const recivedClients = ref()
+     const recivedClients = ref([])
      const filteredNumbers = ref()
 
      const limit = ref(100)

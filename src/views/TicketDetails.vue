@@ -68,7 +68,6 @@
         </table>
 
         <div class="row">
-          <button class="btn" @click="HandleFunc($event)">Edytuj(zrobic pelny formularz)</button>
           <button class="btn" @click="HandleFunc($event)">Usuń</button>
           <button class="btn" @click="HandleFunc($event)">Przenieś</button>
           <button class="btn" @click="HandleFunc($event)"
@@ -78,6 +77,8 @@
       </div>
 
     </div>
+  <Modal :message="modalMsg" :operation="Operation" v-if="showModal" @true="(status, newLocation) => modalResponse(status, newLocation || '')" @false="modalResponse(false)" />
+  
   </div>
 </template>
 
@@ -85,17 +86,22 @@
 import firebase from 'firebase/app'
 import PopupFunc from '@/components/PopupFunc.js'
 import { DeleteFunc } from '@/components/EditMoveDeleteOptions'
+
+import Modal from '@/components/Modal.vue'
   
 import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import createPDF from '@/components/CreatePDF'
+// import createPDF from '@/components/CreatePDF'
 
 export default {
   setup() {
     const route = useRoute()
     const router = useRouter()
     const openEditor = ref(false)
+
+    const showModal = ref(false)
+    const modalMsg = ref('')
 
     const carDetails = ref()
     const showTotalNet = ref(0)
@@ -108,10 +114,11 @@ export default {
       .doc('zlecenia')
 
     const currentPath = tickets.collection(route.params.collectionPath)
+    const currentPhoneNum = route.params.phoneNum
 
 
     function fetchData() {
-      tickets.collection(route.params.collectionPath).doc(route.params.phoneNum)
+      tickets.collection(route.params.collectionPath).doc(currentPhoneNum)
         .get().then(recived => {
           // console.log(recived.data())
           let response = Object.entries(recived.data()).filter(item => item?.[1]['id'] == route.params.ticketDetails)
@@ -126,24 +133,27 @@ export default {
 
         }).catch(() => {
           carDetails.value = ''
-          PopupFunc('error', 'Wystąpił problem ze znalezieniem danego numeru: \n' + route.params.phoneNum)
+          PopupFunc('error', 'Wystąpił problem ze znalezieniem danego numeru: \n' + currentPhoneNum)
         })
     }
       
 
-    function HandleFunc(e) {
+    async function HandleFunc(e) {
       const target = e.target.innerText
       const id = e.target.parentElement.parentElement.parentElement.id
-      if (target == 'Usuń') DeleteFunc('ticket', currentPath, route.params.phoneNum)
+      if (target == 'Usuń') {
+        await DeleteFunc('ticket', currentPath, currentPhoneNum, '', route.params.ticketDetails)
+        router.go(-1)
+      }
       if (target == 'Edytuj') EditFunc(id)
-      if(target == 'PDF') createPDF()
+      // if(target == 'PDF') createPDF()
       // if (target == 'Przenieś') MoveFunc(id)
     }
 
     function EditFunc() {
       openEditor.value = true
 
-      router.push(`/edytuj/${route.params.collectionPath}/${route.params.phoneNum}/${route.params.ticketDetails}`)
+      router.push(`/edytuj/${route.params.collectionPath}/${currentPhoneNum}/${route.params.ticketDetails}`)
     }
 
     onMounted(() => {
@@ -162,7 +172,11 @@ export default {
       HandleFunc,
       openEditor,
       ComputedShowTotalNet,
-      ComputedShowTotalGross
+      ComputedShowTotalGross,
+
+      showModal,
+      modalMsg,
+      Modal
     }
   }
 }

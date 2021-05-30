@@ -1,34 +1,53 @@
 <template>
-  <form class="newClientForm">
+  <form class="p-ml-2">
     <div class="closeForm" @click="$router.go(-1)">&times;</div>
 
-    <div class="row">
-      <div class="required column">
-        <h2>Pola obowiązkowe: </h2>
-        <label for="phoneNum">Number telefonu:</label>
-        <input type="text" id="phoneNum" placeholder="123456789 / 1234567" required v-model="phoneNum">
+    <div class="p-d-flex p-flex-md-row p-flex-column p-jc-md-evenly p-ai-center">
+      <div class=" p-d-flex p-flex-column ">
+        <h3 class="p-mt-3">Pola obowiązkowe: </h3>
+      
+        <span class="p-float-label p-mt-4">
+          <InputText type="text" id="phoneNum" required v-model="phoneNum" />
+          <label for="username">Numer telefonu</label>
+        </span>
 
-        <label for="clientName">Imie klienta:</label>
-        <input type="text" id="clientName" required v-model="clientName">
+        <span class="p-float-label p-mt-4">
+          <InputText type="text" id="clientName" required v-model="clientName" />
+          <label for="clientName">Imie klienta</label>
+        </span>
 
       </div>
 
-      <div class="extraInformation column">
-        <h2>Dodatkowe informacje: </h2>
-        <label for="phoneNum2">Dodatkowy numer telefonu::</label><input name="phoneNum2" type="text"
-          v-model="phoneNum2" maxlength="12">
-        <label for="address">Adres:</label><input name="address" type="text" v-model="address">
+      <div class="extraInformation p-d-flex p-flex-column p-jc-evenly">
+        <h3 class="p-mt-3">Dodatkowe informacje: </h3>
+        <span class="p-float-label p-mt-4">
+          <InputText type="text" id="phoneNum2" required v-model="phoneNum2" />
+          <label for="phoneNum2">Dodatkowy numer telefonu</label>
+        </span>
+        <span class="p-float-label p-mt-4">
+          <InputText type="text" id="address" required v-model="address" />
+          <label for="address">Adres</label>
+        </span>
 
-        <textarea name="client_description" cols="50" rows="10" placeholder="Dodatkowe informacje"
-          v-model="client_description"></textarea>
       </div>
     </div>
+    <label for="Textarea"><h3 class="p-mt-3 p-mb-1">Uwagi</h3></label>
+        <Editor v-model="client_description" editorStyle="height: 250px; width: 60vw; max-width: 800px" id="Textarea">
+          <template #toolbar>
+            <span class="ql-formats">
+              <button class="ql-bold"></button>
+              <button class="ql-italic"></button>
+              <button class="ql-underline"></button>
+              <button class="ql-list" value="bullet"></button>
+            </span>
+          </template>
+        </Editor>
 
-
-    <div class="row">
-      <button class="btn addData success"
-        @click="validateData($event)">{{ $route.path.indexOf('edytuj') > 0 ? "Edytuj klienta" : "Dodaj klienta" }}</button>
-      <button class="btn clearForm failed" @click="clearForm">Wyczyść formularz</button>
+    <div class="p-d-flex p-flex-column p-flex-md-row p-jc-center">
+      <Button :label=" $route.path.indexOf('edytuj') > 0 ? 'Edytuj klienta' : 'Dodaj klienta'" 
+        class="p-button-raised p-button-success p-m-2" @click="validateData($event)" icon="pi pi-save" />
+      <Button label="Wyczyść formularz" class="p-button-raised p-button-danger p-m-2" 
+      @click="clearForm" icon="pi pi-trash" />
     </div>
   </form>
 
@@ -46,6 +65,10 @@ import { getTime } from '@/components/getCurrentTime'
 import validPhoneNum from '@/components/validPhoneNum.js'
 
 import firebase from 'firebase/app'
+
+import InputText from 'primevue/inputtext';
+import Editor from 'primevue/editor';
+import Button from 'primevue/button';
 
 
 export default {
@@ -173,7 +196,11 @@ export default {
 
       validateData,
 
-      clearForm
+      clearForm,
+
+      InputText,
+      Editor,
+      Button
     }
   }
 }

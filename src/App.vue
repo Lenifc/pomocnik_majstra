@@ -136,11 +136,11 @@ export default {
             title: 'Zarządzaj klientami',
             icon: 'fa fa-user',
           },
-          {
-            disabled: true,
-            title: 'Zarządzaj pojazdami',
-            icon: 'fa fa-car',
-          },
+          // {
+          //   disabled: true,
+          //   title: 'Zarządzaj pojazdami',
+          //   icon: 'fa fa-car',
+          // },
           {
             component: divider
           },
@@ -234,7 +234,7 @@ export default {
 }
 
 body{
-    font-size: 17px;
+    font-size: 16px;
     background-color: #202847;
     color: white;
     position: relative;
@@ -422,6 +422,7 @@ h1:hover{
   font-weight: bold;
 }
 
+
 i{
   cursor: pointer;
 }
@@ -443,10 +444,7 @@ i{
 }
 }
 
-@media (max-width: 805px) {
-  .hideUnder900{
-    display: none;
-  }
+@media (max-width: 800px) {
   .container{
     padding-left: 5%;
 }

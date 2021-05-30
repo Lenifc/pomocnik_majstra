@@ -1,52 +1,84 @@
 <template>
-  <div class="container column">
-    <button class="btn" @click="openClientAddForm()">Dodaj Klienta</button>
+  <div class="container p-d-flex p-flex-column p-ai-center">
 
-    <table class="showElements" v-if="recivedClients">
-      <tr>
-        <th class="hideUnder900"></th>
-        <th></th>
-        <th>Imie klienta:</th>
-        <th>Numer telefonu:</th>
-        <th class="hideUnder1340">Adres:</th>
-        <th class="hideUnder1100">Uwagi:</th>
-        <th>Pojazdy:</th>
-      </tr>
+    <Button label="Dodaj Klienta" icon="pi pi-user-plus" @click="openClientAddForm()"
+      class="p-button-secondary p-mt-5" />
 
-      <tr v-for="(client, index) in recivedClients" :key="client.id" :id="`id${client.Tel}`">
-        <td class="id hideUnder900">{{index+1}}</td>
-        <td class="buttons-section width-42">
-          <i class="fas fa-edit" @click="openClientEditForm(client)"></i>
-          <i class="fas fa-plus" @click="openVehicleAddForm(client.Tel)"><i class="fas fa-car"></i></i>
-          <i class="fas fa-trash-alt" @click="openDeleteModal(client, 'removeClient', onlyCars(client).length)"></i>
-          </td>
-        <td class="wrap">{{client.Imie }}</td>
-        <td class="wrapSpace bold width-130">{{client.Tel }} {{ client.Tel2 ? `(${client.Tel2})` : ''}}</td>
-        <td class="hideUnder1340">{{ client.Adres }}</td>
-        <td class="wrap width-280 hideUnder1100">{{ client.Opis }}</td>
+    <DataTable :value="recivedClients" responsiveLayout="stack" stripedRows showGridlines v-model:filters="tableFilters"
+      filterDisplay="menu" :loading="!recivedClients" class="p-ml-3 p-my-5" dataKey="Tel">
+      <template #header>
+        <div class="p-d-flex p-jc-between">
+          <Button icon="pi pi-filter-slash" label="Wyczyść" class="p-button-outlined" @click="clearTableFilters()" />
+          <span class="p-input-icon-left">
+            <i class="pi pi-search" />
+            <InputText v-model="tableFilters['global'].value" placeholder="Wyszukaj..." />
+          </span>
+        </div>
+      </template>
+      <template #empty>
+        Nie znaleziono szukanej frazy.
+      </template>
+      <template #loading>
+        Pobieranie danych z serwera...
+      </template>
 
-        <div class="borders width-300">
-          <div v-for="car in onlyCars(client)" :id="`id${car.VIN}`" :key="car.VIN">
-            <div v-if="car.VIN" class="row">
-              <div class="left column">
-                <div>{{ car.Marka }} {{ car.Model }}</div>
-                <div>{{ car.VIN }}</div>
-              </div>
-              <div class="right row">
-                <router-link :to="`/details/${car.VIN}`"><i class="fas fa-info"></i></router-link>
-                <i class="fas fa-edit" @click="openVehicleEditForm(car)"></i>
-                <i class="fas fa-trash-alt" @click="openDeleteModal(client, 'removeCar', car.VIN)"></i>
-              </div>
+      <Column style="width:50px" class="p-text-center">
+        <template #body="{index}">
+          {{index+1}}
+        </template>
+      </Column>
+      <Column header="OPCJE" class="p-text-center" style="width:84px">
+        <template #body="{data}">
+          <div class="p-d-flex p-flex-column p-ai-center">
+            <div class="p-d-flex p-flex-row p-pb-2">
+              <i class="fas fa-edit p-pr-3" v-tooltip.right="'Edytuj dane klienta'" @click="openClientEditForm(data)"></i>
+              <i class="fas fa-trash-alt" v-tooltip.right="'Usuń klienta z jego pojazdami'"
+                      @click="openDeleteModal(data, 'removeClient', onlyCars(data).length)"></i>
+            </div>
+            <div class="p-d-flex p-flex-row">
+              <i class="fas fa-info-circle p-pr-2" v-tooltip.right="'Szczegółowe dane klienta'"></i>
+              <i class="fas fa-plus" v-tooltip.right="'Przypisz pojazd do klienta'" @click="openVehicleAddForm(data.Tel)"><i class="fas fa-car"></i></i>
             </div>
           </div>
-        </div>
-        
-      </tr>
 
-    </table>
-    <button class="btn"
-          @click="getClientsFromFirebase('more')" v-if="!disableNextButton">Załaduj więcej klientów</button>
-        <Modal :message="modalMsg" :operation="Operation" v-if="showModal" @true="(status) => modalResponse(status)" @false="modalResponse(false)" />
+        </template>
+      </Column>
+      <Column field="Tel" header="Numer Telefonu" class="p-text-center" style="width:130px">
+        <template #body="{data}">
+          {{ data.Tel }}
+          {{ data.Tel2 ? data.Tel2 : ''}}
+        </template>
+      </Column>
+      <Column field="Imie" header="Imie" class="p-text-center"></Column>
+      <!-- <Column field="Adres" header="Adres" class="p-text-center"></Column> -->
+      <Column header="Pojazd" class="p-text-center" style="width:300px; max-width:330px">
+        <template #body="{data}"> 
+          <!-- zamiast pisac SlotProps.data moge uzyc destrukturyzacji i skrocic zapis -->
+          <div v-for="car in onlyCars(data)" :id="`id${car.VIN}`" :key="car.VIN"
+            class="p-d-flex p-flex-column Cars">
+            <div class="p-d-flex p-flex-row p-ai-center p-jc-between">
+              <div class="p-d-flex p-flex-column">
+                <div class="p-text-center p-text-wrap p-text-bold">{{`${car.Marka} ${car.Model}`}}</div>
+                <div class="p-text-nowrap p-text-truncate" style="width:200px; max-width:225px">{{car.VIN}}</div>
+              </div>
+              <div class="p-d-flex p-flex-row p-jc-end p-ai-center">
+                <router-link :to="`/details/${car.VIN}`">
+                  <i class="fas fa-info" v-tooltip.top="'Szczegóły pojazdu'"></i>
+                </router-link>
+                <i class="fas fa-edit p-pr-1 p-pl-2" v-tooltip.top="'Edytuj dane pojazd'" @click="openVehicleEditForm(car)"></i>
+                <i class="fas fa-trash-alt" v-tooltip.top="'Usuń pojazd'" @click="openDeleteModal(data, 'removeCar', car.VIN)"></i>
+              </div>
+            </div>
+            <Divider class="lookForLast" />
+          </div>
+        </template>
+      </Column>
+    </DataTable>
+
+    <Button class="p-button-secondary p-mb-6" @click="getClientsFromFirebase('more')" 
+    label="Załaduj więcej klientów" v-if="!disableNextButton" icon="pi pi-download" />
+    <Modal :message="modalMsg" :operation="Operation" v-if="showModal" @true="(status) => modalResponse(status)"
+      @false="modalResponse(false)" />
 
   </div>
 </template>
@@ -57,6 +89,14 @@ import { onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import PopupFunc from '@/components/PopupFunc'
+
+import Button from 'primevue/button';
+import InputText from 'primevue/inputtext'
+
+import { FilterMatchMode } from "primevue/api";
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+import Divider from 'primevue/divider';
 
 import Modal from '@/components/Modal.vue'
 
@@ -83,14 +123,26 @@ require('firebase/firestore')
      const disableNextButton = ref(true)
      const countClientCars = ref(0)
 
+    const tableFilters = ref({
+      'global': { value: null, matchMode: FilterMatchMode.CONTAINS }
+    })
+    const clearTableFilters = () => {
+      inittableFilters();
+    }
+    const inittableFilters = () => {
+      tableFilters.value = {
+        'global': { value: null, matchMode: FilterMatchMode.CONTAINS }
+      }
+    }
+
      const MainPath = firebase.firestore()
        .collection('warsztat').doc('Klienci').collection('Numery')
 
      async function getClientsFromFirebase(req) {
-       if(req == 'more') limit.value += 50
+       if(req == 'more') limit.value += 100
 
       const clientPath = MainPath
-      .orderBy("Ostatnia_Aktualizacja", "desc") // jak ujebie orderBy to doladowanie smiga i domyslnie sortuje po numerze tel.
+      .orderBy("Ostatnia_Aktualizacja", "desc")
        .limit(limit.value)
 
        let clientResponse = await clientPath.get()
@@ -154,7 +206,7 @@ require('firebase/firestore')
            if (Operation.value == 'removeClient') {
 
              const confirmDelete = await DeleteFunc('client', MainPath, Tel, countClientCars.value)
-             if (confirmDelete !== false) document.querySelector(`#id${Tel}`).remove() // usuwam go z widoku tabeli
+             if (confirmDelete !== false) recivedClients.value = recivedClients.value.filter(client => client.Tel != Tel)
            }
            if (Operation.value == 'removeCar') {
              const confirmDelete = await DeleteFunc('car', MainPath, Tel, DeleteTargetCar.value, JSON.parse(JSON.stringify(store.state.clientData))) // prosta konwersja proxy do objektu
@@ -188,7 +240,17 @@ require('firebase/firestore')
        onlyCars,
        getClientsFromFirebase,
        disableNextButton,
-       countClientCars
+       countClientCars,
+
+       FilterMatchMode,
+       DataTable,
+       Column,
+       Button, 
+       InputText,
+       Divider,
+
+       tableFilters,
+       clearTableFilters
      }
 
    }
@@ -196,101 +258,21 @@ require('firebase/firestore')
 </script>
 
 <style scoped>
-table{
-  width: fit-content;
-  height: fit-content;
-}
-
-.buttons-section{
-  padding: 8px 0;
-}
-.buttons-section i{
-  padding: 4px 0;
-}
-
-.borders{
-  border-right: 3px solid green;
-  height: 100%;
-  padding: 6px 4px;
-  position: relative;
-  display: grid;
-  align-items: center;
-}
-
-.borders::after{
-  content: '';
-  position: absolute;
-  top: -1px;
-  left: 0px;
-  width: 100%;
-  height: 3px;
-  background-color: green; 
-}
-.borders::before{
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: -1px;
-  width: 101%;
-  height: 2px;
-  background-color: green;
-}
-
-.row{
-  gap: 10px;
-  width: 100%;
-}
 
 .fa-plus{
-  font-size: 0.85rem!important;
-  padding: 12px 0;
+  font-size: 0.75rem!important;
+  /* padding: 8px 0; */
   display: flex;
   align-items: center;
-  margin-left: 50%;
-  transform: translateX(-50%)
+  /* margin-left: 75%;
+  transform: translateX(-50%) */
 }
 
-i{
-  width: fit-content;
+.fa-car, .fa-edit, .fa-trash-alt, .fa-info-circle{
   font-size: 1.66rem;
 }
-.left,
-.right{
-  padding: 8px 0;
-}
 
-.left.column{
-  width: fit-content;
-  padding-left: 4px;
-}
-
-.right.row{
-  align-items: center;
-  justify-content: flex-end;
-  padding: 0;
-}
-
-.width-50{
-  width: 50px;
-}
-.width-130{
-  width: 130px;
-  min-width: 130px;
-}
-.width-280{
-  min-width: 200px;
-  width: 280px;
-}
-
-.width-300{
-  max-width: 300px;
-}
-
-.width-42{
-  width: 42px;
-}
-
-tr:nth-child(even){
-  background-color: #444;
+.Cars:last-child > .p-divider{
+  display: none;
 }
 </style>

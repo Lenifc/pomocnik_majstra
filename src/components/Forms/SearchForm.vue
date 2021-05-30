@@ -1,18 +1,21 @@
 <template>
 <div class="container column">
-    <div class="row">
+    <div class="p-d-flex p-flex-row">
         <div class="column">
             <label for="searchClient">Wyszukaj klienta po numerze telefonu</label>
-            <input type="text" name="searchClient" placeholder="7 lub 9 cyfrowy numer" v-model="searchNumber">
+            <InputText type="text" name="searchClient" v-model="searchNumber" 
+            v-tooltip.bottom.focus="'(BEZ NUMERU KIERUNKOWEGO) \n- 7 cyrf dla numeru stacjonarnego \n- 9 cyfr dla numeru komórkowego'" />
         </div>
         <p>Lub</p>
         <div class="column">
             <label for="searchVehicle">Wyszukaj pojazd po numerze VIN</label>
-            <input type="text" name="searchClient" placeholder="17 znaków" v-model="searchVIN">
+            <InputText type="text" name="searchClient" v-model="searchVIN" v-tooltip.bottom.focus="'Poprawny format to 17 znaków'" />
         </div>
 
     </div>
-    <button @click="validSearchData" class="btn">Szukaj</button>
+    <Button @click="validSearchData" icon="pi pi-search" class="p-button-secondary" label="Szukaj" />
+
+
     <div class="output" v-for="client in outputData" :key="client.id">
       <div class="client">
         <h3>Klient:</h3><i class="fas fa-edit"></i><i class="fas fa-trash-alt"></i>
@@ -57,6 +60,9 @@ import PopupFunc from '@/components/PopupFunc'
 import firebase from 'firebase/app'
 import validPhoneNum from '@/components/validPhoneNum.js'
 import validateVIN from '@/components/validateVIN.js'
+
+import Button from 'primevue/button'
+import InputText from 'primevue/inputtext'
 
 let _ = require('lodash')
 
@@ -168,8 +174,10 @@ function validSearchData() {
         searchInFirestore,
         ticketsHistory,
         callTicketsHistory,
-        FilterOnlyCars
-        
+        FilterOnlyCars,
+
+        Button,
+        InputText      
     }
 }
 }
