@@ -26,7 +26,7 @@
           {{slotProps.index+1}} 
         </template>
       </Column>
-      <Column header="OPCJE" class="p-text-center">
+      <Column header="OPCJE" class="p-text-center" style="width:160px">
         <template #body="slotProps">
           <div class="p-d-flex p-jc-center">
             <Button @click="redirectToDetails(slotProps.data)"
@@ -42,6 +42,8 @@
 
         </template>
       </Column>
+      <Column field="Dodane_Czas" header="Data dodania zlecenia" :class="'p-text-center ' + ($route.path == '/zakonczone' ? 'p-d-none' : '')" 
+      style="width:150px"/>
       <Column field="Imie" header="Imie" class="p-text-center"></Column>
       <Column field="Tel" header="Numer Telefonu" class="p-text-center"></Column>
       <Column field="Marka" header="Pojazd" style="width:200px" class="p-text-center">
@@ -50,6 +52,7 @@
         </template>
       </Column>
       <Column field="Numer_rejestracyjny" header="Numer rejestracyjny" class="p-text-center"></Column>
+      <Column field="Zakonczone_Czas" header="Data zakończenia zlecenia" :class="'p-text-center ' + ($route.path == '/zakonczone' ? '' : 'p-d-none')" style="width:150px" />
       <!-- <Column field="Koszt" header="Koszt" class="p-text-center" v-if="$router.path.contains('zakonczone')"></Column> -->
     </DataTable>
 

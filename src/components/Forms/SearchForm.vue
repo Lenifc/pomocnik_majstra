@@ -1,19 +1,33 @@
 <template>
 <div class="container column">
-    <div class="p-d-flex p-flex-row">
-        <div class="column">
-            <label for="searchClient">Wyszukaj klienta po numerze telefonu</label>
-            <InputText type="text" name="searchClient" v-model="searchNumber" 
-            v-tooltip.bottom.focus="'(BEZ NUMERU KIERUNKOWEGO) \n- 7 cyrf dla numeru stacjonarnego \n- 9 cyfr dla numeru komórkowego'" />
-        </div>
-        <p>Lub</p>
-        <div class="column">
-            <label for="searchVehicle">Wyszukaj pojazd po numerze VIN</label>
-            <InputText type="text" name="searchClient" v-model="searchVIN" v-tooltip.bottom.focus="'Poprawny format to 17 znaków'" />
-        </div>
-
-    </div>
-    <Button @click="validSearchData" icon="pi pi-search" class="p-button-secondary" label="Szukaj" />
+  <div class="p-d-flex p-flex-sm-column p-flex-md-row p-jc-between p-mt-4 p-text-center border">
+    <Card class="p-m-3">
+      <template #title>
+        Wyszukaj pojazd po numerze VIN
+      </template>
+      <template #content>
+        <InputText type="text" name="searchClient" v-model="searchVIN"
+          v-tooltip.top.focus="'Poprawny format to 17 znaków'" />
+      </template>
+      <template #footer>
+        <Button @click="validSearchData" icon="pi pi-search" class="p-button-secondary searchBtn vinBtn" label="Szukaj" 
+        id="vin" />
+      </template>
+    </Card>
+      <!-- <Divider layout="vertical" /> -->
+    <Card class="p-m-3">
+      <template #title >
+        Wyszukaj klienta po numerze telefonu
+      </template>
+      <template #content>
+        <InputText type="text" name="searchClient" v-model="searchNumber"
+          v-tooltip.top.focus="'- 7 cyrf dla numeru stacjonarnego \n- 9 cyfr dla numeru komórkowego'" />
+      </template>
+      <template #footer>
+        <Button @click="validSearchData" icon="pi pi-search" class="p-button-secondary searchBtn phoneBtn" label="Szukaj" />
+      </template>
+    </Card>
+  </div>
 
 
     <div class="output" v-for="client in outputData" :key="client.id">
@@ -63,6 +77,8 @@ import validateVIN from '@/components/validateVIN.js'
 
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
+import Card from 'primevue/card';
+import Divider from 'primevue/divider';
 
 let _ = require('lodash')
 
@@ -73,28 +89,33 @@ setup(){
     const outputData = ref('')
     const ticketsHistory = ref([])
 
-function validSearchData() {
-  if (searchNumber.value.trim() && searchVIN.value.trim()) {
-    PopupFunc('warning', 'Zdecyduj się, szukasz klienta czy pojazdu?')
-    return
-  }
-  if (searchNumber.value.trim()) {
+function validSearchData(e) {
+  let target = e.target.classList
+  let buttons = document.querySelectorAll('.searchBtn')
+  let vinBtn = document.querySelector('.vinBtn')
+  let phoneBtn = document.querySelector('.phoneBtn')
+
+  buttons.forEach(btn => btn.classList.remove('active'))
+
+  if (target.contains('phoneBtn') && searchNumber.value.trim()) {
     let legitPhoneNum = validPhoneNum(searchNumber.value.trim())
     if (legitPhoneNum) {
       searchNumber.value = legitPhoneNum
+      phoneBtn.classList.add('active')
       searchInFirestore(searchNumber.value, 'phoneNum')
       return
     }
     return PopupFunc('error', 'Popraw numer telefonu')
   }
-  if (searchVIN.value.trim()) {
+  if (target.contains('vinBtn') && searchVIN.value.trim()) {
     let VINNumber = validateVIN(searchVIN.value)
+    vinBtn.classList.add('active')
     if (!VINNumber) {
       PopupFunc('error', 'Popraw numer VIN')
     } else{
       searchInFirestore(VINNumber, 'VIN')
     }
-    } else PopupFunc('info', 'Nie można szukać pustego pola')
+    }
   }
 
 
@@ -177,12 +198,23 @@ function validSearchData() {
         FilterOnlyCars,
 
         Button,
-        InputText      
+        InputText,
+        Card,
+        Divider
     }
 }
 }
 </script>
 
 <style>
+.active{
+  background-color: var(--green-600)!important;
+}
 
+@media screen and (max-width: 576px)
+{
+  .p-flex-sm-column {
+    flex-direction: column !important;
+  }
+}
 </style>

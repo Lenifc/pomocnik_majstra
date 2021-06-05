@@ -71,7 +71,7 @@
           <button class="btn" @click="HandleFunc($event)">Usuń</button>
           <button class="btn" @click="HandleFunc($event)">Przenieś</button>
           <button class="btn" @click="HandleFunc($event)"
-            v-if="$route.params.collectionPath == 'zakonczone'">PDF</button>
+            v-if="$route.params.collectionPath == 'zakonczone'">Generuj Fakture</button>
         </div>
 
       </div>
@@ -91,13 +91,13 @@ import Modal from '@/components/Modal.vue'
   
 import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-
-// import createPDF from '@/components/CreatePDF'
+import { useStore } from 'vuex'
 
 export default {
   setup() {
     const route = useRoute()
     const router = useRouter()
+    const store = useStore()
     const openEditor = ref(false)
 
     const showModal = ref(false)
@@ -146,7 +146,15 @@ export default {
         router.go(-1)
       }
       if (target == 'Edytuj') EditFunc(id)
-      // if(target == 'PDF') createPDF()
+      if(target == 'Generuj Fakture') {
+        const invoiceData = {
+          phoneNum: currentPhoneNum,
+          vehicleVIN: carDetails.value['VIN'],
+          ticketID: route.params.ticketDetails
+        }
+        store.commit('setInvoiceData', invoiceData)
+        router.push('/generujFakture')
+      }
       // if (target == 'Przenieś') MoveFunc(id)
     }
 

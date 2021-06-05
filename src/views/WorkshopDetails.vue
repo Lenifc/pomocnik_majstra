@@ -31,6 +31,7 @@ export default {
     const entries = ref()
     const recivedData = ref()
     const isLoading = ref(true)
+    const checkOffline = ref()
 
     const toast = useToast()
 
@@ -51,11 +52,13 @@ export default {
 
     function updateDetails() {
       workshopDetails.update(recivedData.value).then(() => {
-        toast.add({severity:'success', summary: 'Aktualizacja', detail:'Dane warsztatu zostały zaktualizowane', life: 5000})
-      }).catch(() => {
-        toast.add({severity:'warning', summary: 'Aktualizacja', detail:'Wystąpił problem z aktualizacją danych', life: 5000})
-
+        toast.add({severity:'success', summary: 'Aktualizacja', detail:'Dane warsztatu zostały zaktualizowane', life: 0})
+      }).then(() => clearTimeout(checkOffline.value)).catch((err) => {
+        toast.add({severity:'error', summary: 'Aktualizacja', detail: err, life: 0})
       })
+      checkOffline.value = setTimeout(() => {
+        toast.add({severity:'warn', summary: 'Status offline', detail:'Klient jest offline.\n Dane zostaną zaktualizowane po przywróceniu połączenia.', life: 0})
+      }, 3000)
     }
 
     onMounted(() => getWorkshopDetails())

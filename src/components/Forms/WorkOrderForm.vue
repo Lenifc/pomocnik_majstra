@@ -7,11 +7,11 @@
             </div>
             <div class="column">
               <label for="">Ilość</label>
-              <input type="number" v-model="item.quantity" @change="recalculate(item)">
+              <input type="number" v-model="item.quantity" @change="recalculateAlreadyAddedWO(item)">
             </div>
             <div class="column">
               <label for="">Cena Netto[zł]</label>
-              <input type="number" v-model="item.price_net" @change="recalculate(item)">
+              <input type="number" v-model="item.price_net" @change="recalculateAlreadyAddedWO(item)">
             </div>
             <div class="column">
               <label for="">Wartość Netto[zł]</label>
@@ -19,11 +19,11 @@
             </div>
             <div class="column">
               <label for="">VAT [%]</label>
-              <input type="number" v-model="item.tax" @change="recalculate(item)">
+              <input type="number" v-model="item.tax" @change="recalculateAlreadyAddedWO(item)">
             </div>
             <div class="column">
               <label for="">Cena Brutto[zł]</label>
-              <input type="number" v-model="item.price_gross" @change="recalculate(item)">
+              <input type="number" v-model="item.price_gross" @change="recalculateAlreadyAddedWO(item)">
             </div>
             <div class="column">
               <label for="">Wartość Brutto[zł]</label>
@@ -35,31 +35,31 @@
         <li class="workOrderItem row align-center">
           <div class="column">
             <label for="service">Towar / usługa</label>
-            <input name="service" type="text" v-model="part_service_Name">
+            <input name="service" type="text" v-model="WO.part_service_Name">
           </div>
           <div class="column">
             <label for="quantity">Ilość</label>
-            <input name="quantity" type="text" v-model="quantity">
+            <input name="quantity" type="text" v-model="WO.quantity">
           </div>
           <div class="column">
             <label for="priceNet">Cena Netto[zł]</label>
-            <input name="priceNet" type="text" v-model="price_net">
+            <input name="priceNet" type="text" v-model="WO.price_net">
           </div>
           <div class="column">
             <label for="totalNet">Wartość Netto[zł]</label>
-            <input name="totalNet" type="text" v-model="totalCost_net" disabled>
+            <input name="totalNet" type="text" v-model="WO.totalCost_net" disabled>
           </div>
           <div class="column">
             <label for="tax">VAT [%]</label>
-            <input name="tax" type="text" v-model="tax">
+            <input name="tax" type="text" v-model="WO.tax">
           </div>
           <div class="column">
             <label for="priceGross">Cena Brutto[zł]</label>
-            <input name="priceGross" type="text" v-model="price_gross">
+            <input name="priceGross" type="text" v-model="WO.price_gross">
           </div>
           <div class="column">
             <label for="totalGross">Wartość Brutto[zł]</label>
-            <input name="totalGross" type="text" v-model="totalCost_gross" disabled>
+            <input name="totalGross" type="text" v-model="WO.totalCost_gross" disabled>
           </div>
           <div><i class="fa fa-plus" @click="addNewWO"></i></div>
         </li>
@@ -67,44 +67,46 @@
 </template>
 
 <script>
-    import { ref, watch } from 'vue'
+    import { ref, watch, reactive } from 'vue'
     export default {
       emits:['WOItems'],
 
       setup(props, {emit}) {
 
         const items = ref([])
-        const part_service_Name = ref(null)
-        const quantity = ref(1)
-        const price_net = ref()
-        const price_gross = ref()
-        const tax = ref(23)
-        const totalCost_net = ref(0)
-        const totalCost_gross = ref(0)
 
-
+        const WO = reactive({
+          part_service_Name: null,
+          quantity: 1,
+          price_net: null,
+          price_gross: null,
+          tax: 23,
+          totalCost_net: 0,
+          totalCost_gross: 0,
+        })
+        
         function clearInputs(){
-          part_service_Name.value = null
-          quantity.value = 1
-          price_net.value = null
-          price_gross.value = null
-          tax.value = 23
-          totalCost_net.value = 0
-          totalCost_gross.value = 0
+          WO.part_service_Name = null
+          WO.quantity = 1
+          WO.price_net = null
+          WO.price_gross = null
+          WO.tax = 23
+          WO.totalCost_net = 0
+          WO.totalCost_gross = 0
         }
 
         function addNewWO(){
-          if(quantity.value && price_net.value){
+          if(WO.quantity && WO.price_net){
 
             items.value.push({
               id: Date.now(),
-              part_service_Name: part_service_Name.value,
-              quantity: quantity.value,
-              price_net: price_net.value,
-              price_gross: price_gross.value,
-              tax: tax.value,
-              totalCost_net: totalCost_net.value.toFixed(2),
-              totalCost_gross: totalCost_gross.value.toFixed(2)
+              part_service_Name: WO.part_service_Name,
+              quantity: WO.quantity,
+              price_net: WO.price_net,
+              price_gross: WO.price_gross,
+              tax: WO.tax,
+              totalCost_net: WO.totalCost_net.toFixed(2),
+              totalCost_gross: WO.totalCost_gross.toFixed(2)
             })
 
             clearInputs()
@@ -117,7 +119,7 @@
           items.value = items.value.filter(item => item.id != target.id)
         }
 
-        function recalculate(item) {
+        function recalculateAlreadyAddedWO(item) {
           item.price_gross = item.price_net
           item.totalCost_gross = item.price_net * item.quantity
           
@@ -131,37 +133,31 @@
         }
 
         watch(() => items.value, () => emit('WOItems', items.value))
-        watch(() => price_net.value, () => {
-          price_gross.value = Number((Number(price_net.value)*(Number(tax.value)+100)/100).toFixed(2))
-          if(quantity.value) { 
-           totalCost_net.value = Number((Number(quantity.value) * Number(price_net.value)).toFixed(2))
-           totalCost_gross.value = Number((Number(quantity.value) * Number(price_net.value) * ((Number(tax.value)+100)/100)).toFixed(2))
+        watch(() => WO.price_net, () => {
+          WO.price_gross = Number((Number(WO.price_net)*(Number(WO.tax)+100)/100).toFixed(2))
+          if(WO.quantity) { 
+           WO.totalCost_net = Number((Number(WO.quantity) * Number(WO.price_net)).toFixed(2))
+           WO.totalCost_gross = Number((Number(WO.quantity) * Number(WO.price_net) * ((Number(WO.tax)+100)/100)).toFixed(2))
           }
         })
-        watch(() => quantity.value, () => {
-          if(price_net.value) totalCost_net.value = Number((Number(price_net.value) * Number(quantity.value)).toFixed(2))
-          if(price_net.value) totalCost_gross.value = Number((Number(quantity.value) * Number(price_net.value) * ((Number(tax.value)+100)/100)).toFixed(2))
+        watch(() => WO.quantity, () => {
+          if(WO.price_net) WO.totalCost_net = Number((Number(WO.price_net) * Number(WO.quantity)).toFixed(2))
+          if(WO.price_net) WO.totalCost_gross = Number((Number(WO.quantity) * Number(WO.price_net) * ((Number(WO.tax)+100)/100)).toFixed(2))
         })
-        watch(() => tax.value, () => {
-          if(quantity.value && price_net.value) {
-            price_gross.value = Number((Number(price_net.value) * (Number(tax.value) +100)/100).toFixed(2))
-            totalCost_net.value = Number((Number(quantity.value) * Number(price_net.value)).toFixed(2))
-            totalCost_gross.value = Number((Number(quantity.value) * Number(price_net.value) * ((Number(tax.value)+100)/100)).toFixed(2))
+        watch(() => WO.tax, () => {
+          if(WO.quantity && WO.price_net) {
+            WO.price_gross = Number((Number(WO.price_net) * (Number(WO.tax) +100)/100).toFixed(2))
+            WO.totalCost_net = Number((Number(WO.quantity) * Number(WO.price_net)).toFixed(2))
+            WO.totalCost_gross = Number((Number(WO.quantity) * Number(WO.price_net) * ((Number(WO.tax)+100)/100)).toFixed(2))
         }
         })
 
         return {
-          part_service_Name,
-          quantity,
-          price_net,
-          price_gross,
-          tax,
-          totalCost_net,
-          totalCost_gross,
+          WO,
           items,
           addNewWO,
           deleteWO,
-          recalculate
+          recalculateAlreadyAddedWO
         }
       }
     }

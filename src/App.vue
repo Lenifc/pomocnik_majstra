@@ -14,10 +14,10 @@
       <router-view></router-view>
 
     </div>
-    <sidebar-menu :menu="menu" width="255px" 
-    :collapsed="false" 
-    @item-click="onItemClick" />
   </div>
+    <sidebar-menu :menu="menu" width="255px" 
+    :collapsed="false" v-if="userSignedIn"
+    @item-click="onItemClick" />
 
 </div>
 </template>
@@ -305,10 +305,9 @@ td{
 
 .container{
     margin: 0 auto;
-    padding-left: min(60px, 10%);
+    padding-left: min(68px, 10%);
     width: min(94%, 1400px);
-    display: flex;
-    justify-content: center;
+    /* border:1px solid red */
 }
 
 .signedOut{
@@ -387,13 +386,6 @@ h1:hover{
   box-shadow: inset 3px 0 0 0 greenyellow!important;;
 
 }
-/* .mdiMonitor{
-  background-image: url('./assets/icons/monitor.svg');
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: 80%;
-  fill: white;
-} */
 
 .column{
   display: flex;
@@ -428,28 +420,9 @@ i{
 }
 
 
-@media(max-width: 1230px){ 
-  /* media bierze chyba viewport containera, a nie window... */
-  .hideUnder1340{
-    display: none;
-  }
-}
-
-@media (max-width: 1010px) {
-  .hideUnder1100{
-    display: none;
-  }
-  .container{
-    padding-left: 45px;
-}
-}
-
 @media (max-width: 800px) {
   .container{
     padding-left: 5%;
 }
-
-/* PONIZEJ 720 DAC POJAZDY DO NOWEJ LINI */
-/* ALBO PODMIENIC 3 IKONKI NA JEDNA Z 3KROPKAMI OZNACZAJACA WIECEJ OPCJI  */
 }
 </style>

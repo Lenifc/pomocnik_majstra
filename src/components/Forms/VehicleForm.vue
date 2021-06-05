@@ -11,7 +11,7 @@
           v-if="phoneNumNotStored"/>
 
         <label for="brand">Marka:</label>
-        <Dropdown v-model="selectedBrand" :options="brands" optionLabel="brand" optionValue="brand" 
+        <Dropdown v-model="carSpec.selectedBrand" :options="brands" optionLabel="brand" optionValue="brand" 
         :filter="true" placeholder="Wybierz marke" :showClear="true" @change="fetchModels()" 
         v-if="!manualBrandModelVersionInput" scrollHeight="60vh" required>
           <template #value="slotProps"> <!-- ten template odpowiada za aktualnie wybrany pojazd -->
@@ -26,11 +26,11 @@
             </div>
           </template>
         </Dropdown>
-        <InputText type="text" name="brand" v-if="manualBrandModelVersionInput" required v-model="selectedBrand"
+        <InputText type="text" name="brand" v-if="manualBrandModelVersionInput" required v-model="carSpec.selectedBrand"
           placeholder="Wpisz marke pojazdu" />
 
         <label for="model">Model:</label>
-        <Dropdown v-model="selectedModel" :options="models" optionLabel="pl" optionValue="pl" placeholder="Wybierz model" 
+        <Dropdown v-model="carSpec.selectedModel" :options="models" optionLabel="pl" optionValue="pl" placeholder="Wybierz model" 
         :filter="true" :showClear="true" @change="fetchVersion()" v-if="!manualBrandModelVersionInput && !manualModelVersionInput" 
                 :disabled="!models" scrollHeight="60vh" required>
          <template #value="slotProps">
@@ -46,10 +46,10 @@
           </template>
           </Dropdown>
         <InputText type="text" name="model" v-if="manualBrandModelVersionInput || manualModelVersionInput" required
-          v-model="selectedModel" placeholder="Wpisz model pojazdu" />
+          v-model="carSpec.selectedModel" placeholder="Wpisz model pojazdu" />
 
         <label for="prod_year">Generacja:</label>
-        <Dropdown v-model="selectedVersion" :options="versions" optionLabel="version" placeholder="Wybierz generacje"
+        <Dropdown v-model="carSpec.selectedVersion" :options="versions" optionLabel="version" placeholder="Wybierz generacje"
                   v-if="!manualVersionInput && !manualBrandModelVersionInput && !manualModelVersionInput"
                   :disabled="!versions" required scrollHeight="60vh" :showClear="true">
          <template #value="slotProps">
@@ -64,38 +64,38 @@
             </div>
           </template> 
           </Dropdown>
-        <InputText type="text" name="prod_year"
-          v-if="(selectedModel && manualVersionInput) || manualBrandModelVersionInput || manualModelVersionInput"
-          v-model="selectedVersion" placeholder="Wpisz rocznik pojazdu" />
+        <InputText type="text" name="prod_year" required
+          v-if="(carSpec.selectedModel && manualVersionInput) || manualBrandModelVersionInput || manualModelVersionInput"
+          v-model="carSpec.selectedVersion" placeholder="Wpisz rocznik pojazdu" />
 
         <label for="fuel">Rodzaj paliwa:</label>
-        <Dropdown name="fuel" v-model="selectedFuel" :options="fuelOptions" optionLabel="name" optionValue="name" 
+        <Dropdown name="fuel" v-model="carSpec.selectedFuel" :options="fuelOptions" optionLabel="name" optionValue="name" 
         required placeholder="Wybierz rodzaj paliwa" :showClear="true" scrollHeight="60vh" />
         <label for="VIN">VIN:</label>
-        <InputText id="VIN" type="text" maxlength="17" v-model="VIN" required />
+        <InputText id="VIN" type="text" maxlength="17" v-model="carSpec.VIN" required />
       </div>
 
       <div class="extraInformation column">
         <h2>Dodatkowe informacje: </h2>
         <label for="engine">Silnik:</label>
-        <InputText name="engine" type="text" v-model="engine" placeholder="Pojemność / Moc" />
+        <InputText name="engine" type="text" v-model="carSpec.engine" placeholder="Pojemność / Moc" />
 
         <label for="transmission">Rodzaj skrzyni:</label>
-        <Dropdown name="transmission" v-model="selectedTransmission" :options="gearboxOptions" optionLabel="name" 
+        <Dropdown name="transmission" v-model="carSpec.selectedTransmission" :options="gearboxOptions" optionLabel="name" 
         optionValue="name" required placeholder="Wybierz rodzaj skrzyni" :showClear="true" scrollHeight="60vh"/>
 
         <label for="drivetrain">Rodzaj napędu:</label>
-        <Dropdown name="drivetrain" v-model="selectedDriveTrain" :options="drivetrainOptions" optionLabel="name" 
+        <Dropdown name="drivetrain" v-model="carSpec.selectedDriveTrain" :options="drivetrainOptions" optionLabel="name" 
         optionValue="name" required placeholder="Wybierz rodzaj napędu" :showClear="true" scrollHeight="60vh"/>
 
         <label for="numberPlates">Tablica rejestracyjna:</label>
-        <InputText id="numberPlates" type="text" maxlength="9" v-model="numberPlates" />
+        <InputText id="numberPlates" type="text" maxlength="9" v-model="carSpec.numberPlates" />
         <label for="mileage">Przebieg:</label>
-        <InputText id="mileage" type="text" maxlength="7" v-model="mileage" />
+        <InputText id="mileage" type="text" maxlength="7" v-model="carSpec.mileage" />
 
        </div>
         </div>
-        <Editor v-model="description" editorStyle="height: 250px; min-width: 70vw">
+        <Editor v-model="carSpec.description" class="p-mx-auto p-mb-6">
           <template #toolbar>
             <span class="ql-formats">
               <button class="ql-bold"></button>
@@ -107,18 +107,18 @@
         </Editor>
 
 
-    <div class="row buildIn-buttons">
+    <div class="row gap12">
       <button class="btn addData success" @click="validateData($event)">
         {{ $route.path.indexOf('edytuj') > 0 ? "Edytuj pojazd" : "Dodaj pojazd" }}
       </button>
-      <button class="btn clearForm failed" @click="clearForm">Wyczyść formularz</button>
+      <button class="btn clearForm failed" @click="clearForm()">Wyczyść formularz</button>
     </div>
   </form>
 
 </template>
 
 <script>
-import { ref, onMounted, watch, onBeforeUnmount } from 'vue'
+import { ref, onMounted, watch, onBeforeUnmount, reactive } from 'vue'
 import { useRoute } from 'vue-router'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
@@ -142,29 +142,32 @@ export default {
     const store = useStore()
 
     const phoneNum = ref(store.state.numberForNewVehicle || '')
-    const clientName = ref('')
+    const clientName = ref()
     const brands = ref()
-    const selectedBrand = ref('')
     const models = ref()
-    const selectedModel = ref('')
     const versions = ref()
-    const selectedVersion = ref('')
-    const selectedFuel = ref('')
-
-    const engine = ref('')
-    const selectedTransmission = ref('')
-    const selectedDriveTrain = ref('')
-    const numberPlates = ref('')
-    const VIN = ref('')
-    const mileage = ref('')
-    const description = ref('')
-    const phoneNumNotStored = ref(false)
-
-    let controller = new AbortController()
 
     const manualBrandModelVersionInput = ref(false)
     const manualModelVersionInput = ref(false)
     const manualVersionInput = ref(false)
+    const phoneNumNotStored = ref(false)
+
+    const carSpec = reactive({
+    selectedBrand: null,
+    selectedModel: null,
+    selectedVersion: null,
+    selectedFuel: null,
+    engine: null,
+    selectedTransmission: null,
+    selectedDriveTrain: null,
+    numberPlates: null,
+    VIN: null,
+    mileage: null,
+    description: null,
+    })
+
+    let controller = new AbortController()
+
 
     const tickets = firebase.firestore()
       .collection('warsztat')
@@ -200,6 +203,7 @@ export default {
       manualBrandModelVersionInput.value = false
       manualModelVersionInput.value = false
       manualVersionInput.value = false
+      carSpec.selectedVersion = null
 
       let data = await fetch(`${link}/dodaj`, {
           signal: controller.signal
@@ -215,16 +219,16 @@ export default {
       })
     }
     async function fetchModels() {
-      selectedModel.value = null
+      carSpec.selectedModel = null
       models.value = null
-      selectedVersion.value = null
+      carSpec.selectedVersion = null
       versions.value = null
       manualModelVersionInput.value = false
       manualVersionInput.value = false
 
-      if(selectedBrand.value !== null){
+      if(carSpec.selectedBrand !== null){
 
-      const data = await axios.get(`${link}/dodaj/${selectedBrand.value}`)
+      const data = await axios.get(`${link}/dodaj/${carSpec.selectedBrand}`)
         .catch(() => {
           manualModelVersionInput.value = true
           PopupFunc('warning', 'Wystąpił problem z pobraniem Modeli danego producenta.')
@@ -235,13 +239,13 @@ export default {
       }
     }
     async function fetchVersion() {
-      selectedVersion.value = null
+      carSpec.selectedVersion = null
       versions.value = null
       manualVersionInput.value = false
 
-      if(selectedModel.value !== null){
+      if(carSpec.selectedModel !== null){
 
-      const data = await axios.get(`${link}/dodaj/${selectedBrand.value}/${replaceSpaces(selectedModel.value)}`)
+      const data = await axios.get(`${link}/dodaj/${carSpec.selectedBrand}/${replaceSpaces(carSpec.selectedModel)}`)
         .catch(() => {
           manualVersionInput.value = true
           PopupFunc('info', 'Ten model nie posiada podziału na wersje.\nMożesz podać rocznik ręcznie.')
@@ -254,18 +258,18 @@ export default {
     function validateData(e) {
       e.preventDefault()
 
-      let convertedMileage = mileage.value ? mileage.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") : ''
+      let convertedMileage = carSpec.mileage ? carSpec.mileage.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") : ''
 
-      if (validPhoneNum(phoneNum.value) && selectedBrand.value) {
+      if (validPhoneNum(phoneNum.value) && carSpec.selectedBrand) {
 
         let preparedData = []
         let timeStamp = getTime()
         let ID = (store.state.targetCar && store.state?.targetCar['Tel']) == phoneNum.value ? store.state.targetCar['id'] : Date.now()
-        if (selectedModel.value == null || VIN.value == null) {
+        if (carSpec.selectedModel == null || carSpec.VIN == null) {
           PopupFunc('error', 'Uzupełnij brakujące informacje')
           return
         }
-        let VIN_Number = validateVIN(VIN.value)
+        let VIN_Number = validateVIN(carSpec.VIN)
         if (!VIN_Number) {
           PopupFunc('error', 'Numer VIN nieprawidłowy')
           return
@@ -274,19 +278,19 @@ export default {
           id: ID,
 
           Tel: validPhoneNum(phoneNum.value),
-          Marka: betterLooking(selectedBrand.value),
-          Model: selectedModel.value,
-          Wersja_Rocznik: selectedVersion.value,
-          Paliwo: selectedFuel.value,
+          Marka: betterLooking(carSpec.selectedBrand),
+          Model: carSpec.selectedModel,
+          Wersja_Rocznik: carSpec.selectedVersion,
+          Paliwo: carSpec.selectedFuel,
 
-          Silnik: engine.value || '',
-          SkrzyniaBiegow: selectedTransmission.value || '',
-          Naped: selectedDriveTrain.value || '',
-          Numer_rejestracyjny: numberPlates.value ? numberPlates.value.toUpperCase() : "",
+          Silnik: carSpec.engine || '',
+          SkrzyniaBiegow: carSpec.selectedTransmission || '',
+          Naped: carSpec.selectedDriveTrain || '',
+          Numer_rejestracyjny: carSpec.numberPlates ? carSpec.numberPlates.toUpperCase() : "",
           VIN: VIN_Number,
           Przebieg: convertedMileage || "",
 
-          Opis: description.value || "",
+          Opis: carSpec.description || "",
           Ostatnia_Aktualizacja: (store.state.targetCar && store.state.targetCar['Ostatnia_Aktualizacja']) || timeStamp,
 
         }
@@ -340,41 +344,43 @@ export default {
 
 
     function clearForm() {
+
+      if(phoneNumNotStored.value) phoneNum.value = null
       clientName.value = null
-      selectedBrand.value = null
+      carSpec.selectedBrand = null
       models.value = null
-      selectedModel.value = null
+      carSpec.selectedModel = null
       versions.value = null
-      selectedVersion.value = null
-      selectedFuel.value = null
-      VIN.value = null
+      carSpec.selectedVersion = null
+      carSpec.selectedFuel = null
+      carSpec.VIN = null
 
-      engine.value = null
-      selectedTransmission.value = null
-      selectedDriveTrain.value = null
-      numberPlates.value = null
-      mileage.value = null
+      carSpec.engine = null
+      carSpec.selectedTransmission = null
+      carSpec.selectedDriveTrain = null
+      carSpec.numberPlates = null
+      carSpec.mileage = null
 
-      description.value = null
+      carSpec.description = null
     }
 
     function autoFillData() {
       const fill = store.state.targetCar
 
       phoneNum.value = fill['Tel'] || store.state.targetClient.Tel || ''
-      selectedBrand.value = fill['Marka'] || ''
-      selectedModel.value = fill['Model'] || ''
-      selectedVersion.value = fill['Wersja_Rocznik'] || ''
-      selectedFuel.value = fill['Paliwo'] || ''
+      carSpec.selectedBrand = fill['Marka'] || ''
+      carSpec.selectedModel = fill['Model'] || ''
+      carSpec.selectedVersion = fill['Wersja_Rocznik'] || ''
+      carSpec.selectedFuel = fill['Paliwo'] || ''
 
-      engine.value = fill['Silnik'] || ''
-      selectedTransmission.value = fill['SkrzyniaBiegow'] || ''
-      selectedDriveTrain.value = fill['Naped'] || ''
-      numberPlates.value = fill['Numer_rejestracyjny'] || ''
-      VIN.value = fill['VIN'] || ''
-      mileage.value = fill['Przebieg'] || ''
+      carSpec.engine = fill['Silnik'] || ''
+      carSpec.selectedTransmission = fill['SkrzyniaBiegow'] || ''
+      carSpec.selectedDriveTrain = fill['Naped'] || ''
+      carSpec.numberPlates = fill['Numer_rejestracyjny'] || ''
+      carSpec.VIN = fill['VIN'] || ''
+      carSpec.mileage = fill['Przebieg'] || ''
 
-      description.value = fill['Opis'] || ''
+      carSpec.description = fill['Opis'] || ''
     }
 
 
@@ -420,41 +426,30 @@ export default {
     return {
 
       phoneNum,
-      VIN,
-      numberPlates,
-      mileage,
-      description,
       clientName,
-
-      fetchModels,
-      fetchVersion,
+      carSpec,
 
       brands,
+      fetchModels,
       models,
+      fetchVersion,
       versions,
-      selectedBrand,
-      selectedModel,
-      selectedVersion,
 
-      engine,
-      selectedFuel,
+      manualBrandModelVersionInput,
+      manualModelVersionInput,
+      manualVersionInput,
+
       fuelOptions,
-      selectedTransmission,
       gearboxOptions,
-      selectedDriveTrain,
       drivetrainOptions,
 
       replaceSpaces,
       betterLooking,
 
       validateData,
-
-      manualBrandModelVersionInput,
-      manualModelVersionInput,
-      manualVersionInput,
-      phoneNumNotStored,
-
       clearForm,
+
+      phoneNumNotStored,
 
       Dropdown,
       InputText,
@@ -465,5 +460,12 @@ export default {
 </script>
 
 <style>
+.p-editor-container{
+  height: 250px; 
+  max-width:60vw
+}
 
+.gap12{
+  gap: 12px;
+}
 </style>

@@ -82,6 +82,11 @@ const routes = [
     name: 'Szukaj',
     component: () => import('@/components/Forms/SearchForm.vue'),
   },
+  {
+    path: '/generujFakture',
+    name: 'Faktura',
+    component: () => import('@/components/Forms/InvoiceForm.vue'),
+  },
 ]
 
 const router = createRouter({

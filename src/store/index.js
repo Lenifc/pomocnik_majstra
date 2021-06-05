@@ -8,7 +8,8 @@ export default createStore({
     targetClient: null,
     clientData: null,
     numberForNewVehicle: null,
-    selectedCarForTicket: null
+    selectedCarForTicket: null,
+    invoiceData: null
 
   },
   mutations: {
@@ -18,7 +19,6 @@ export default createStore({
     },
     setCarDetails(state, data){ // routing przy przejsciu do szczegolow
       state.carDetails = data
-      // console.log(state.carDetails);
     },
     setTargetCar(state, data){
       state.targetCar = data
@@ -34,7 +34,9 @@ export default createStore({
     },
     setSelectedCarForTicket(state, data){
       state.selectedCarForTicket = data
-      console.log(data);
+    },
+    setInvoiceData(state, data){
+      state.invoiceData = data
     }
   },
   actions: {

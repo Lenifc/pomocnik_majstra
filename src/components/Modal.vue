@@ -1,13 +1,13 @@
 <template>
     <div class="modal-mask">
       <div class="modal-wrapper">
-        <div class="modal-container">
+        <div class="modal-container p-text-center">
 
           <div class="modal-header">
               {{ message }}
           </div>
 
-          <div class="modal-body" v-if="operation == 'relocate'">
+          <div class="modal-body p-text-justify p-ml-6 p-pl-5" v-if="operation == 'relocate'">
 
               <input type="radio" id="free" value="wolne" v-model="newLocation">
               <label for="free"> Wolne</label>
@@ -21,7 +21,7 @@
 
           <div class="modal-footer">
               <button class="modal-default-button btn success" @click="handleEmit()" v-if="operation == 'relocate' && newLocation.length > 0">
-                Przenoszonko 
+                Przenieś 
               </button>
               <button class="modal-default-button btn success" @click="$emit('true', true)" v-if="operation != 'relocate'">
                 Kontynuuj 

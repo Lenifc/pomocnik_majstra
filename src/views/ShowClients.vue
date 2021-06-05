@@ -1,17 +1,20 @@
 <template>
-  <div class="container p-d-flex p-flex-column p-ai-center">
+  <div class="p-d-flex p-flex-column p-ai-center">
 
     <Button label="Dodaj Klienta" icon="pi pi-user-plus" @click="openClientAddForm()"
       class="p-button-secondary p-mt-5" />
 
-    <DataTable :value="recivedClients" responsiveLayout="stack" stripedRows showGridlines v-model:filters="tableFilters"
-      filterDisplay="menu" :loading="!recivedClients" class="p-ml-3 p-my-5" dataKey="Tel">
+    <DataTable :value="recivedClients" responsiveLayout="stack" breakpoint="1200px" stripedRows 
+    showGridlines v-model:filters="tableFilters" filterDisplay="menu" :loading="!recivedClients" 
+    class="p-my-5" dataKey="Tel">
       <template #header>
-        <div class="p-d-flex p-jc-between">
+        <div class="p-d-flex p-jc-between columnOnSmallScreen">
           <Button icon="pi pi-filter-slash" label="Wyczyść" class="p-button-outlined" @click="clearTableFilters()" />
+              <Button class="p-button-secondary" @click="getClientsFromFirebase('all')" 
+                  label="Załaduj wszystkich klientów" v-if="!disableNextButton" icon="pi pi-download" />
           <span class="p-input-icon-left">
             <i class="pi pi-search" />
-            <InputText v-model="tableFilters['global'].value" placeholder="Wyszukaj..." />
+            <InputText v-model="tableFilters['global'].value" placeholder="Wyszukaj..." class="mobileWidth"/>
           </span>
         </div>
       </template>
@@ -22,12 +25,12 @@
         Pobieranie danych z serwera...
       </template>
 
-      <Column style="width:50px" class="p-text-center">
+      <Column style="width:45px" class="p-text-center">
         <template #body="{index}">
           {{index+1}}
         </template>
       </Column>
-      <Column header="OPCJE" class="p-text-center" style="width:84px">
+      <Column header="OPCJE" class="p-text-center" style="width:64px">
         <template #body="{data}">
           <div class="p-d-flex p-flex-column p-ai-center">
             <div class="p-d-flex p-flex-row p-pb-2">
@@ -43,18 +46,24 @@
 
         </template>
       </Column>
-      <Column field="Tel" header="Numer Telefonu" class="p-text-center" style="width:130px">
+      <Column field="Tel" header="Numer Telefonu" class="p-text-center" style="width:125px">
         <template #body="{data}">
           {{ data.Tel }}
-          {{ data.Tel2 ? data.Tel2 : ''}}
+          <div v-if="data.Tel2"> {{ data.Tel2 }}</div>
         </template>
       </Column>
-      <Column field="Imie" header="Imie" class="p-text-center"></Column>
+      <Column field="Imie" header="Imie" class="p-text-center" style="width:145px"></Column>
+      <Column field="Opis" header="Opis" class="p-text-center" style="width:250px">
+      <template #body="{data}">
+        <div v-html="data.Opis" class="p-px-4 p-text-wrap mobileWrap" ></div>
+      </template>
+      </Column>
       <!-- <Column field="Adres" header="Adres" class="p-text-center"></Column> -->
-      <Column header="Pojazd" class="p-text-center" style="width:300px; max-width:330px">
+      <Column header="Pojazd" class="p-text-center" style="width:250px">
         <template #body="{data}"> 
           <!-- zamiast pisac SlotProps.data moge uzyc destrukturyzacji i skrocic zapis -->
-          <div v-for="car in onlyCars(data)" :id="`id${car.VIN}`" :key="car.VIN"
+          <div class="p-d-flex p-flex-column"> <!-- trzeba bylo oplesc to jeszcze w jednego DIVa, bo inaczej pod telefony zle wyswietlalo pojazdy -->
+            <div v-for="car in onlyCars(data)" :id="`id${car.VIN}`" :key="car.VIN"
             class="p-d-flex p-flex-column Cars">
             <div class="p-d-flex p-flex-row p-ai-center p-jc-between">
               <div class="p-d-flex p-flex-column">
@@ -71,6 +80,8 @@
             </div>
             <Divider class="lookForLast" />
           </div>
+          </div>
+          
         </template>
       </Column>
     </DataTable>
@@ -141,9 +152,11 @@ require('firebase/firestore')
      async function getClientsFromFirebase(req) {
        if(req == 'more') limit.value += 100
 
-      const clientPath = MainPath
+      let clientPath = MainPath
       .orderBy("Ostatnia_Aktualizacja", "desc")
        .limit(limit.value)
+
+       if(req == 'all') clientPath = MainPath.orderBy("Ostatnia_Aktualizacja", "desc")
 
        let clientResponse = await clientPath.get()
 
@@ -161,6 +174,7 @@ require('firebase/firestore')
           disableNextButton.value = true
           PopupFunc('warning', 'Wczytano już wszystkich klientów.')
         }
+        if(req == 'all') disableNextButton.value = true
      }
 
      function openClientEditForm(item) {
@@ -209,8 +223,14 @@ require('firebase/firestore')
              if (confirmDelete !== false) recivedClients.value = recivedClients.value.filter(client => client.Tel != Tel)
            }
            if (Operation.value == 'removeCar') {
+
              const confirmDelete = await DeleteFunc('car', MainPath, Tel, DeleteTargetCar.value, JSON.parse(JSON.stringify(store.state.clientData))) // prosta konwersja proxy do objektu
-             if (confirmDelete !== false) document.querySelector(`#id${DeleteTargetCar.value}`).remove() // usuwam go z widoku tabeli
+             if (confirmDelete !== false) {
+              recivedClients.value.map(client => {
+                if(client.Tel == Tel) delete client[`${DeleteTargetCar.value}`]
+              })
+              //  document.querySelector(`#id${DeleteTargetCar.value}`).remove() // usuwam go z widoku tabeli
+             }
            }
          }
         return showModal.value = false
@@ -274,5 +294,20 @@ require('firebase/firestore')
 
 .Cars:last-child > .p-divider{
   display: none;
+}
+
+@media(max-width:1200px){
+  .Cars > .p-divider{
+  display: none;
+}
+
+@media(max-width:800px){
+  .columnOnSmallScreen{
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+  }
+}
+
 }
 </style>
