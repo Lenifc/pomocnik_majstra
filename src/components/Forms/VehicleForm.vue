@@ -124,10 +124,9 @@ import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 
 import Dropdown from 'primevue/dropdown';
-import InputText from 'primevue/inputtext';
 import Editor from 'primevue/editor';
 
-import PopupFunc from '@/components/PopupFunc.js'
+import { useToast } from "primevue/usetoast"
 import { getTime } from '@/components/getCurrentTime'
 import validPhoneNum from '@/components/validPhoneNum.js'
 import validateVIN from '@/components/validateVIN.js'
@@ -140,12 +139,15 @@ export default {
     const route = useRoute()
     const router = useRouter()
     const store = useStore()
+    const toast = useToast()
 
     const phoneNum = ref(store.state.numberForNewVehicle || '')
     const clientName = ref()
     const brands = ref()
     const models = ref()
     const versions = ref()
+
+    const checkOffline = ref()
 
     const manualBrandModelVersionInput = ref(false)
     const manualModelVersionInput = ref(false)
@@ -210,7 +212,7 @@ export default {
         }).then(response => response.json())
         .catch((err) => {
           manualBrandModelVersionInput.value = true
-          if (err.message.indexOf('Failed to fetch') >= 0) PopupFunc('warning', 'Wystąpił problem z pobraniem producentów pojazdów.')
+          if (err.message.indexOf('Failed to fetch') >= 0) toast.add({severity:'warn', summary: 'Problem sieciowy', detail:'Wystąpił problem z pobraniem producentów pojazdów.', life: 4000})
         })
 
       let allMakes = data?.options
@@ -231,7 +233,7 @@ export default {
       const data = await axios.get(`${link}/dodaj/${carSpec.selectedBrand}`)
         .catch(() => {
           manualModelVersionInput.value = true
-          PopupFunc('warning', 'Wystąpił problem z pobraniem Modeli danego producenta.')
+          toast.add({severity:'warn', summary: 'Problem sieciowy', detail:'Wystąpił problem z pobraniem modeli danego producenta.', life: 4000})
         })
 
       // models.value = Object.entries(data?.data?.options).map(item => item[1].pl)
@@ -248,7 +250,7 @@ export default {
       const data = await axios.get(`${link}/dodaj/${carSpec.selectedBrand}/${replaceSpaces(carSpec.selectedModel)}`)
         .catch(() => {
           manualVersionInput.value = true
-          PopupFunc('info', 'Ten model nie posiada podziału na wersje.\nMożesz podać rocznik ręcznie.')
+          toast.add({severity:'warn', summary: 'Brak danych', detail:'Ten model nie posiada podziału na wersje.\nMożesz podać rocznik ręcznie.', life: 4000})
         })
       // ?. jest jak if statement sprawdzajacy czy obiekt istnieje
       if(data?.data?.options) versions.value = Object.entries(data?.data?.options).map(item => item[1].pl)
@@ -266,12 +268,12 @@ export default {
         let timeStamp = getTime()
         let ID = (store.state.targetCar && store.state?.targetCar['Tel']) == phoneNum.value ? store.state.targetCar['id'] : Date.now()
         if (carSpec.selectedModel == null || carSpec.VIN == null) {
-          PopupFunc('error', 'Uzupełnij brakujące informacje')
+          toast.add({severity:'error', summary: 'Błąd danych', detail:'Uzupełnij brakujące dane.', life: 4000})
           return
         }
         let VIN_Number = validateVIN(carSpec.VIN)
         if (!VIN_Number) {
-          PopupFunc('error', 'Numer VIN nieprawidłowy')
+          toast.add({severity:'error', summary: 'Błąd danych', detail:'Numer VIN nieprawidłowy!', life: 4000})
           return
         }
         preparedData[VIN_Number] = {
@@ -286,7 +288,7 @@ export default {
           Silnik: carSpec.engine || '',
           SkrzyniaBiegow: carSpec.selectedTransmission || '',
           Naped: carSpec.selectedDriveTrain || '',
-          Numer_rejestracyjny: carSpec.numberPlates ? carSpec.numberPlates.toUpperCase() : "",
+          Numer_rejestracyjny: carSpec.numberPlates?.toUpperCase() || '',
           VIN: VIN_Number,
           Przebieg: convertedMileage || "",
 
@@ -296,8 +298,7 @@ export default {
         }
         sendDataToFirebase(preparedData)
 
-      } else PopupFunc('error', 'Upewnij się, że dane są prawidłowe! ⚠️')
-
+      } else toast.add({severity:'warn', summary: 'Błąd danych', detail:'Upewnij się, że dane zostały wprowadzone poprawnie.', life: 4000})
     }
 
 
@@ -309,18 +310,30 @@ export default {
       docReference.get().then(function (doc) {
 
         if (!doc.exists) {
-          throw Error(PopupFunc("error", 'W pierwszej kolejności dodaj dane klienta, następnie pojazdu'))
+          toast.add({severity:'error', summary: 'Brak klienta', detail:'W pierwszej kolejności dodaj dane klienta, następnie pojazdu.', life: 4000})
         } else {
           if (checkIfVINexists(doc.data(), preparedData) && route.path.indexOf('edytuj') <= 0) {
-            PopupFunc("error", "Pojazd o podanym numerze VIN jest już przypisany do danego klienta!")
+            toast.add({severity:'warn', summary: 'Pojazd już istnieje', detail:'Pojazd o podanym numerze VIN jest już przypisany do danego klienta!', life: 4000})
             return
           }
 
           docReference.update({
               ...preparedData, Ostatnia_Aktualizacja: getTime()
-            }).then(() => PopupFunc('success', `Dodano nowy pojazd do numeru telefonu: ${Tel}`))
-            .catch(err => PopupFunc("error", err.message))
+            }).then(() => {
+              toast.removeAllGroups()
+              toast.add({severity:'success', summary: 'Dodano pojazd', detail:`Dodano nowy pojazd do numeru telefonu: ${Tel}`, life: 4000})
+              clearTimeout(checkOffline.value)
+            })
+            .catch(err => {
+              toast.removeAllGroups()
+              toast.add({severity:'error', summary: 'Błąd danych', detail: err.message, life: 4000})
+            })
         }
+
+        checkOffline.value = setTimeout(() => {
+        toast.removeAllGroups()
+        toast.add({severity:'warn', summary: 'Status offline', detail:'Klient jest offline.\n Dane zostaną zaktualizowane po przywróceniu połączenia.', life: 0})
+      }, 2500)
 
         if(route.path.indexOf('edytuj') < 0) counterPath.update("Pojazdy", firebase.firestore.FieldValue.increment(1))
         manualVersionInput.value = false
@@ -396,32 +409,36 @@ export default {
     function replaceSpaces(value) {
       if(value.length){
         value = value.replace(" ", "-")
-        return value.replace(/[!@#$%^&*(){}<>?.;+_]/g, '')
+        return value.replace(/[!@#$%^&*(){}<>?.;+_]/g, '') // wyczyszczenei znakow specjalnych jest potrzebne do fetchowania generacji pojazdow
+        // nie moze byc np. 'up!' -> tylko 'up' ; znaki specjalne marki Skoda itp.
       }
     }
 
-
     onMounted(() => {
-      if((!store.state.targetCar && !store.state.targetCar?.phoneNum) && !phoneNum.value) phoneNumNotStored.value = true
-      if (route.path.indexOf('edytuj') > 0) {
+      if(!phoneNum.value) phoneNumNotStored.value = true
+      if (route.path.indexOf('edytuj') > 0 && store.state?.targetCar) {
         manualBrandModelVersionInput.value = true
         store.state.targetCar && autoFillData()
-      } else {
+        return
+      } 
+      if(route.path.indexOf('edytuj') > 0 && !store.state?.targetCar){
+        router.go(-1)
+        return
+      }
         clearForm()
         store.commit('setTargetCar', '')
         fetchBrands()
-      }
-    })
+      })
 
     watch(() => route.path, () => {
-      if (route.path.indexOf('edytuj') <= 0) {
+      if (route.path.indexOf('edytuj') <= 0) { // w przypadku braku sciezki /edytuj/ wyswietli nam czysty formularz i wyzeruje stan globalny 'targetCar'
         clearForm()
         store.commit('setTargetCar', '')
         if (route.path.indexOf('dodaj') <= 0) fetchBrands()
       }
     })
 
-    onBeforeUnmount(() => controller.abort())
+    onBeforeUnmount(() => controller.abort()) // zapobiega dalszemu pobieraniu sie danych w Promise w przypadku zamknięcia komponentu
 
     return {
 
@@ -434,6 +451,8 @@ export default {
       models,
       fetchVersion,
       versions,
+
+      checkOffline,
 
       manualBrandModelVersionInput,
       manualModelVersionInput,
@@ -452,7 +471,6 @@ export default {
       phoneNumNotStored,
 
       Dropdown,
-      InputText,
       Editor
     }
   }

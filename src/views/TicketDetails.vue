@@ -71,7 +71,7 @@
           <button class="btn" @click="HandleFunc($event)">Usuń</button>
           <button class="btn" @click="HandleFunc($event)">Przenieś</button>
           <button class="btn" @click="HandleFunc($event)"
-            v-if="$route.params.collectionPath == 'zakonczone'">Generuj Fakture</button>
+            v-if="$route.params.collectionPath == 'zakonczone' && carDetails['Wykonane_uslugi_czesci'].length">Generuj Fakture</button>
         </div>
 
       </div>

@@ -73,7 +73,8 @@ require('firebase/firestore')
       .orderBy("Ostatnia_Aktualizacja", "desc") // StartAt nie dziala wraz z poprawnym zapisem w indexedDB
       //  .limit(limit.value)
 
-       let clientResponse = await clientPath.get({source: 'cache'})
+      //  let clientResponse = await clientPath.get({source: 'cache'})
+       let clientResponse = await clientPath.get()
 
        lastDoc.value = clientResponse.docs[clientResponse.docs.length - 1]
 

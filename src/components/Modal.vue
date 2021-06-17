@@ -56,7 +56,6 @@ export default {
 
 <style scoped>
 
-
 .modal-mask {
   position: fixed;
   z-index: 9998;
@@ -79,7 +78,7 @@ export default {
   width: min(600px, 80%);
   margin: 0px auto;
   padding: 20px 30px;
-  background-color: #fff;
+  background-color: var(--text-color);
   border-radius: 2px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;

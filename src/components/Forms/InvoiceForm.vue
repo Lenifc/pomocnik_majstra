@@ -4,9 +4,12 @@
 
   <div class="card p-mt-6">
     <div class="card-content">
-      <div class="card-header">
+      <div class="card-header p-mt-4">
         <div class="p-d-flex p-flex-row p-jc-between p-ai-center">
-          <Skeleton size="4rem" class="p-mr-2"></Skeleton>
+          <div class="invoice-logo p-d-flex p-flex-row p-ai-center" style="width: 80px">
+            <img alt="workshopLogo" src="@/assets/logo.svg" style="width: 100%">
+            <div class="workshopTitle p-text-uppercase p-text-bold">Warsztat_XD</div>
+          </div>
           <div class="invoice-title p-text-center p-text-bold">
             FAKTURA nr {{ randomIndex }}/{{ getYear }}
           </div>
@@ -14,13 +17,13 @@
         </div>
         <div class="p-mt-4">
           <h3 class="p-text-uppercase">Sprzedawca</h3>
-          <div>{{ workshopDetails?.['Nazwa_Warsztatu'] }}</div>
-          <div>{{ `${workshopDetails?.['Kod_pocztowy']} ${workshopDetails?.['Miasto']}`}}</div>
-          <div>{{ workshopDetails?.['Adres'] }}</div>
+          <div>{{ workshopDetails?.['nazwaWarsztatu'] }}</div>
+          <div>{{ `${workshopDetails?.['kodPocztowy']} ${workshopDetails?.['miejscowosc']}`}}</div>
+          <div>{{ workshopDetails?.['adres'] }}</div>
           <div>NIP: {{ workshopDetails?.['NIP'] }}</div>
-          <div>Tel: {{ workshopDetails?.['Numer_Telefonu'] }}</div>
-          <div>email: {{ workshopDetails?.['E-mail'] }}</div>
-          <div>nr konta bankowego: {{ workshopDetails?.['Konto_Bankowe'] }}</div>
+          <div>Tel: {{ workshopDetails?.['numerTelefonu'] }}</div>
+          <div>email: {{ workshopDetails?.['email'] }}</div>
+          <div>nr konta bankowego: {{ workshopDetails?.['kontoBankowe'] }}</div>
         </div>
 
         <div class="p-mt-3">
@@ -36,7 +39,7 @@
 
       </div>
       <div class="card-main p-mt-4">
-        <DataTable v-if="ticketDetails?.['Wykonane_uslugi_czesci']" :value="ticketDetails?.['Wykonane_uslugi_czesci']" responsiveLayout="scroll">
+        <DataTable v-if="ticketDetails?.['Wykonane_uslugi_czesci'].length" :value="ticketDetails?.['Wykonane_uslugi_czesci']" responsiveLayout="scroll">
           <Column header="l.p." class="p-text-center">
           <template #body="{index}">
             {{index+1}}
@@ -72,7 +75,7 @@
         </div>
       </div>
       <div class="card-footer p-text-center p-mt-6">
-        {{ workshopDetails?.['Stopka'] }}
+        <span>{{ workshopDetails?.['stopka'] }}</span>
       </div>
     </div>
   </div>
@@ -89,7 +92,6 @@ import { useRouter } from 'vue-router'
 import Skeleton from 'primevue/skeleton';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
-import Button from 'primevue/button'
 import Divider from 'primevue/divider';
 
 import createPDF from '@/components/CreatePDF'
@@ -175,7 +177,6 @@ export default {
       Skeleton,
       DataTable,
       Column,
-      Button,
       Divider
     }
 

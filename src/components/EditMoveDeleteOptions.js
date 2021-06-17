@@ -20,6 +20,7 @@ export async function DeleteFunc(id, docPath, phoneNumber, target, extraData) {
       docReference.delete().then(
           PopupFunc('success', 'Klient został usunięty z bazy.')
         ).catch(err => {
+          console.log(err.code, err.message);
           PopupFunc("error", err.message)
           ConfirmDelete = false
         })
@@ -29,6 +30,7 @@ export async function DeleteFunc(id, docPath, phoneNumber, target, extraData) {
           ConfirmDelete = true
         })
         .catch(err => {
+          console.log(err.code, err.message);
           PopupFunc("error", err.message)
           ConfirmDelete = false
         })
@@ -45,6 +47,7 @@ export async function DeleteFunc(id, docPath, phoneNumber, target, extraData) {
         }).then(
           PopupFunc('success', 'Pojazd został usunięty z bazy')
         ).catch(err => {
+          console.log(err.code, err.message);
           PopupFunc("error", err.message)
           ConfirmDelete = false
         })
@@ -53,6 +56,7 @@ export async function DeleteFunc(id, docPath, phoneNumber, target, extraData) {
           ConfirmDelete = true
         })
         .catch(err => {
+          console.log(err.code, err.message);
           PopupFunc("error", err.message)
           ConfirmDelete = false
         })
@@ -69,7 +73,10 @@ export async function DeleteFunc(id, docPath, phoneNumber, target, extraData) {
         PopupFunc('success', 'Pomyślnie usunięto zlecenie')
 
           }
-          ).catch(err => PopupFunc("error", err.message))
+          ).catch(err => {
+            console.log(err.code, err.message)
+            PopupFunc("error", err.message)
+          })
         } else {
           const timeStamp = getTime()
 
@@ -84,13 +91,18 @@ export async function DeleteFunc(id, docPath, phoneNumber, target, extraData) {
         if (docPath.id == 'zakonczone' && target != 'justRelocate') counterPathTickets.update("Zakonczone", firebase.firestore.FieldValue.increment(-1))
         PopupFunc('success', 'Pomyślnie usunięto zlecenie')
             })
-            .catch(err => PopupFunc("error", err.message))
+            .catch(err => {
+              console.log(err.code, err.message)
+              PopupFunc("error", err.message)
+            })
         }
-      }).catch(err => PopupFunc("error", err.message))
+      }).catch(err => {
+        console.log(err.code, err.message)
+        PopupFunc("error", err.message)
+      })
     }
   })
 }
-
 
 //
 // Przenoszenie danych między kolekcjami
@@ -112,6 +124,7 @@ export function RelocateTicket(id, object, ticketsPath, currentDocPath, newDocPa
               timeStamp
             }).then(PopupFunc('success', `Do danego numeru dodano kolejny pojazd w zakładce ${newDocPath}`))
             .catch(err => {
+              console.log(err.code, err.message)
               PopupFunc("error", err.message)
               ConfirmRelocate = false
             })
@@ -121,6 +134,7 @@ export function RelocateTicket(id, object, ticketsPath, currentDocPath, newDocPa
               timeStamp
             }).then(PopupFunc('success', `Pomyślnie przeniesiono zlecenie do ${newDocPath}`))
             .catch(err => {
+              console.log(err.code, err.message)
               PopupFunc("error", err.message)
               ConfirmRelocate = false
             })
@@ -138,6 +152,7 @@ export function RelocateTicket(id, object, ticketsPath, currentDocPath, newDocPa
         DeleteFunc(id, deleteThis, phoneNumber, 'justRelocate', ...Object.keys(object))
       })
       .catch(function (err) {
+        console.log(err.code, err.message);
         PopupFunc("error", err.message)
         ConfirmRelocate = false
       })

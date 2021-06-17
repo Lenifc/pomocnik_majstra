@@ -1,6 +1,6 @@
 {
-  "name": "inzynierka-wizual",
-  "version": "0.25.0",
+  "name": "inzynierka",
+  "version": "0.66.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",

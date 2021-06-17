@@ -30,10 +30,10 @@
         <template #body="slotProps">
           <div class="p-d-flex p-jc-center">
             <Button @click="redirectToDetails(slotProps.data)"
-              class="p-button-outlined p-button-rounded p-button-success" icon="fas fa-info-circle" 
+              class="p-button-outlined p-button-rounded p-button-primary" icon="fas fa-info-circle" 
               v-tooltip.top="'Szczegóły zlecenia'" />
             <Button @click="openModal(slotProps.data, 'relocate')"
-              class="p-button-outlined p-button-rounded p-button-primary p-mx-2 relocate" icon="fas fa-arrows-alt-h"
+              class="p-button-outlined p-button-rounded p-button-warning p-mx-2 relocate" icon="fas fa-arrows-alt-h"
               v-tooltip.top="'Przenieś zlecenie'" />
             <Button @click="openModal(slotProps.data, 'remove')"
               class="p-button-outlined p-button-rounded p-button-danger remove" icon="fas fa-trash-alt"
@@ -43,17 +43,28 @@
         </template>
       </Column>
       <Column field="Dodane_Czas" header="Data dodania zlecenia" :class="'p-text-center ' + ($route.path == '/zakonczone' ? 'p-d-none' : '')" 
-      style="width:150px"/>
-      <Column field="Imie" header="Imie" class="p-text-center"></Column>
-      <Column field="Tel" header="Numer Telefonu" class="p-text-center"></Column>
-      <Column field="Marka" header="Pojazd" style="width:200px" class="p-text-center">
-        <template #body="slotProps">
-          {{ `${slotProps.data['Marka']} ${slotProps.data['Model']} ${(slotProps.data['Wersja_Rocznik'] || '')}` }}
+              style="width:150px"/>
+      <Column field="Imie" header="Imie" class="p-text-center">
+        <template #body="{data}">
+          <div @dblclick="copyValue($event)">{{ data['Imie'] }}</div>
         </template>
       </Column>
-      <Column field="Numer_rejestracyjny" header="Numer rejestracyjny" class="p-text-center"></Column>
+      <Column field="Tel" header="Numer Telefonu" class="p-text-center">
+        <template #body="{data}" >
+          <div @dblclick="copyValue($event)">{{ data['Tel'] }}</div>
+        </template>
+      </Column>
+      <Column field="Marka" header="Pojazd" style="width:200px" class="p-text-center">
+        <template #body="{data}" >
+          <div @dblclick="copyValue($event)">{{ `${data['Marka']} ${data['Model']} ${(data['Wersja_Rocznik'] || '')}` }}</div>
+        </template>
+      </Column>
+      <Column field="Numer_rejestracyjny" header="Numer rejestracyjny" class="p-text-center" >
+        <template #body="{data}" >
+          <div @dblclick="copyValue($event)">{{ data['Numer_rejestracyjny'] }}</div>
+        </template>
+      </Column>
       <Column field="Zakonczone_Czas" header="Data zakończenia zlecenia" :class="'p-text-center ' + ($route.path == '/zakonczone' ? '' : 'p-d-none')" style="width:150px" />
-      <!-- <Column field="Koszt" header="Koszt" class="p-text-center" v-if="$router.path.contains('zakonczone')"></Column> -->
     </DataTable>
 
     <Button class="p-button-secondary p-mb-6" label="Załaduj kolejne zlecenia" @click="getDataFromFirebase('more')"
@@ -71,14 +82,14 @@ import { onMounted, ref, watch} from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 
-import PopupFunc from '@/components/PopupFunc.js'
 import Modal from '@/components/Modal.vue'
-import Button from 'primevue/button'
-import InputText from 'primevue/inputtext'
+import { useToast } from "primevue/usetoast"
 
 import { FilterMatchMode } from "primevue/api";
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+
+import copyToClipboard from '@/components/copyToClipboard.js'
 
 import firebase from 'firebase/app'
 // require('firebase/firestore')
@@ -92,6 +103,7 @@ export default ({
     const route = useRoute()
     const router = useRouter()
     const store = useStore()
+    const toast = useToast()
 
     const recivedItems = ref(null) // MAMY TUTAJ DOSTEP DO WSZYSTKICH DANYCH Z POBRANYCH DOKUMENTOW BEZ timeStamp
     const allCars = ref()
@@ -146,7 +158,8 @@ export default ({
       disableNextButton.value = false
       if (data.docs.length < limit.value) {
         disableNextButton.value = true
-        PopupFunc('warning', 'Wczytano już wszystkie zlecenia.')
+        toast.removeAllGroups()
+        toast.add({severity:'info', detail:'Wczytano wszystkie zlecenia', life: 4000})
       }
     }
 
@@ -156,12 +169,19 @@ export default ({
       router.push(`/details/${collectionPath.value}/${carData['Tel']}/${carData['id']}`)
     }
 
-    function openModal(carInfo, operation) {
+    async function copyValue(e){
+      const text = e.target?.innerText
+      await copyToClipboard(text)
+
+      toast.add({severity:'info', summary: 'Wartość skopiowana', detail:`Wartość "${text}" została skopiowana do schowka`, life: 3000})
+    }
+
+    function openModal(ticketInfo, operation) {
       Operation.value = operation
-      store.commit('setTargetCar', carInfo)
-      if (operation == 'remove') modalMsg.value = `Czy na pewno chcesz usunąć zlecenie numeru ${carInfo['Tel']}?`
+      store.commit('setTargetCar', ticketInfo)
+      if (operation == 'remove') modalMsg.value = `Czy na pewno chcesz usunąć zlecenie numeru ${ticketInfo['Tel']}?`
       if (operation == 'relocate') {
-        modalMsg.value = `Gdzie przenosimy zlecenie ${carInfo['Tel']}?`
+        modalMsg.value = `Gdzie przenosimy zlecenie ${ticketInfo['Tel']}?`
 
       }
       showModal.value = true
@@ -235,11 +255,9 @@ export default ({
       Column,
       FilterMatchMode,
 
-      Button,
-      InputText,
-
       tableFilters,
-      clearTableFilters
+      clearTableFilters,
+      copyValue
     }
 
   },

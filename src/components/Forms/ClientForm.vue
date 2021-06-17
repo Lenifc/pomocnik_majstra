@@ -99,9 +99,7 @@ import validPhoneNum from '@/components/validPhoneNum.js'
 
 import firebase from 'firebase/app'
 
-import InputText from 'primevue/inputtext';
 import Editor from 'primevue/editor';
-import Button from 'primevue/button';
 import RadioButton from 'primevue/radiobutton';
 import InputMask from 'primevue/inputmask';
 
@@ -224,17 +222,12 @@ export default {
     }
 
     onMounted(() => {
-      if (!store.state.targetClient) {
+      if (!store.state.targetClient && route.path.indexOf('edytuj') > 0) {
         router.go(-1)
       } else {
-        if (route.path.indexOf('edytuj') > 0) {
           store.state.targetClient && autoFillData()
-        } else {
-          clearForm()
-          store.commit('setTargetClient', '')
         }
-      }
-    })
+      })
 
     watch(() => route.path, () => {
       if (route.path.indexOf('edytuj') <= 0) {
@@ -250,9 +243,7 @@ export default {
 
       clearForm,
 
-      InputText,
       Editor,
-      Button,
       RadioButton,
       InputMask
     }

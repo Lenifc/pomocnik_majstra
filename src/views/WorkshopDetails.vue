@@ -1,37 +1,102 @@
 <template>
-  <div class="p-d-flex p-flex-column p-ai-center p-ml-4">
-    <Toast />
-    <h2 class="p-mx-4 p-text-center p-my-3">Dane warsztatu, które będą widoczne na fakturze</h2>
-    <div v-for="object in entries" :key="object">
-        <div class="p-inputgroup p-mt-2 p-d-flex p-flex-column">
-          <span class="p-inputgroup-addon p-text-center">
-            <div>{{ object[0].replace('_', ' ') }}</div>
+  <div class="p-d-flex p-flex-column p-ai-center">
+    <Card style="width: min(620px, 100%)">
+      <template #title>
+        <h3 class="p-mx-3 p-text-center p-my-3">Dane warsztatu, które będą widoczne na fakturze oraz na stronie głównej
+        </h3>
+      </template>
+      <template #content class="p-d-flex p-ai-center p-jc-center">
+        <div v-if="!isLoading" style="width: min(550px, 100%)">
+          <span class="p-float-label p-mt-4">
+            <Textarea type="text" id="workshopName" v-model="workshop.nazwaWarsztatu" :autoResize="true"
+              style="width: 100%" />
+            <label for="workshopName">Nazwa warsztatu</label>
           </span>
-          <InputText type="text" :id="object[0]" :value="object[1]" @keyup="handleInputChange" style="min-width:300px; width:33vw" />
+          <div class="p-d-flex p-flex-column p-flex-md-row ">
+            <div class="p-d-flex p-flex-row">
+              <span class="p-float-label p-mt-4">
+                <InputMask mask="999-999-999" id="workshopPhoneNumber" v-model="workshop.numerTelefonu"
+                          style="width:120px" />
+                <label for="workshopPhoneNumber">Numer kontaktowy</label>
+              </span>
+              <span class="p-float-label p-mt-4 p-ml-2">
+                <InputText type="text" id="workshopEmail" v-model="workshop.email" style="width: 100%" />
+                <label for="workshopEmail">E-mail</label>
+              </span>
+            </div>
+            
+            <span class="p-float-label p-mt-4 p-ml-md-2">
+              <InputMask mask="999-999-99-99" id="workshopID" v-model="workshop.NIP" style="width: 150px" />
+              <label for="workshopID">NIP</label>
+            </span>
+          </div>
+
+          <div class="p-d-flex p-flex-column p-flex-md-row">
+            <div class="p-d-flex p-flex-row">
+              <span class="p-float-label p-mt-4">
+                <InputMask mask="99-999" id="workshopZipCode" v-model="workshop.kodPocztowy" style="width: 90px" />
+                <label for="workshopZipCode">Kod pocztowy</label>
+              </span>
+              <span class="p-float-label p-mt-4 p-ml-2">
+                <InputText type="text" id="workshopCity" v-model="workshop.miejscowosc" style="width: 100%" />
+                <label for="workshopCity">Miejscowość</label>
+              </span>
+            </div>
+            
+            <span class="p-float-label p-mt-4 p-ml-md-2">
+              <InputText type="text" id="workshopAddress" v-model="workshop.adres" style="width: 100%"/>
+              <label for="workshopAddress">Ulica oraz numer budynku</label>
+            </span>
+          </div>
+      
+          <span class="p-float-label p-mt-4">
+            <InputMask mask="99-9999-9999-9999-9999-9999-9999" id="workshopBankAcc" 
+                      v-model="workshop.kontoBankowe" style="width: 100%" />
+            <label for="workshopBankAcc">Konto bankowe</label>
+          </span>
+          <span class="p-float-label p-mt-4">
+            <Textarea id="invoiceFooter" v-model="workshop.stopka" :autoResize="true" style="width: 100%"/>
+            <label for="invoiceFooter">Stopka do faktur</label>
+          </span>
+          </div>
+        </template>
+      <template #footer>
+        <div class="p-d-flex p-flex-column p-ai-center">
+          <Button label="Aktualizuj informacje" class="p-button-secondary p-mt-4 p-mb-4" 
+                @click="updateDetails" icon="pi pi-cloud-upload" v-if="!isLoading"/>
+          <ProgressSpinner animationDuration="0.5s" v-if="isLoading" /> 
         </div>
-      </div>
-      <ProgressSpinner animationDuration="0.5s" v-if="isLoading" /> 
-    <Button label="Aktualizuj informacje" class="p-button-secondary p-mt-4 p-mb-6" 
-    @click="updateDetails" icon="pi pi-cloud-upload" />
+      </template>
+    </Card>
   </div>
 </template>
 
 <script>
 import firebase from 'firebase/app'
-import { onMounted, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 
-import InputText from 'primevue/inputtext';
-import Button from 'primevue/button';
+import InputMask from 'primevue/inputmask';
+import Textarea from 'primevue/textarea';
 import { useToast } from "primevue/usetoast"
-import Toast from 'primevue/toast';
+import Card from 'primevue/card';
 import ProgressSpinner from 'primevue/progressspinner';
 
 export default {
   setup() {
-    const entries = ref()
     const recivedData = ref()
     const isLoading = ref(true)
     const checkOffline = ref()
+    const workshop = reactive({
+      nazwaWarsztatu: '',
+      kodPocztowy: '',
+      miejscowosc: '',
+      adres: '',
+      email: '',
+      numerTelefonu: '',
+      NIP: '',
+      kontoBankowe: '',
+      stopka: ''
+    })
 
     const toast = useToast()
 
@@ -40,39 +105,57 @@ export default {
       .doc('DaneDoFaktur')
 
     async function getWorkshopDetails() {
-      const docs = await workshopDetails.get()
+      const docs = await workshopDetails.get().catch(() => toast.add({severity:'error', summary: 'Odczyt danych', detail: 'Wystąpił błąd wczytywania danych', life: 5000}))
       isLoading.value = false
-      recivedData.value = docs.data()
-      entries.value = Object.entries(docs.data()).sort()
+      recivedData.value = docs?.data()
+
+      if(recivedData.value) fillInputs()
     }
 
     function handleInputChange(e) {
       recivedData.value[e.target.id] = e.target.value
     }
 
+    function fillInputs(){
+      workshop.nazwaWarsztatu = recivedData.value?.nazwaWarsztatu
+      workshop.kodPocztowy = recivedData.value?.kodPocztowy
+      workshop.miejscowosc = recivedData.value?.miejscowosc
+      workshop.adres = recivedData.value?.adres
+      workshop.email = recivedData.value?.email
+      workshop.numerTelefonu = recivedData.value?.numerTelefonu
+      workshop.NIP = recivedData.value?.NIP
+      workshop.kontoBankowe = recivedData.value?.kontoBankowe
+      workshop.stopka = recivedData.value?.stopka
+    }
+
     function updateDetails() {
-      workshopDetails.update(recivedData.value).then(() => {
-        toast.add({severity:'success', summary: 'Aktualizacja', detail:'Dane warsztatu zostały zaktualizowane', life: 0})
+      workshopDetails.update(workshop).then(() => {
+        toast.removeAllGroups()
+        toast.add({severity:'success', summary: 'Aktualizacja', detail:'Dane warsztatu zostały zaktualizowane', life: 4000})
       }).then(() => clearTimeout(checkOffline.value)).catch((err) => {
-        toast.add({severity:'error', summary: 'Aktualizacja', detail: err, life: 0})
+        toast.removeAllGroups()
+        if(err.code == 'permission-denied') toast.add({severity:'error', summary: 'Aktualizacja', detail: 'To konto nie posiada uprawnień do wykonywania zmian!', life: 6000})
+        else toast.add({severity:'error', summary: 'Aktualizacja', detail: err.message, life: 5000})
+        clearTimeout(checkOffline.value)
       })
       checkOffline.value = setTimeout(() => {
+        toast.removeAllGroups()
         toast.add({severity:'warn', summary: 'Status offline', detail:'Klient jest offline.\n Dane zostaną zaktualizowane po przywróceniu połączenia.', life: 0})
-      }, 3000)
+      }, 2500)
     }
 
     onMounted(() => getWorkshopDetails())
 
 
     return {
-      entries,
       handleInputChange,
       updateDetails,
       isLoading,
+      workshop,
 
-      InputText,
-      Button,
-      Toast,
+      InputMask,
+      Textarea,
+      Card,
       ProgressSpinner
     }
   }
@@ -82,5 +165,4 @@ export default {
 </script>
 
 <style>
-
 </style>

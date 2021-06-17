@@ -1,123 +1,61 @@
 <template>
-<div class="column">
-  <h1>SZCZEGÓŁY numeru {{$route.params.ticketDetails}}</h1>
-  <div class="cars-details" v-if="carDetails">
+{{ carDetails }}
 
-        <h1 style="color: red"> {{carDetails[0]}} </h1>
-
-        <div :id="title" style="color: white" >
-
-          <div>Dodane_Czas: {{ carDetails[1]['Dodane_Czas'] }}</div>
-          <div>Marka: {{ carDetails[1]['Marka'] }}</div>
-          <div>Model: {{ carDetails[1]['Model'] }}</div>
-          <div>Rok_prod: {{ carDetails[1]['Rok_prod'] || 'Brak danych!'}}</div>
-          <div>VIN: {{ carDetails[1]['VIN'] }}</div>
-          <div>Przebieg: {{ carDetails[1]['Przebieg'] }}</div>
-          <div>Opis: {{ carDetails[1]['Opis'] }}</div>
-
-          <button class="btn" @click="HandleFunc($event)">Edytuj</button>
-          <button class="btn" @click="HandleFunc($event)">Usuń</button>
-          <button class="btn" @click="HandleFunc($event)">Przenieś</button>
-          <button class="btn" @click="HandleFunc($event)">PDF</button>
-        </div>
-
-  </div>
-</div>
-<OrderForm v-if="openEditor" :edit="openEditor" /> 
-<!-- Jezeli createTicket wczyta prop edit to pobierze ze store dane pojazdu do autouzupelnienia - funkcje zrobic w createTicket i watch na edit -->
+<Button label="Edytuj" @click="EditFunc()" />
+<a class="p-button-text p-link" target="_blank" rel="noreferrer" :href="`https://pl.vindecoder.pl/${carDetails?.['VIN']}`">Sprawdź dane pojazdu po nr VIN </a>
 
 </template>
 
 <script>
-import firebase from 'firebase/app'
-import PopupFunc from '@/components/PopupFunc.js'
 import OrderForm from '@/components/Forms/OrderForm.vue'
 import { DeleteFunc } from '@/components/EditMoveDeleteOptions'
   
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 
-import createPDF from '@/components/CreatePDF'
+import Button from 'primevue/button';
 
 export default {
   setup() {
     const route = useRoute()
     const router = useRouter()
     const store = useStore()
-    const openEditor = ref(false)
 
     const carDetails = ref()
-    const cars = ref()
-
-    const tickets = firebase.firestore()
-      .collection('warsztat')
-      .doc('zlecenia')
-
-
-    function fetchData() {
-      tickets.collection(route.params.collectionPath).doc(route.params.ticketDetails)
-        .get().then(recived => {
-          console.log(recived.data())
-          // console.log(Object.entries(recived.data()))
-          cars.value = Object.entries(recived.data()).filter(item => item[0] != 'timeStamp')
-
-          const directCar = (cars.value.filter(car => car[1].id == store.state.carDetails.id))[0]
-          carDetails.value = directCar ? directCar : cars.value[1]
-          
-          console.log(carDetails.value);
-
-          console.log(`Ilosc pojazdow: ${cars.value.length}`)
-
-        }).catch(() => {
-          cars.value = ''
-          PopupFunc('error', 'Wystąpił problem ze znalezieniem danego numeru: \n' + route.params.ticketDetails)
-        })
-    }
 
     function HandleFunc(e) {
       const target = e.target.innerText
       const id = e.target.parentElement.parentElement.parentElement.id
       if (target == 'Usuń') DeleteFunc(id, route.params.collectionPath, route.params.ticketDetails)
-      if (target == 'Edytuj') EditFunc(id)
-      if(target == 'PDF') createPDF()
-      // if (target == 'Przenieś') MoveFunc(id)
     }
 
     function EditFunc() {
-      openEditor.value = true
-
-      router.push(`/edytuj/${route.params.collectionPath}/${route.params.ticketDetails}`)
+      // caly czas w pamieci store mam zapisane dane pojazdu, wiec nie musze ich na nowo przesylac, a jedynie przekierowac routerem do formularza
+      router.push(`/pojazd/${carDetails.value?.['VIN']}/edytuj`)
     }
 
     onMounted(() => {
-      //tutaj zrobic sprawdzenie czy cos jest w localstorage / indexedDB
-      fetchData()
+      // w przypadku proby wejscia bezposrednio z linku odesle nas do ostatniej strony ze wzgledu na brak danych w pamieci
+      if(!store.state?.targetCar){
+        router.go(-1)
+      }else{
+        carDetails.value = store.state?.targetCar
+      }
     })
-
-    // ponizej fix na przejscie z details/... to zlecen
-    watch(() => route.params.ticketDetails, () => {
-      if (route.path.includes('details')) fetchData()
-    })
-    watch(() => route.params.collectionPath, () => route.path.includes('details') ? fetchData() : '')
 
     return {
       carDetails,
 
       HandleFunc,
       OrderForm,
-      openEditor
+      EditFunc,
+
+      Button
     }
   }
 }
 </script>
 
 <style>
-.cars-details {
-  margin-top: 128px;
-  display: flex;
-  justify-content: center;
-  color: black;
-  width: max(300px, 50%)
-}
 </style>

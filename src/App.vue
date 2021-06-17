@@ -1,12 +1,10 @@
 <template>
 <div>
+  <Toast />
+  <Login v-if="!userSignedIn && showLoginForm" @login="(passedCredentials) => signInWithEmailAndPassword(passedCredentials)" @OAuth="loginWithGoogle()" />
+  <Button icon="pi pi-sign-in" class="p-button-rounded p-button-primary signInBtn" @click="showLoginPanel()" v-tooltip.right="'Zaloguj'" v-if="!userSignedIn && showLogInButton" />
 
 <!-- Przerobic aby osoba niezalogowana widziala tylko podstawowe dane kontaktowe do warsztatu(tel, mail,adres) i maly przycisk zaloguj dla admina-->
-  <div class="signedOut" v-if="!userSignedIn && showLogInButton">
-    <div class="container">
-      <button class="btn signInBtn" @click="logInToAccount()">Zaloguj</button>
-    </div>
-  </div>
 
   <div class="signedIn" v-if="userSignedIn">
     <div class="container">
@@ -24,30 +22,24 @@
 
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import firebase from 'firebase/app'
 import divider from '@/components/divider.vue'
+import Login from '@/components/Forms/Login.vue'
 
-import PopupFunc from '@/components/PopupFunc.js'
+import { useToast } from "primevue/usetoast"
+import { useRouter } from 'vue-router'
 
 import { SidebarMenu } from 'vue-sidebar-menu'
 import 'vue-sidebar-menu/dist/vue-sidebar-menu.css'
 
 require('firebase/auth')
 require('firebase/firestore')
+import firebaseConfig from '@/firebase.js'
 require('@/store/notifications.js')
 require('@/store/notifications.css')
 
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCj7WjnSKdPZr7ima0GMz_0NwHB5AqP2xU",
-  authDomain: "baza-mech.firebaseapp.com",
-  databaseURL: "https://baza-mech.firebaseio.com",
-  projectId: "baza-mech",
-  storageBucket: "baza-mech.appspot.com",
-  messagingSenderId: "413485233738",
-  appId: "1:413485233738:web:0209efffbb22a6fab098b3"
-};
 firebase.initializeApp(firebaseConfig)
 
 firebase.firestore().settings({
@@ -59,13 +51,17 @@ firebase.firestore().enablePersistence() // daje dostep do danych w trybie offli
 
 export default {
   setup() {
-    let provider = new firebase.auth.GoogleAuthProvider();
-    let auth = firebase.auth()
+    const provider = new firebase.auth.GoogleAuthProvider();
+    const auth = firebase.auth()
+    const router = useRouter()
 
-    let userSignedIn = ref(false)
-    let items = ref(null)
-    let showForm = ref(false)
-    let showLogInButton = ref(false)
+    const userSignedIn = ref(false)
+    const items = ref(null)
+    const showForm = ref(false)
+    const showLogInButton = ref(false)
+    const showLoginForm = ref(false)
+
+    const toast = useToast()
 
     const menu = [
           {
@@ -153,26 +149,55 @@ export default {
   
 
     // Log in with Google auth 
-    function logInToAccount() {
+    function showLoginPanel() {
+      showLoginForm.value = true
+      showLogInButton.value = false
+    }
+
+    function loginWithGoogle(){
       auth.signInWithPopup(provider).then(() => {
         checkAuthStatus()
         }).catch((error) => {
-        PopupFunc('error', error.message)
+        toast.add({severity:'error', detail: error.message, life: 8000})
       })
+      
     }
 
+      const signInWithEmailAndPassword = (credentials) => {
+        const {username, pwd } = credentials
+        if(username && pwd){
+          firebase.auth().signInWithEmailAndPassword(username, pwd).then(() => {
+            toast.removeAllGroups()
+            toast.add({severity:'success', summary: 'Logowanie', detail:'Zalogowano do panelu!', life: 2500})
+            })
+            .catch(error =>{
+              const errorCode = error.code
+              const errorMessage = error.message
+              console.log(errorCode, errorMessage);
+              if (errorMessage == 'The email address is badly formatted.') toast.add({severity:'error', summary:'Logowanie', detail: 'Popraw pole Email!', life: 8000})
+              if (errorCode == 'auth/wrong-password' || errorCode == 'auth/user-not-found') toast.add({severity:'error', summary:'Logowanie', detail: 'Niepoprawne dane logowania do autoryzowanego konta', life: 8000})
+              if(errorCode == 'auth/network-request-failed') {
+                toast.removeAllGroups()
+                toast.add({severity:'error', summary: 'Status offline', detail:'Nie można zalogować do panelu. Sprawdź połączenie i spróbuj ponownie', life: 0})
+              }
+            })
+        } else toast.add({severity:'error', summary:'Logowanie', detail: 'Uzupełnij pola logowania!', life: 4000})
+      }
+      
     function logOutFromAccount() {
       auth.signOut().then(() => {
         checkAuthStatus()
-        PopupFunc('info', 'Zostałeś wylogowany.')
+        toast.add({severity:'info' ,detail:'Zostałeś wylogowany', life: 5000})
         // ponizej zerujemy wszystko co zostalo w pamieci
         firebase.firestore().terminate()
-        // localStorage.clear();
+        localStorage.clear();
         indexedDB.deleteDatabase('firebaseLocalStorageDb');
         indexedDB.deleteDatabase('firestore/[DEFAULT]/baza-mech/main/');
         //
-      }).then(() => firebase.firestore().clearPersistence()).catch((error) => {
-        PopupFunc('error', error.message)
+      }).then(() => firebase.firestore().clearPersistence())
+      .then(() => router.push('/'))
+        .catch((error) => {
+        toast.add({severity:'error', detail: error.message, life: 8000})
       })
     }
 
@@ -195,11 +220,16 @@ export default {
       checkAuthStatus()
     })
 
+    watch(() => userSignedIn.value, () => {
+      showLogInButton.value = true
+      showLoginForm.value = false
+    })
+
     return {
       provider,
       auth,
 
-      logInToAccount,
+      showLoginPanel,
       logOutFromAccount,
 
       userSignedIn,
@@ -211,17 +241,15 @@ export default {
       menu,
       onItemClick,
 
-      showLogInButton
+      showLogInButton,
+      Login,
+      signInWithEmailAndPassword,
+      showLoginForm,
+      loginWithGoogle
     }
   },
 
 }
-
-//
-//
-// https://vuejsexamples.com/
-//
-//
 </script>
 
 <style>
@@ -235,8 +263,10 @@ export default {
 
 body{
     font-size: 16px;
-    background-color: #202847;
-    color: white;
+    /* background-color: #202847; */
+    background-color: #20262E; /* bootstrap BGC dark */
+    /* background-color: #17212F; materialize BGC dark */
+    color: var(--text-color);
     position: relative;
     font-family: 'Source Sans Pro', sans-serif;
 }
@@ -249,6 +279,12 @@ table{
   width: min(1400px, fit-content);
   max-width: 100%;
   border-collapse: collapse;
+}
+
+.signInBtn{
+  position: fixed;
+  top: 8px;
+  left: 8px;
 }
 
 tr{
@@ -274,26 +310,6 @@ td{
   gap: 6px;
 }
 
-.noWrap{
-  white-space:nowrap;
-}
-
-.wrap{
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  overflow: hidden;
-}
-
-.width-110{
-  max-width: 110px;
-}
-.width-150{
-  width: 150px;
-}
-.width-200{
-  max-width: 200px;
-}
-
 .details a{
   color:crimson;
   font-weight: bold;
@@ -305,20 +321,16 @@ td{
 
 .container{
     margin: 0 auto;
-    padding-left: min(68px, 10%);
+    padding-left: max(56px, 10%);
     width: min(94%, 1400px);
-    /* border:1px solid red */
-}
 
-.signedOut{
-    padding: 64px;
+    /* border:1px solid red; */
 }
 
 .signedIn{
     height: 100vh;
     justify-content: center;
     align-content: center;
-
 }
 
 a{
@@ -335,33 +347,6 @@ a{
     font-size: 1.05rem;
     color: rgb(50, 50, 50);
     font-weight: bold;
-}
-
-.newDataDiv{
-    display: block;
-    position: fixed;
-    top:0;
-    left: 0;
-    background-color: rgb(204, 204, 204);
-    color: black;
-    width: 100vw;
-    height: 100vh;
-}
-
-.newDataForm{
-    display: flex;
-    height: 100%;
-    flex-direction: column;
-    justify-content: center;
-}
-.newDataForm > *{
-    align-self: center;
-}
-.newDataForm input{
-    padding: 4px;
-    border: 1px solid gray;
-    border-radius: 4px;
-    box-shadow: none;
 }
 
 .closeForm{
@@ -384,7 +369,6 @@ h1:hover{
 .v-sidebar-menu .vsm--link_active {
   background-color: black!important;
   box-shadow: inset 3px 0 0 0 greenyellow!important;;
-
 }
 
 .column{
@@ -410,19 +394,12 @@ h1:hover{
   color: white;
 }
 
-.bold{
-  font-weight: bold;
-}
-
-
 i{
   cursor: pointer;
 }
 
+.pointer{
+  cursor: pointer;
+}
 
-@media (max-width: 800px) {
-  .container{
-    padding-left: 5%;
-}
-}
 </style>

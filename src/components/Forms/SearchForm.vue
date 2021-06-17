@@ -1,6 +1,6 @@
 <template>
-<div class="container column">
-  <div class="p-d-flex p-flex-sm-column p-flex-md-row p-jc-between p-mt-4 p-text-center border">
+<div class="column">
+  <div class="p-d-flex p-flex-column p-flex-md-row p-jc-between p-mt-4 p-text-center border">
     <Card class="p-m-3">
       <template #title>
         Wyszukaj pojazd po numerze VIN
@@ -75,8 +75,6 @@ import firebase from 'firebase/app'
 import validPhoneNum from '@/components/validPhoneNum.js'
 import validateVIN from '@/components/validateVIN.js'
 
-import Button from 'primevue/button'
-import InputText from 'primevue/inputtext'
 import Card from 'primevue/card';
 import Divider from 'primevue/divider';
 
@@ -179,6 +177,8 @@ function validSearchData(e) {
        if(readyData) ticketsHistory.value.push([path, readyData])
 
       if (!ticketsHistory.value) PopupFunc('warning', 'Nie znaleziono historii pojazdu.')
+      if(ticketsHistory.value.length == 3) console.log(ticketsHistory.value)
+      
     }
 
     function FilterOnlyCars(data){
@@ -197,8 +197,6 @@ function validSearchData(e) {
         callTicketsHistory,
         FilterOnlyCars,
 
-        Button,
-        InputText,
         Card,
         Divider
     }
@@ -209,12 +207,5 @@ function validSearchData(e) {
 <style>
 .active{
   background-color: var(--green-600)!important;
-}
-
-@media screen and (max-width: 576px)
-{
-  .p-flex-sm-column {
-    flex-direction: column !important;
-  }
 }
 </style>
