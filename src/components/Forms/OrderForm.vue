@@ -103,19 +103,19 @@ export default {
           Tel: clientPhoneNum.value,
           Imie: clientName.value,
 
-
           Marka: selectedCar.value?.["Marka"],
           Model: selectedCar.value?.['Model'],
           Wersja_Rocznik: selectedCar.value?.['Wersja_Rocznik'],
           Paliwo: selectedCar.value?.['Paliwo'],
 
-          Silnik: selectedCar.value?.['Silnik'],
+          Silnik_Pojemnosc: selectedCar.value?.['Silnik_Pojemnosc'],
+          Silnik_Moc: selectedCar.value?.['Silnik_Moc'],
+          Silnik_Kod: selectedCar.value?.['Silnik_Kod'],
           SkrzyniaBiegow: selectedCar.value?.['SkrzyniaBiegow'],
           Naped: selectedCar.value?.['Naped'],
           Numer_rejestracyjny: selectedCar.value?.['Numer_rejestracyjny'],
           VIN: selectedCar.value?.['VIN'],
           Przebieg: selectedCar.value?.['Przebieg'],
-
 
           Opis: description.value || "",
           Wykonane_uslugi_czesci: WOItems.value,

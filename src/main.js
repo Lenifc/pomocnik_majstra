@@ -19,6 +19,7 @@ import ConfirmationService from 'primevue/confirmationservice';
 import Toast from "primevue/toast"
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
+import Card from 'primevue/card';
 
 const app = createApp(App)
 
@@ -26,6 +27,7 @@ app.directive('tooltip', Tooltip);
 app.component('Toast', Toast)
 app.component('Button', Button)
 app.component('InputText', InputText)
+app.component('Card', Card)
 
 app.use(store).use(router).use(PrimeVue, {ripple: true}).use(ToastService).use(ConfirmationService).mount('#app')
 

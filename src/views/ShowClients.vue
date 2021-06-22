@@ -3,19 +3,24 @@
   <div class="p-d-flex p-flex-column p-ai-center">
 
     <Button label="Dodaj Klienta" icon="pi pi-user-plus" @click="openClientAddForm()"
-      class="p-button-secondary p-mt-5 removeMarginLeft" />
+      class="p-button-outlined p-button-success p-mt-5 removeMarginLeft" />
+      <div class="p-d-flex p-flex-row p-ai-center">
+        <Button class="p-button-secondary  p-mt-3 removeMarginLeft" @click="getClientsFromFirebase('all')" label="Załaduj wszystkich klientów" 
+                v-if="!disableNextButton" :icon="(!recivedClients || isLoading) ? 'pi pi-spin pi-spinner' : 'pi pi-download'" 
+                v-tooltip.bottom="`W przypadku dużej ilości klientów ładowanie może chwile potrwać`" />
+      </div>
+    
 
     <DataTable :value="recivedClients" responsiveLayout="stack" breakpoint="1250px" stripedRows 
-    showGridlines v-model:filters="tableFilters" filterDisplay="menu" :loading="!recivedClients" 
+    showGridlines v-model:filters="tableFilters" filterDisplay="menu" :loading="!recivedClients || isLoading" 
     class="p-my-5" dataKey="Tel">
       <template #header>
-        <div class="p-d-flex p-jc-between columnOnSmallScreen">
-          <Button icon="pi pi-filter-slash" label="Wyczyść" class="p-button-outlined" @click="clearTableFilters()" />
-              <Button class="p-button-secondary" @click="getClientsFromFirebase('all')" 
-                  label="Załaduj wszystkich klientów" v-if="!disableNextButton" icon="pi pi-download"/>
+        <div class="p-d-flex p-jc-between p-flex-column p-flex-sm-row">
+          <Button icon="pi pi-filter-slash" label="Wyczyść" class="p-button-outlined" @click="clearTableFilters()" v-tooltip.bottom="`Wyczyść filtry`" />
+                  <div class="p-my-3 p-my-sm-0 p-text-center">Wczytano {{ recivedClients?.length }} z {{ totalNumberOfClients }} klientów</div>
           <span class="p-input-icon-left">
             <i class="pi pi-search" />
-            <InputText v-model="tableFilters['global'].value" placeholder="Wyszukaj..." class="mobileWidth"/>
+            <InputText placeholder="Wyszukaj..." v-model="searchValue" @keyup="showEvent($event)" v-tooltip.bottom="'Wyszukiwanie aktywuje się po podaniu 3 znaków'"/>
           </span>
         </div>
       </template>
@@ -49,34 +54,38 @@
       </Column>
       <Column field="Tel" header="Numer Telefonu" class="p-text-center" style="width:125px">
         <template #body="{data}">
-          <div class="p-d-flex p-flex-column">
-            <div class="pointer" @dblclick="copyValue($event)">{{data.Tel}}</div>
-            <div class="pointer" @dblclick="copyValue($event)" v-if="data.Tel2"> {{ data.Tel2 }}</div>
+          <div class="p-d-flex p-flex-column" @dblclick="copyValue($event)">
+            <div class="pointer">{{data.Tel}}</div>
+            <div class="pointer" v-if="data.Tel2"> {{ data.Tel2 }}</div>
           </div>
         </template>
       </Column>
       <Column field="Imie" header="Imie" class="p-text-center" style="width:145px">
-      <template #body="{data}">
-          <div class="pointer" @dblclick="copyValue($event)">{{data.Imie}}</div>
-        </template></Column>
+        <template #body="{data}">
+          <div class="p-d-flex p-flex-column" @dblclick="copyValue($event)">
+            <div class="pointer">{{data.Imie}}</div>
+            <div class="pointer" v-if="data.NIP"> {{ data.NIP }}</div>
+          </div>
+        </template>
+      </Column>
       <Column field="Opis" header="Opis" class="p-text-center" style="width:250px">
       <template #body="{data}">
-        <div v-html="data.Opis" class="p-px-4 p-text-wrap mobileWrap" ></div>
+        <div v-html="data.Opis" class="p-px-4 p-text-wrap" ></div>
       </template>
       </Column>
       <!-- <Column field="Adres" header="Adres" class="p-text-center"></Column> -->
-      <Column header="Pojazd" class="p-text-center" style="width:250px" field="Marka" >
+      <Column header="Pojazd" class="p-text-center" style="width:250px" field="Pojazdy">
         <template #body="{data}"> 
           <!-- zamiast pisac SlotProps.data moge uzyc destrukturyzacji i skrocic zapis -->
-          <div class="p-d-flex p-flex-column"> <!-- trzeba bylo oplesc to jeszcze w jednego DIVa, bo inaczej pod telefony zle wyswietlalo pojazdy -->
+          <div class="p-d-flex p-flex-column smallerFontOnPhones" @dblclick="copyValue($event)"> <!-- trzeba bylo oplesc to jeszcze w jednego DIVa, bo inaczej pod telefony zle wyswietlalo pojazdy -->
             <div v-for="car in onlyCars(data)" :id="`id${car.VIN}`" :key="car.VIN"
             class="p-d-flex p-flex-column Cars">
             <div class="p-d-flex p-flex-row p-ai-center p-jc-between">
               <div class="p-d-flex p-flex-column">
-                <div class="p-text-center p-text-wrap p-text-bold pointer" @dblclick="copyValue($event)">{{`${car.Marka} ${car.Model}`}}</div>
-                <div class="p-text-nowrap p-text-truncate pointer" style="width:200px; max-width:225px" @dblclick="copyValue($event)">{{car.VIN}}</div>
+                <div class="p-text-center p-text-wrap p-text-bold pointer">{{`${car.Marka} ${car.Model}`}}</div>
+                <div class="p-text-nowrap p-text-truncate pointer width160OnPhones" style="width:200px; max-width:225px">{{car.VIN}}</div>
               </div>
-              <div class="p-d-flex p-flex-row p-jc-end p-ai-center">
+              <div class="p-d-flex p-flex-row p-jc-end p-ai-center p-ml-1">
                 <i class="fas fa-info" v-tooltip.top="'Szczegóły pojazdu'" @click="redirectToCarDetails(car)"></i>
                 <i class="fas fa-edit p-pr-1 p-pl-2" v-tooltip.top="'Edytuj dane pojazd'" @click="openVehicleEditForm(car)"></i>
                 <i class="fas fa-trash-alt" v-tooltip.top="'Usuń pojazd'" 
@@ -99,7 +108,7 @@
 
 <script>
 import firebase from 'firebase/app'
-import { onMounted, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 
@@ -124,26 +133,29 @@ require('firebase/firestore')
      const store = useStore()
      const Router = useRouter()
      const toast = useToast()
-     const confirm = useConfirm();
+     const confirm = useConfirm()
+
+     const searchValue = ref()
 
      const recivedClients = ref()
-     const recivedVehicles = ref()
      const limit = ref(50)
+     const totalNumberOfClients = ref(0)
     //  const lastDoc = ref(0)
      const disableNextButton = ref(true)
-     const countClientCars = ref(0)
+     const isLoading = ref(true)
 
-    const tableFilters = ref({
-      'global': { value: null, matchMode: FilterMatchMode.CONTAINS }
+    const tableFilters = reactive({
+      'global': { value: '', matchMode: FilterMatchMode.CONTAINS }
     })
     const clearTableFilters = () => {
-      tableFilters.value = {
-        'global': { value: null, matchMode: FilterMatchMode.CONTAINS }
-      }
+      tableFilters['global'].value = ''
     }
 
      const MainPath = firebase.firestore()
        .collection('warsztat').doc('Klienci').collection('Numery')
+
+      const totalClientsPath = firebase.firestore()
+       .collection('warsztat').doc('Klienci')
 
      async function getClientsFromFirebase(req) {
        if(req == 'more') limit.value += 100
@@ -152,10 +164,15 @@ require('firebase/firestore')
       .orderBy("Ostatnia_Aktualizacja", "desc")
        .limit(limit.value)
 
-       if(req == 'all') clientPath = MainPath.orderBy("Ostatnia_Aktualizacja", "desc")
+       if(req == 'all') {
+         clientPath = MainPath.orderBy("Ostatnia_Aktualizacja", "desc")
+         isLoading.value = true
+         toast.add({severity:'warn', summary:"Możliwe spore obciążenie", detail:'W przypadku bardzo dużej ilości klientów ładowanie może zająć nawet 10 sekund!', life: 0})
+       }
 
        let clientResponse = await clientPath.get()
 
+       totalNumberOfClients.value = (await totalClientsPath.get()).data().Klienci
       //  lastDoc.value = clientResponse.docs[clientResponse.docs.length - 1]
 
        if (!clientResponse.docs.length) {
@@ -165,9 +182,17 @@ require('firebase/firestore')
 
        recivedClients.value = clientResponse.docs.map(doc => doc.data())
 
+       // Dodano podstawowe dane pojazdu o poziom wyzej w obiekcie ze wzgledu na filtrowanie tabeli
+      //  await recivedClients.value.map(client => client['Pojazdy'] = (Object.values(client).filter(item => item instanceof Object)).map(car => `${car.Marka} ${car.Model} ${car.VIN} `)) //dziala
+       await recivedClients.value.map(client => client['Pojazdy'] = (Object.values(client).filter(item => item instanceof Object)).map(car => `${car.Marka} ${car.Model} ${car.VIN} `))
+      // https://github.com/dg92/Performance-Analysis-JS/blob/master/small_data_set_result.png
+       
+      isLoading.value = false
       disableNextButton.value = false
+
         if(req == 'all' || clientResponse.docs.length < limit.value) {
           disableNextButton.value = true
+          toast.removeAllGroups()
           toast.add({severity:'info', detail:'Wczytano wszystkich klientów', life: 4000})
      }
      }
@@ -190,7 +215,11 @@ require('firebase/firestore')
 
           if (operation == 'removeClient') {
             const confirmDelete = await DeleteFunc('client', MainPath, Tel, target)
-            if (confirmDelete !== false) recivedClients.value = recivedClients.value.filter(client => client.Tel != Tel)
+            if (confirmDelete !== false) {
+              recivedClients.value = recivedClients.value.filter(client => client.Tel != Tel)
+              toast.removeAllGroups()
+              toast.add({severity:'success', detail:'Pomyślnie usunięto dane klienta', life: 4000})
+          }
           }
           if (operation == 'removeCar') {
             const confirmDelete = await DeleteFunc('car', MainPath, Tel, target, JSON.parse(JSON.stringify(clientData))) // prosta konwersja proxy do objektu
@@ -198,6 +227,8 @@ require('firebase/firestore')
               recivedClients.value.map(client => {
                 if (client.Tel == Tel) delete client[`${target}`]
               })
+              toast.removeAllGroups()
+              toast.add({severity:'success', detail:'Pomyślnie usunięto pojazd z listy klienta.', life: 4000})
             }
           }
         },
@@ -230,13 +261,19 @@ require('firebase/firestore')
      }
 
     function onlyCars(client){
-      return Object.values(client).filter(item => item instanceof Object)
+      return Object.values(client).filter(item => item instanceof Object && item.VIN)
+    }
+
+    function showEvent(e){
+      searchValue.value = e.target.value
+
+      if(searchValue.value.trim().length > 2) tableFilters['global'].value = searchValue.value.trim()
+      else tableFilters['global'].value = ''
     }
 
     async function copyValue(e){
       const text = e.target?.innerText
       await copyToClipboard(text)
-
       toast.add({severity:'info', summary: 'Wartość skopiowana', detail:`Wartość "${text}" została skopiowana do schowka`, life: 3000})
     }
 
@@ -248,7 +285,6 @@ require('firebase/firestore')
 
      return {
        recivedClients,
-       recivedVehicles,
 
        openClientEditForm,
        openVehicleEditForm,
@@ -258,8 +294,8 @@ require('firebase/firestore')
 
        onlyCars,
        getClientsFromFirebase,
+       totalNumberOfClients,
        disableNextButton,
-       countClientCars,
        redirectToCarDetails,
 
        FilterMatchMode,
@@ -273,7 +309,11 @@ require('firebase/firestore')
        copyValue,
 
        confirmDeleteModal,
-       ConfirmDialog
+       ConfirmDialog,
+
+       isLoading,
+       showEvent,
+       searchValue
      }
 
    }
@@ -298,20 +338,18 @@ require('firebase/firestore')
   margin-left: -120px;
 }
 
-/* @media(max-width:1250px){
-  .Cars > .p-divider{
-  display: none;
-} */
-/* } */
-
-@media(max-width:800px){
-  .columnOnSmallScreen{
-    flex-direction: column;
-    gap: 12px;
-    align-items: center;
-  }
+@media(max-width:1000px){
   .removeMarginLeft{
     margin-left:0px
   } 
+}
+
+@media(max-width:500px){
+  .smallerFontOnPhones{
+    font-size: 0.9rem;
+  }
+  .width160OnPhones{
+    width: 160px!important;
+  }
 }
 </style>

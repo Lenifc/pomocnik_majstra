@@ -76,7 +76,7 @@
         const items = ref([])
 
         const WO = reactive({
-          part_service_Name: null,
+          part_service_Name: '',
           quantity: 1,
           price_net: null,
           price_gross: null,
@@ -86,7 +86,7 @@
         })
         
         function clearInputs(){
-          WO.part_service_Name = null
+          WO.part_service_Name = ''
           WO.quantity = 1
           WO.price_net = null
           WO.price_gross = null
@@ -100,7 +100,7 @@
 
             items.value.push({
               id: Date.now(),
-              part_service_Name: WO.part_service_Name,
+              part_service_Name: WO.part_service_Name || ' ',
               quantity: WO.quantity,
               price_net: WO.price_net,
               price_gross: WO.price_gross,

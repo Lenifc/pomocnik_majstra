@@ -2,10 +2,11 @@
   <div class="">
     <Card class="p-d-flex p-flex-column p-ai-center p-mt-6 p-mx-auto" style="width:min(94%, 500px)">
       <template #title>
-        <div class="p-text-center">Zaloguj do panelu zarządzania</div>
+        <div v-if="!showPwdResetForm" class="p-text-center">Zaloguj do panelu zarządzania</div>
+        <div v-else class="p-text-center">Wyślij link do resetu hasła na podany adres email</div>
       </template>
       <template #content>
-        <div class="p-d-flex p-flex-column p-flex-md-row p-jc-center p-ai-center p-mt-2">
+        <div class="p-d-flex p-flex-column p-flex-md-row p-jc-center p-ai-center p-mt-2" v-if="!showPwdResetForm">
           <div class="inputs">
             <div class="p-d-flex p-flex-column">
               <span class="p-float-label">
@@ -20,8 +21,16 @@
           </div>
           <div class="buttons p-mt-4 p-mt-md-0 p-ml-0 p-ml-md-3 p-d-flex p-flex-column p-jc-between">
             <Button label="Zaloguj" @click="$emit('login', credentials)" class="p-mb-4" />
-            <Button label="Przypomnij hasło" class="p-button-text" />
+            <Button label="Przypomnij hasło" class="p-button-text" @click="showPwdResetForm = true"/>
           </div>
+        </div>
+        <div class="p-d-flex p-flex-column p-flex-md-row p-jc-center p-ai-center p-mt-2" v-if="showPwdResetForm">
+           <Button icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" @click="showPwdResetForm = false"/>
+            <span class="p-float-label">
+              <InputText id="username" type="text" v-model="credentials.username" />
+              <label for="username">Email</label>
+            </span>
+           <Button label="Przypomnij" @click="$emit('pwdReset', credentials.username)" class="p-mb-4" />
         </div>
         <!-- PÓŹNIEJ USUNĄĆ! -->
           <Button label="Temporary G-login" @click="$emit('OAuth')" class="p-button-help"/>
@@ -35,22 +44,24 @@
 <script>
 import Card from 'primevue/card';
 import Password from 'primevue/password';
-import { reactive } from '@vue/reactivity';
+import { reactive, ref } from '@vue/reactivity';
 
 
 export default {
-  emits: ['login', 'OAuth'],
+  emits: ['login', 'OAuth', 'pwdReset'],
 setup(){
   const credentials = reactive({
     username: null,
     pwd: null
   })
+  const showPwdResetForm = ref(false)
 
   return{
     Card,
     Password,
 
     credentials,
+    showPwdResetForm
   }
 }
 }

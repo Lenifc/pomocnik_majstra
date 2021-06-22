@@ -3,32 +3,31 @@
       <div class="modal-wrapper">
         <div class="modal-container p-text-center">
 
-          <div class="modal-header">
+          <h2 class="modal-header">
               {{ message }}
-          </div>
+          </h2>
 
-          <div class="modal-body p-text-justify p-ml-6 p-pl-5" v-if="operation == 'relocate'">
-
-              <input type="radio" id="free" value="wolne" v-model="newLocation">
+          <div class="modal-body p-text-justify p-ml-6 p-pl-5 p-d-flex p-flex-column">
+            <span class="p-mt-2">
+              <RadioButton id="free" value="wolne" v-model="newLocation" />
               <label for="free"> Wolne</label>
-              <br>
-              <input type="radio" id="inprogress" value="obecne" v-model="newLocation">
+            </span>
+
+            <span class="p-mt-2">
+              <RadioButton id="inprogress" value="obecne" v-model="newLocation" />
               <label for="inprogress"> W trakcie realizacji</label>
-              <br>
-              <input type="radio" id="done" value="zakonczone" v-model="newLocation">
+            </span>
+
+            <span class="p-mt-2">
+              <RadioButton id="done" value="zakonczone" v-model="newLocation" />
               <label for="done"> Zakończone</label>
+            </span>
           </div>
 
-          <div class="modal-footer">
-              <button class="modal-default-button btn success" @click="handleEmit()" v-if="operation == 'relocate' && newLocation.length > 0">
-                Przenieś 
-              </button>
-              <button class="modal-default-button btn success" @click="$emit('true', true)" v-if="operation != 'relocate'">
-                Kontynuuj 
-              </button>
-              <button class="modal-default-button btn failed" @click="$emit('false')">
-                Anuluj
-              </button>
+          <div class="modal-footer p-mt-2">
+              <Button class="p-button-success" @click="handleEmit()" v-if="newLocation.length > 0"
+                label="Przenieś" />
+              <Button class=" p-button-danger" @click="$emit('false')" label="Anuluj" />
           </div>
         </div>
       </div>
@@ -37,9 +36,10 @@
 
 <script>
 import { ref } from 'vue'
+import RadioButton from 'primevue/radiobutton';
 
 export default {
-  props: ['message', 'operation'],
+  props: ['message'],
   emits: ['true', 'false'],
 
   setup(props, {emit}){
@@ -49,7 +49,7 @@ export default {
       emit('true', true, newLocation.value)
     }
 
-    return { newLocation, handleEmit }
+    return { newLocation, handleEmit, RadioButton }
   }
 }
 </script>
@@ -71,21 +71,21 @@ export default {
 .modal-wrapper {
   display: table-cell;
   vertical-align: middle;
-  color: black
+  color: #E3E4E6;
 }
 
 .modal-container {
   width: min(600px, 80%);
   margin: 0px auto;
   padding: 20px 30px;
-  background-color: var(--text-color);
-  border-radius: 2px;
+  background-color: #2A323D;
+  border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
 }
 
 .modal-body {
-  margin: 20px 0;
+  margin: 16px 0;
 }
 
 .modal-footer{
@@ -93,13 +93,6 @@ export default {
   flex-direction: row;
   justify-content: center;
   gap: 16px;
-}
-
-.modal-default-button {
-  display: block;
-  margin-top: 1rem;
-  font-weight: bold;
-  color: white
 }
 
 .modal-enter {

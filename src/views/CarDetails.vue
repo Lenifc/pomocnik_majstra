@@ -1,8 +1,8 @@
 <template>
 {{ carDetails }}
 
-<Button label="Edytuj" @click="EditFunc()" />
-<a class="p-button-text p-link" target="_blank" rel="noreferrer" :href="`https://pl.vindecoder.pl/${carDetails?.['VIN']}`">Sprawdź dane pojazdu po nr VIN </a>
+<Button label="Edytuj" @click="EditFunc()" icon="pi pi-pencil"/>
+<a class="p-button-text p-link" target="_blank" rel="noreferrer" v-if="carDetails?.['VIN']" :href="`https://vindecoder.pl/${carDetails?.['VIN']}`">Sprawdź dane pojazdu po nr VIN </a>
 
 </template>
 
@@ -10,7 +10,7 @@
 import OrderForm from '@/components/Forms/OrderForm.vue'
 import { DeleteFunc } from '@/components/EditMoveDeleteOptions'
   
-import { ref, onMounted } from 'vue'
+import { ref, onBeforeMount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 
@@ -35,7 +35,7 @@ export default {
       router.push(`/pojazd/${carDetails.value?.['VIN']}/edytuj`)
     }
 
-    onMounted(() => {
+    onBeforeMount(() => {
       // w przypadku proby wejscia bezposrednio z linku odesle nas do ostatniej strony ze wzgledu na brak danych w pamieci
       if(!store.state?.targetCar){
         router.go(-1)

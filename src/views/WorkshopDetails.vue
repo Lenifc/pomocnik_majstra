@@ -78,7 +78,6 @@ import { onMounted, reactive, ref } from 'vue'
 import InputMask from 'primevue/inputmask';
 import Textarea from 'primevue/textarea';
 import { useToast } from "primevue/usetoast"
-import Card from 'primevue/card';
 import ProgressSpinner from 'primevue/progressspinner';
 
 export default {
@@ -155,7 +154,6 @@ export default {
 
       InputMask,
       Textarea,
-      Card,
       ProgressSpinner
     }
   }

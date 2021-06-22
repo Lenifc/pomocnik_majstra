@@ -1,89 +1,99 @@
 <template>
-  <form class="p-ml-2">
-    <div class="closeForm" @click="$router.go(-1)">&times;</div>
+  <Card class="p-mt-4 relative" style="max-width:800px">
+    <template #title>
+      <div class="closeForm" @click="$router.go(-1)">&times;</div>
+      <div class="p-text-center">{{ $route.path.indexOf('edytuj') > 0 ? 'Edytuj dane klienta' : 'Dodaj nowego klienta' }}</div>
+    </template>
+    <template #content>
+      <form>
+        <div class="p-d-flex p-flex-md-row p-flex-column p-jc-md-evenly p-ai-center">
+          <div class=" p-d-flex p-flex-column ">
+            <h3 class="p-mt-3">Pola obowiązkowe: </h3>
 
-    <div class="p-d-flex p-flex-md-row p-flex-column p-jc-md-evenly p-ai-center">
-      <div class=" p-d-flex p-flex-column ">
-        <h3 class="p-mt-3">Pola obowiązkowe: </h3>
-      
-        <span class="p-float-label p-mt-4">
-          <InputText type="text" id="phoneNum" required v-model="client.phoneNum" />
-          <label for="phoneNum">Numer telefonu</label>
-        </span>
+            <span class="p-float-label p-mt-4">
+              <InputText type="text" id="phoneNum" required v-model="client.phoneNum" />
+              <label for="phoneNum">Numer telefonu*</label>
+            </span>
 
-        <div class="p-d-flex p-flex-row p-mt-3">
-          <div class="p-field-radiobutton">
-            <RadioButton name="typeOfClient" value="Prywatny" v-model="client.typeOfClient" />
-            <label for="typeOfClient">Klient prywatny</label>
+            <div class="p-d-flex p-flex-row p-mt-3">
+              <div class="p-field-radiobutton">
+                <RadioButton name="typeOfClient" value="Prywatny" v-model="client.typeOfClient" />
+                <label for="typeOfClient">Klient prywatny</label>
+              </div>
+              <div class="p-field-radiobutton p-pl-3">
+                <RadioButton name="typeOfClient" value="Firma" v-model="client.typeOfClient" />
+                <label for="typeOfClient">Firma</label>
+              </div>
+            </div>
+
+            <span class="p-float-label p-mt-3" v-if="client.typeOfClient == 'Prywatny'">
+              <InputText type="text" id="clientName" v-model="client.Name" />
+              <label for="clientName">Imie klienta*</label>
+            </span>
+            <div class="p-d-flex p-flex-column p-flex-sm-row p-mt-3" v-if="client.typeOfClient == 'Firma'">
+              <span class="p-float-label">
+                <InputText type="text" id="clientName" v-model="client.Name" />
+                <label for="clientName">Nazwa firmy*</label>
+              </span>
+              <span class="p-float-label p-mt-4 p-mt-sm-0 p-ml-0 p-ml-sm-2">
+                <InputMask mask="9999999999" id="NIP" v-model="client.companyId" style="width:125px" />
+                <label for="NIP">NIP*</label>
+              </span>
+            </div>
           </div>
-          <div class="p-field-radiobutton p-pl-3">
-            <RadioButton name="typeOfClient" value="Firma" v-model="client.typeOfClient" />
-            <label for="typeOfClient">Firma</label>
+
+          <div class="p-d-flex p-flex-column p-jc-evenly p-ai-center p-ai-sm-start">
+            <h3 class="p-mt-3">Dodatkowe informacje: </h3>
+            <span class="p-float-label p-mt-4">
+              <InputText type="text" id="phoneNum2" v-model="client.phoneNum2" />
+              <label for="phoneNum2">Drugi numer telefonu</label>
+            </span>
+            <h4 class="p-mt-2">Adres</h4>
+            <div class="p-d-flex p-flex-column p-flex-sm-row">
+              <span class="p-float-label p-mt-4">
+                <InputMask mask="99-999" id="postCode" v-model="client.PostCode" style="width:120px" />
+                <label for="postCode">Kod pocztowy</label>
+              </span>
+              <span class="p-float-label p-mt-4 p-sm-mt-3 p-ml-0 p-ml-sm-2">
+                <InputText type="text" id="city" v-model="client.City" />
+                <label for="city">Miejscowość</label>
+              </span>
+            </div>
+            <span class="p-float-label p-mt-4">
+              <InputText type="text" id="address" v-model="client.address" />
+              <label for="address">Ulica i nr budynku</label>
+            </span>
+
           </div>
         </div>
-
-        <span class="p-float-label p-mt-2" v-if="client.typeOfClient == 'Prywatny'">
-          <InputText type="text" id="clientName" required v-model="client.Name" />
-          <label for="clientName">Imie klienta</label>
-        </span>
-        <div class="p-d-flex p-flex-row p-mt-3" v-if="client.typeOfClient == 'Firma'">
-          <span class="p-float-label">
-            <InputText type="text" id="clientName" required v-model="client.Name" />
-            <label for="clientName">Nazwa firmy</label>
-          </span>
-          <span class="p-float-label p-ml-2">
-            <InputMask mask="9999999999" id="NIP" required v-model="client.companyId" style="width:125px"/>
-            <label for="NIP">NIP</label>
-          </span>
-        </div>
-      </div>
-
-      <div class="extraInformation p-d-flex p-flex-column p-jc-evenly">
-        <h3 class="p-mt-3">Dodatkowe informacje: </h3>
-        <span class="p-float-label p-mt-4">
-          <InputText type="text" id="phoneNum2" v-model="client.phoneNum2" />
-          <label for="phoneNum2">Dodatkowy numer telefonu</label>
-        </span>
-        <h3 class="p-mt-2">Adres</h3>
-        <div class="p-d-flex p-flex-row">
-          <span class="p-float-label p-mt-3">
-            <InputMask mask="99-999" id="postCode" v-model="client.PostCode" style="width:120px"/>
-            <label for="postCode">Kod pocztowy</label>
-          </span>
-          <span class="p-float-label p-mt-3 p-ml-2">
-            <InputText type="text" id="city" v-model="client.City" />
-            <label for="city">Miejscowość</label>
-          </span>
-        </div>
-        <span class="p-float-label p-mt-4">
-            <InputText type="text" id="address" v-model="client.address" />
-            <label for="address">Ulica i nr domu/mieszkania</label>
-        </span>
-        
-        
-
-      </div>
-    </div>
-        <label for="Textarea"><h3 class="p-mt-3 p-mb-1 p-text-center">Więcej informacji:</h3></label>
+        <label for="Textarea">
+          <h3 class="p-mt-3 p-mb-1 p-text-center">Więcej informacji:</h3>
+        </label>
         <Editor v-model="client.description" id="Textarea" class="p-mx-auto p-mb-6">
-          <template #toolbar >
+          <template #toolbar>
             <span class="ql-formats">
               <button class="ql-bold"></button>
               <button class="ql-italic"></button>
               <button class="ql-underline"></button>
               <button class="ql-list" value="bullet"></button>
+              <button class="ql-link"></button>
             </span>
           </template>
         </Editor>
+      </form>
+    </template>
+    <template #footer>
+      <div class="p-d-flex p-flex-column p-flex-md-row p-jc-center">
+        <Button :label=" $route.path.indexOf('edytuj') > 0 ? 'Aktualizuj dane klienta' : 'Dodaj klienta'"
+          class="p-button-success p-button-outlined p-m-2 p-text-bold" @click.prevent="validateData"
+          icon="fas fa-save" />
+        <Button label="Wyczyść formularz" class="p-button-danger p-button-outlined p-m-2 p-text-bold" @click="clearForm"
+          icon="fas fa-trash-alt" />
+      </div>
+    </template>
 
-    <div class="p-d-flex p-flex-column p-flex-md-row p-jc-center">
-      <Button :label=" $route.path.indexOf('edytuj') > 0 ? 'Edytuj klienta' : 'Dodaj klienta'" 
-        class="p-button-raised p-button-success p-m-2 p-text-bold p-text-white" @click="validateData($event)" icon="fas fa-save" />
-      <Button label="Wyczyść formularz" class="p-button-raised p-button-danger p-m-2 p-text-bold p-text-white" 
-      @click="clearForm" icon="fas fa-trash-alt" />
-    </div>
-  </form>
 
+  </Card>
 </template>
 
 <script>
@@ -92,8 +102,8 @@ import { onMounted, watch, reactive } from 'vue'
 import { useRoute } from 'vue-router'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
+import { useToast } from "primevue/usetoast"
 
-import PopupFunc from '@/components/PopupFunc.js'
 import { getTime } from '@/components/getCurrentTime'
 import validPhoneNum from '@/components/validPhoneNum.js'
 
@@ -110,6 +120,7 @@ export default {
     const route = useRoute()
     const router = useRouter()
     const store = useStore()
+    const toast = useToast()
 
     const client = reactive({
     phoneNum: null,
@@ -127,19 +138,21 @@ export default {
       .collection('warsztat')
       .doc('Klienci')
 
-    function validateData(e) {
-      e.preventDefault()
+    function validateData() {
+      document.querySelectorAll('.p-invalid').forEach(input => input.classList.remove('p-invalid'))
 
-      if (validPhoneNum(client.phoneNum)) {
+      if(!client.phoneNum || !validPhoneNum(client.phoneNum)) document.querySelector('#phoneNum').classList.add('p-invalid')
+      if(client.typeOfClient == 'Firma' && (!client.companyId || client.companyId?.length < 10)) document.querySelector('#NIP').classList.add('p-invalid')
+      if (!client.Name || client.Name?.length < 2) document.querySelector('#clientName').classList.add('p-invalid')
+
+      let checkForInvalids = document.querySelectorAll('.p-invalid')
+
         // const { serverTimestamp } = firebase.firestore.FieldValue;
-
+        if(checkForInvalids.length == 0){
         let preparedData = []
         let timeStamp = getTime()
         let ID = Date.now()
-        if (client.Name.value?.length < 2 || client.phoneNum == null) {
-          PopupFunc('error', 'Uzupełnij brakujące informacje')
-          return
-        }
+        
         preparedData = {
           id: ID,
 
@@ -156,9 +169,11 @@ export default {
           Ostatnia_Aktualizacja: timeStamp,
         }
         sendDataToFirebase(preparedData)
-
-      } else PopupFunc('error', 'Upewnij się, że dane są prawidłowe! ⚠️')
-
+    }
+        else{
+          toast.removeAllGroups()
+          toast.add({severity:'error', summary: 'Błędne dane', detail: 'Uzupełnij lub popraw zaznaczone pola!', life: 4000})
+        }
     }
 
     function sendDataToFirebase(preparedData) {
@@ -170,17 +185,31 @@ export default {
       docReference.get().then(function (doc) {
         if (doc.exists) {
           if(route.path.indexOf('edytuj') <= 0) {
-            return PopupFunc('error', 'Klient o podanym numerze już istnieje!')
+              toast.removeAllGroups()
+              toast.add({severity:'error', summary: '', detail: 'Klient o podanym numerze jest już w bazie!', life: 4000})
+              return
             }
           docReference.update({
               ...preparedData
-            }).then(() => PopupFunc('success', `Zaaktualizowano klienta o podanym numerze telefonu: \n${Tel}`))
-            .catch(err => PopupFunc("error", err.message))
+            }).then(() => {
+              toast.removeAllGroups()
+              toast.add({severity:'success', summary: 'Zaktualizowano pomyślnie', detail: `Zaaktualizowano klienta o podanym numerze telefonu: \n${Tel}`, life: 4000})
+            })
+            .catch(err => {
+              toast.removeAllGroups()
+              toast.add({severity:'error', summary: 'Błąd', detail: err.message, life: 6000})
+            })
         } else {
           docReference.set({
               ...preparedData
-            }).then(() => PopupFunc('success', `Dodano nowego klienta o numerze ${Tel}`))
-            .catch(err => PopupFunc("error", err.message))
+            }).then(() =>  {
+              toast.removeAllGroups()
+              toast.add({severity:'success', summary: 'Dodano pomyślnie', detail: `Dodano nowego klienta o numerze: ${Tel}`, life: 4000})
+            })
+            .catch(err =>  {
+              toast.removeAllGroups()
+              toast.add({severity:'error', summary: 'Błąd', detail: err.message, life: 6000})
+            })
         }
 
         if(route.path.indexOf('edytuj') <= 0) clients.update("Klienci", firebase.firestore.FieldValue.increment(1))
@@ -188,9 +217,11 @@ export default {
         store.commit('setTargetClient', '')
         router.go(-1)
 
-      }).catch(function (err) {
-        PopupFunc("error", err.message)
-      })
+      }).catch(err =>{
+              toast.removeAllGroups()
+              toast.add({severity:'error', summary: 'Błąd', detail: err.message, life: 6000})
+              return
+            })
     }
 
 
@@ -252,12 +283,11 @@ export default {
 </script>
 
 <style>
-.p-text-white{
-  color: rgb(39, 39, 39)!important;
-}
-
 .p-editor-container{
   height: 250px; 
-  max-width:60vw
+}
+
+.relative{
+  position: relative;
 }
 </style>

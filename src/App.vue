@@ -1,7 +1,7 @@
 <template>
 <div>
   <Toast />
-  <Login v-if="!userSignedIn && showLoginForm" @login="(passedCredentials) => signInWithEmailAndPassword(passedCredentials)" @OAuth="loginWithGoogle()" />
+  <Login v-if="!userSignedIn && showLoginForm" @login="(passedCredentials) => signInWithEmailAndPassword(passedCredentials)" @OAuth="loginWithGoogle()" @pwdReset="email => PasswordReset(email)"/>
   <Button icon="pi pi-sign-in" class="p-button-rounded p-button-primary signInBtn" @click="showLoginPanel()" v-tooltip.right="'Zaloguj'" v-if="!userSignedIn && showLogInButton" />
 
 <!-- Przerobic aby osoba niezalogowana widziala tylko podstawowe dane kontaktowe do warsztatu(tel, mail,adres) i maly przycisk zaloguj dla admina-->
@@ -24,8 +24,8 @@
 <script>
 import { ref, onMounted, watch } from 'vue'
 import firebase from 'firebase/app'
-import divider from '@/components/divider.vue'
-import Login from '@/components/Forms/Login.vue'
+import CustomDivider from '@/components/CustomDivider.vue'
+import Login from '@/components/Login.vue'
 
 import { useToast } from "primevue/usetoast"
 import { useRouter } from 'vue-router'
@@ -74,7 +74,7 @@ export default {
             icon: 'fa fa-desktop',
           },
           {
-            component: divider
+            component: CustomDivider
           },
           {
             header: 'Zlecenia',
@@ -103,7 +103,7 @@ export default {
             icon: 'fa fa-check',
           },
           {
-            component: divider
+            component: CustomDivider
           },
           {
             href: '/szukaj',
@@ -111,7 +111,7 @@ export default {
             icon: 'fa fa-search',
           },
           {
-            component: divider
+            component: CustomDivider
           },
           {
             header: 'Ustawienia',
@@ -138,7 +138,7 @@ export default {
           //   icon: 'fa fa-car',
           // },
           {
-            component: divider
+            component: CustomDivider
           },
           {
               icon: 'fa fa-power-off',
@@ -160,7 +160,6 @@ export default {
         }).catch((error) => {
         toast.add({severity:'error', detail: error.message, life: 8000})
       })
-      
     }
 
       const signInWithEmailAndPassword = (credentials) => {
@@ -171,15 +170,13 @@ export default {
             toast.add({severity:'success', summary: 'Logowanie', detail:'Zalogowano do panelu!', life: 2500})
             })
             .catch(error =>{
+              toast.removeAllGroups()
               const errorCode = error.code
               const errorMessage = error.message
-              console.log(errorCode, errorMessage);
+
               if (errorMessage == 'The email address is badly formatted.') toast.add({severity:'error', summary:'Logowanie', detail: 'Popraw pole Email!', life: 8000})
               if (errorCode == 'auth/wrong-password' || errorCode == 'auth/user-not-found') toast.add({severity:'error', summary:'Logowanie', detail: 'Niepoprawne dane logowania do autoryzowanego konta', life: 8000})
-              if(errorCode == 'auth/network-request-failed') {
-                toast.removeAllGroups()
-                toast.add({severity:'error', summary: 'Status offline', detail:'Nie można zalogować do panelu. Sprawdź połączenie i spróbuj ponownie', life: 0})
-              }
+              if (errorCode == 'auth/network-request-failed') toast.add({severity:'error', summary: 'Status offline', detail:'Nie można zalogować do panelu. Sprawdź połączenie i spróbuj ponownie', life: 0})
             })
         } else toast.add({severity:'error', summary:'Logowanie', detail: 'Uzupełnij pola logowania!', life: 4000})
       }
@@ -199,6 +196,20 @@ export default {
         .catch((error) => {
         toast.add({severity:'error', detail: error.message, life: 8000})
       })
+    }
+
+    function PasswordReset(email) {
+      firebase.auth().sendPasswordResetEmail(email)
+        .then(() => {
+          toast.removeAllGroups()
+          toast.add({severity:'info', detail: 'Na podany adres email otrzymasz link do zresetowania hasła.', life: 8000})
+        })
+        .catch((error) => {
+            toast.removeAllGroups()
+            if (error.message == 'The email address is badly formatted.') toast.add({severity:'error', summary:'Błąd', detail: 'Popraw pole Email!', life: 8000})
+            if (error.code == 'auth/user-not-found') toast.add({severity:'error', summary:'Błąd', detail: 'Brak konta o podanym adresie email', life: 8000})
+            if (error.code == 'auth/network-request-failed') toast.add({severity:'error', summary: 'Status offline', detail:'Nie można wysłać przypomnienia. Sprawdź połączenie i spróbuj ponownie', life: 0})
+        })
     }
 
     function checkAuthStatus() {
@@ -245,7 +256,8 @@ export default {
       Login,
       signInWithEmailAndPassword,
       showLoginForm,
-      loginWithGoogle
+      loginWithGoogle,
+      PasswordReset,
     }
   },
 
@@ -303,18 +315,6 @@ td{
   border: 3px solid green;
 }
 
-.moreOptions{
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  gap: 6px;
-}
-
-.details a{
-  color:crimson;
-  font-weight: bold;
-}
-
 .loader {
   width: 150px;
 }
@@ -323,8 +323,6 @@ td{
     margin: 0 auto;
     padding-left: max(56px, 10%);
     width: min(94%, 1400px);
-
-    /* border:1px solid red; */
 }
 
 .signedIn{
@@ -334,36 +332,15 @@ td{
 }
 
 a{
-  color:whitesmoke;
+  color:var(--yellow-200);
   text-decoration: none;
 }
 
-
-.btn{
-    padding: 10px 16px;
-    border: none;
-    border-radius: 4px;
-    box-shadow: 1px 1px 5px #555;
-    font-size: 1.05rem;
-    color: rgb(50, 50, 50);
-    font-weight: bold;
-}
-
 .closeForm{
-    position: fixed;
-    top:0;
-    right: 20px;
-    font-size: 4rem;
-}
-.closeForm:hover,
-.btn:hover,
-h1:hover{
-    cursor: pointer;
-}
-
-.showElements{
-    margin-top: 128px;
-    text-align: center;
+    position: absolute;
+    top:-10px;
+    right: 10px;
+    font-size: 3rem;
 }
 
 .v-sidebar-menu .vsm--link_active {
@@ -371,35 +348,7 @@ h1:hover{
   box-shadow: inset 3px 0 0 0 greenyellow!important;;
 }
 
-.column{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-}
-
-.row{
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-}
-
-.btn.success{
-  background-color: #42b983;
-  color: white;
-}
-
-.btn.failed{
-  background-color: crimson;
-  color: white;
-}
-
-i{
+.pointer, i, .closeForm:hover{
   cursor: pointer;
 }
-
-.pointer{
-  cursor: pointer;
-}
-
 </style>

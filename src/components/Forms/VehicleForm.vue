@@ -1,119 +1,158 @@
 <template>
+  <Card class="p-mt-4 relative" style="max-width:1000px">
+    <template #title>
+      <div class="closeForm" @click="$router.go(-1)">&times;</div>
+      <div class="p-text-center">{{ $route.path.indexOf('edytuj') > 0 ? 'Edytuj dane pojazdu' : 'Dodaj nowy pojazd' }}</div>
+    </template>
+    <template #content>
+      <form>
 
-  <form class="newVehicleForm">
-    <div class="closeForm" @click="$router.go(-1)">&times;</div>
+        <div class="p-d-flex p-flex-md-row p-flex-column p-jc-md-evenly p-ai-center">
+          <div class="required p-d-flex p-flex-column">
+            <h3>Pola obowiązkowe: </h3>
+            <span class="p-float-label p-mt-5" v-if="phoneNumNotStored">
+              <InputText id="phoneNum" v-model="phoneNum" v-if="phoneNumNotStored" />
+              <label for="phoneNum">Numer telefonu</label>
+            </span>
 
-    <div class="row">
-      <div class="required column">
-        <h2>Pola obowiązkowe: </h2>
-        <label for="phoneNum" v-if="phoneNumNotStored">Number telefonu:</label>
-          <InputText name="phoneNum" placeholder="123-456-789 / 123-45-67" required v-model="phoneNum" 
-          v-if="phoneNumNotStored"/>
+            <Dropdown v-model="carSpec.selectedBrand" :options="brands" optionLabel="brand" optionValue="brand"
+              :filter="true" placeholder="Wybierz marke" :showClear="true" @change="fetchModels()"
+              v-if="!manualBrandModelVersionInput" scrollHeight="60vh" id="brand" class="p-mt-3">
+              <template #value="{value, placeholder}">
+                <!-- ten template odpowiada za aktualnie wybrany pojazd -->
+                <div v-if="value">
+                  <span>{{betterLooking(value)}}</span>
+                </div>
+                <span v-else> {{placeholder}} </span>
+              </template> <!-- ten template odpowiada za wyswietlenie calej listy -->
+              <template #option="slotProps">
+                <div>
+                  <span>{{betterLooking(slotProps.option.brand)}}</span>
+                </div>
+              </template>
+            </Dropdown>
+            <span class="p-float-label p-mt-4" v-if="manualBrandModelVersionInput">
+              <InputText id="brand" v-if="manualBrandModelVersionInput"
+                v-model="carSpec.selectedBrand" />
+                <label for="brand">Wpisz marke pojazdu</label>
+            </span>
 
-        <label for="brand">Marka:</label>
-        <Dropdown v-model="carSpec.selectedBrand" :options="brands" optionLabel="brand" optionValue="brand" 
-        :filter="true" placeholder="Wybierz marke" :showClear="true" @change="fetchModels()" 
-        v-if="!manualBrandModelVersionInput" scrollHeight="60vh" required>
-          <template #value="slotProps"> <!-- ten template odpowiada za aktualnie wybrany pojazd -->
-            <div v-if="slotProps.value">
-              <span>{{betterLooking(slotProps.value)}}</span>
+            <Dropdown v-model="carSpec.selectedModel" :options="models" optionLabel="pl" optionValue="pl" class="p-mt-3"
+              placeholder="Wybierz model" :filter="true" :showClear="true" @change="fetchVersion()" id="model"
+              v-if="!manualBrandModelVersionInput && !manualModelVersionInput" :disabled="!models" scrollHeight="60vh"
+              required>
+              <template #value="slotProps">
+                <div v-if="slotProps.value">
+                  <span>{{replaceSpaces(slotProps.value)}}</span>
+                </div>
+                <span v-else> {{slotProps.placeholder}} </span>
+              </template>
+              <template #option="slotProps">
+                <div>
+                  <span>{{replaceSpaces(slotProps.option.pl)}}</span>
+                </div>
+              </template>
+            </Dropdown>
+            <span class="p-float-label p-mt-4" v-if="manualBrandModelVersionInput || manualModelVersionInput">
+              <InputText id="model" v-if="manualBrandModelVersionInput || manualModelVersionInput" required
+                v-model="carSpec.selectedModel" />
+              <label for="model">Wpisz model pojazdu</label>
+            </span>
+
+            <Dropdown v-model="carSpec.selectedVersion" :options="versions" optionLabel="version"
+              placeholder="Wybierz generacje" id="prod_year" class="p-mt-3"
+              v-if="!manualVersionInput && !manualBrandModelVersionInput && !manualModelVersionInput"
+              :disabled="!versions" required scrollHeight="60vh" :showClear="true">
+              <template #value="slotProps">
+                <div v-if="slotProps.value">
+                  <span>{{slotProps.value}}</span>
+                </div>
+                <span v-else> {{slotProps.placeholder}} </span>
+              </template>
+              <template #option="slotProps">
+                <div>
+                  <span>{{slotProps.option}}</span>
+                </div>
+              </template>
+            </Dropdown>
+            <span class="p-float-label p-mt-4" v-if="(carSpec.selectedModel && manualVersionInput) || manualBrandModelVersionInput || manualModelVersionInput">
+              <InputText id="prod_year" v-if="(carSpec.selectedModel && manualVersionInput) || manualBrandModelVersionInput || manualModelVersionInput"
+                v-model="carSpec.selectedVersion" required/>
+              <label for="prod_year">Generacja:</label>
+            </span>
+
+            <Dropdown id="fuel" v-model="carSpec.selectedFuel" :options="fuelOptions" optionLabel="name" class="p-mt-3"
+              optionValue="name" required placeholder="Wybierz rodzaj paliwa" :showClear="true" scrollHeight="60vh" />
+            
+            <span class="p-float-label p-mt-4">
+              <InputText id="VIN" maxlength="17" v-model="carSpec.VIN" required />
+              <label for="VIN">VIN:</label>
+            </span>
+          </div>
+
+          <div class="extraInformation p-d-flex p-flex-column">
+            <h3 class="p-mb-3 p-mt-6 p-mt-md-0">Dodatkowe informacje: </h3>
+            <h4>Silnik:</h4>
+            <div class="p-d-flex p-flex-column p-flex-sm-row p-mt-3">
+              <span class="p-float-label">
+                <InputText name="engineCapacity" v-model="carSpec.engineCapacity" style="width:140px" />
+                <label for="engineCapacity">Pojemność[cm<sup>3</sup>]:</label>
+              </span>
+              <span class="p-float-label p-my-1 p-my-sm-0 p-mx-sm-1">
+                <InputText name="enginePower" v-model="carSpec.enginePower" style="width:100px" />
+                <label for="enginePower">Moc[KM]:</label>
+              </span>
+              <span class="p-float-label">
+                <InputText name="engineCode" v-model="carSpec.engineCode" style="width:100px" />
+                <label for="engineCode">Kod silnika:</label>
+              </span>
             </div>
-            <span v-else> {{slotProps.placeholder}} </span>
-          </template> <!-- ten template odpowiada za wyswietlenie calej listy -->
-          <template #option="slotProps">
-            <div>
-              <span>{{betterLooking(slotProps.option.brand)}}</span>
-            </div>
-          </template>
-        </Dropdown>
-        <InputText type="text" name="brand" v-if="manualBrandModelVersionInput" required v-model="carSpec.selectedBrand"
-          placeholder="Wpisz marke pojazdu" />
 
-        <label for="model">Model:</label>
-        <Dropdown v-model="carSpec.selectedModel" :options="models" optionLabel="pl" optionValue="pl" placeholder="Wybierz model" 
-        :filter="true" :showClear="true" @change="fetchVersion()" v-if="!manualBrandModelVersionInput && !manualModelVersionInput" 
-                :disabled="!models" scrollHeight="60vh" required>
-         <template #value="slotProps">
-            <div v-if="slotProps.value">
-              <span>{{replaceSpaces(slotProps.value)}}</span>
-            </div>
-            <span v-else> {{slotProps.placeholder}} </span>
-          </template>
-          <template #option="slotProps">
-            <div>
-              <span>{{replaceSpaces(slotProps.option.pl)}}</span>
-            </div>
-          </template>
-          </Dropdown>
-        <InputText type="text" name="model" v-if="manualBrandModelVersionInput || manualModelVersionInput" required
-          v-model="carSpec.selectedModel" placeholder="Wpisz model pojazdu" />
+            <label for="transmission" class="p-mt-2 p-mb-1">Rodzaj skrzyni:</label>
+            <Dropdown name="transmission" v-model="carSpec.selectedTransmission" :options="gearboxOptions"
+              optionLabel="name" optionValue="name" required placeholder="Wybierz rodzaj skrzyni" :showClear="true"
+              scrollHeight="60vh" />
 
-        <label for="prod_year">Generacja:</label>
-        <Dropdown v-model="carSpec.selectedVersion" :options="versions" optionLabel="version" placeholder="Wybierz generacje"
-                  v-if="!manualVersionInput && !manualBrandModelVersionInput && !manualModelVersionInput"
-                  :disabled="!versions" required scrollHeight="60vh" :showClear="true">
-         <template #value="slotProps">
-            <div v-if="slotProps.value">
-              <span>{{slotProps.value}}</span>
-            </div>
-            <span v-else> {{slotProps.placeholder}} </span>
-          </template>
-          <template #option="slotProps">
-            <div>
-              <span>{{slotProps.option}}</span>
-            </div>
-          </template> 
-          </Dropdown>
-        <InputText type="text" name="prod_year" required
-          v-if="(carSpec.selectedModel && manualVersionInput) || manualBrandModelVersionInput || manualModelVersionInput"
-          v-model="carSpec.selectedVersion" placeholder="Wpisz rocznik pojazdu" />
+            <label for="drivetrain" class="p-mt-2 p-mb-1">Rodzaj napędu:</label>
+            <Dropdown name="drivetrain" v-model="carSpec.selectedDriveTrain" :options="drivetrainOptions"
+              optionLabel="name" optionValue="name" required placeholder="Wybierz rodzaj napędu" :showClear="true"
+              scrollHeight="60vh" />
 
-        <label for="fuel">Rodzaj paliwa:</label>
-        <Dropdown name="fuel" v-model="carSpec.selectedFuel" :options="fuelOptions" optionLabel="name" optionValue="name" 
-        required placeholder="Wybierz rodzaj paliwa" :showClear="true" scrollHeight="60vh" />
-        <label for="VIN">VIN:</label>
-        <InputText id="VIN" type="text" maxlength="17" v-model="carSpec.VIN" required />
-      </div>
+            <span class="p-float-label p-mt-4">
+              <InputText id="numberPlates" minlength="7" maxlength="9" v-model="carSpec.numberPlates" />
+              <label for="numberPlates">Tablica rejestracyjna:</label>
+            </span>
+            <span class="p-float-label p-mt-4">
+              <InputText id="mileage" maxlength="7" v-model="carSpec.mileage" />
+              <label for="mileage">Przebieg:</label>
+            </span>
 
-      <div class="extraInformation column">
-        <h2>Dodatkowe informacje: </h2>
-        <label for="engine">Silnik:</label>
-        <InputText name="engine" type="text" v-model="carSpec.engine" placeholder="Pojemność / Moc" />
-
-        <label for="transmission">Rodzaj skrzyni:</label>
-        <Dropdown name="transmission" v-model="carSpec.selectedTransmission" :options="gearboxOptions" optionLabel="name" 
-        optionValue="name" required placeholder="Wybierz rodzaj skrzyni" :showClear="true" scrollHeight="60vh"/>
-
-        <label for="drivetrain">Rodzaj napędu:</label>
-        <Dropdown name="drivetrain" v-model="carSpec.selectedDriveTrain" :options="drivetrainOptions" optionLabel="name" 
-        optionValue="name" required placeholder="Wybierz rodzaj napędu" :showClear="true" scrollHeight="60vh"/>
-
-        <label for="numberPlates">Tablica rejestracyjna:</label>
-        <InputText id="numberPlates" type="text" maxlength="9" v-model="carSpec.numberPlates" />
-        <label for="mileage">Przebieg:</label>
-        <InputText id="mileage" type="text" maxlength="7" v-model="carSpec.mileage" />
-
-       </div>
+          </div>
         </div>
-        <Editor v-model="carSpec.description" class="p-mx-auto p-mb-6">
+        <label for="Textarea">
+          <h3 class="p-mt-3 p-mb-1 p-text-center">Więcej informacji:</h3>
+        </label>
+        <Editor id="Textarea" v-model="carSpec.description" class="p-mx-auto p-mb-6">
           <template #toolbar>
             <span class="ql-formats">
               <button class="ql-bold"></button>
               <button class="ql-italic"></button>
               <button class="ql-underline"></button>
               <button class="ql-list" value="bullet"></button>
+              <button class="ql-link"></button>
             </span>
           </template>
         </Editor>
-
-
-    <div class="row gap12">
-      <button class="btn addData success" @click="validateData($event)">
-        {{ $route.path.indexOf('edytuj') > 0 ? "Edytuj pojazd" : "Dodaj pojazd" }}
-      </button>
-      <button class="btn clearForm failed" @click="clearForm()">Wyczyść formularz</button>
-    </div>
-  </form>
+      </form>
+    </template>
+    <template #footer>
+      <div class="p-d-flex p-flex-column p-flex-sm-row p-jc-center">
+        <Button class="p-button-success p-m-2" @click="validateData"
+          :label="$route.path.indexOf('edytuj') > 0 ? `Aktualizuj dane pojazdu` : `Dodaj pojazd`" />
+        <Button class="p-button-danger p-m-2" @click="clearForm()" label="Wyczyść formularz" />
+      </div>
+    </template>
+  </Card>
 
 </template>
 
@@ -159,7 +198,9 @@ export default {
     selectedModel: null,
     selectedVersion: null,
     selectedFuel: null,
-    engine: null,
+    engineCapacity: null,
+    enginePower: null,
+    engineCode: null,
     selectedTransmission: null,
     selectedDriveTrain: null,
     numberPlates: null,
@@ -257,26 +298,28 @@ export default {
       }
     }
 
-    function validateData(e) {
-      e.preventDefault()
+    function validateData() {
+      document.querySelectorAll('.p-invalid').forEach(input => input.classList.remove('p-invalid'))
+
+      if(!phoneNum.value || !validPhoneNum(phoneNum.value)) document.querySelector('#phoneNum').classList.add('p-invalid')
+      if(!carSpec.selectedBrand) document.querySelector('#brand').classList.add('p-invalid')
+      if(!carSpec.selectedModel) document.querySelector('#model').classList.add('p-invalid')
+      if(!carSpec.selectedFuel) document.querySelector('#fuel').classList.add('p-invalid')
+      if(!carSpec.VIN || !validateVIN(carSpec.VIN)) document.querySelector('#VIN').classList.add('p-invalid')
+      
+
+      let checkForInvalids = document.querySelectorAll('.p-invalid')
 
       let convertedMileage = carSpec.mileage ? carSpec.mileage.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") : ''
 
-      if (validPhoneNum(phoneNum.value) && carSpec.selectedBrand) {
+      if (checkForInvalids.length == 0) {
 
         let preparedData = []
         let timeStamp = getTime()
-        let ID = (store.state.targetCar && store.state?.targetCar['Tel']) == phoneNum.value ? store.state.targetCar['id'] : Date.now()
-        if (carSpec.selectedModel == null || carSpec.VIN == null) {
-          toast.add({severity:'error', summary: 'Błąd danych', detail:'Uzupełnij brakujące dane.', life: 4000})
-          return
-        }
-        let VIN_Number = validateVIN(carSpec.VIN)
-        if (!VIN_Number) {
-          toast.add({severity:'error', summary: 'Błąd danych', detail:'Numer VIN nieprawidłowy!', life: 4000})
-          return
-        }
-        preparedData[VIN_Number] = {
+        let ID = (store.state.targetCar && store.state.targetCar['Tel']) == phoneNum.value ? store.state.targetCar['id'] : Date.now()
+        let validVIN = validateVIN(carSpec.VIN)
+ 
+        preparedData[validVIN] = {
           id: ID,
 
           Tel: validPhoneNum(phoneNum.value),
@@ -285,11 +328,13 @@ export default {
           Wersja_Rocznik: carSpec.selectedVersion,
           Paliwo: carSpec.selectedFuel,
 
-          Silnik: carSpec.engine || '',
+          Silnik_Pojemnosc: carSpec.engineCapacity || '',
+          Silnik_Moc: carSpec.enginePower || '',
+          Silnik_Kod: carSpec.engineCode || '',
           SkrzyniaBiegow: carSpec.selectedTransmission || '',
           Naped: carSpec.selectedDriveTrain || '',
           Numer_rejestracyjny: carSpec.numberPlates?.toUpperCase() || '',
-          VIN: VIN_Number,
+          VIN: validVIN,
           Przebieg: convertedMileage || "",
 
           Opis: carSpec.description || "",
@@ -298,7 +343,7 @@ export default {
         }
         sendDataToFirebase(preparedData)
 
-      } else toast.add({severity:'warn', summary: 'Błąd danych', detail:'Upewnij się, że dane zostały wprowadzone poprawnie.', life: 4000})
+      } else toast.add({severity:'warn', summary: 'Błędne danych', detail:'Popraw wszystkie zaznaczone pola!', life: 4000})
     }
 
 
@@ -311,9 +356,12 @@ export default {
 
         if (!doc.exists) {
           toast.add({severity:'error', summary: 'Brak klienta', detail:'W pierwszej kolejności dodaj dane klienta, następnie pojazdu.', life: 4000})
+          clearTimeout(checkOffline.value)
+          return
         } else {
           if (checkIfVINexists(doc.data(), preparedData) && route.path.indexOf('edytuj') <= 0) {
             toast.add({severity:'warn', summary: 'Pojazd już istnieje', detail:'Pojazd o podanym numerze VIN jest już przypisany do danego klienta!', life: 4000})
+            clearTimeout(checkOffline.value)
             return
           }
 
@@ -327,6 +375,7 @@ export default {
             .catch(err => {
               toast.removeAllGroups()
               toast.add({severity:'error', summary: 'Błąd danych', detail: err.message, life: 4000})
+              clearTimeout(checkOffline.value)
             })
         }
 
@@ -368,7 +417,9 @@ export default {
       carSpec.selectedFuel = null
       carSpec.VIN = null
 
-      carSpec.engine = null
+      carSpec.engineCapacity = null
+      carSpec.enginePower = null
+      carSpec.engineCode = null
       carSpec.selectedTransmission = null
       carSpec.selectedDriveTrain = null
       carSpec.numberPlates = null
@@ -386,7 +437,9 @@ export default {
       carSpec.selectedVersion = fill['Wersja_Rocznik'] || ''
       carSpec.selectedFuel = fill['Paliwo'] || ''
 
-      carSpec.engine = fill['Silnik'] || ''
+      carSpec.engineCapacity = fill['Silnik_Pojemnosc'] || ''
+      carSpec.enginePower = fill['Silnik_Moc'] || ''
+      carSpec.engineCode = fill['Silnik_Kod'] || ''
       carSpec.selectedTransmission = fill['SkrzyniaBiegow'] || ''
       carSpec.selectedDriveTrain = fill['Naped'] || ''
       carSpec.numberPlates = fill['Numer_rejestracyjny'] || ''
@@ -480,10 +533,9 @@ export default {
 <style>
 .p-editor-container{
   height: 250px; 
-  max-width:60vw
 }
 
-.gap12{
-  gap: 12px;
+.relative{
+  position: relative;
 }
 </style>
