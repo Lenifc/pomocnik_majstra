@@ -34,6 +34,7 @@ export default createStore({
     },
     setSelectedCarForTicket(state, data){
       state.selectedCarForTicket = data
+      console.log('VUEX:', data)
     },
     setInvoiceData(state, data){
       state.invoiceData = data

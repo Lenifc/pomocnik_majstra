@@ -1,5 +1,4 @@
 <template>
-  <ConfirmDialog :breakpoints="{'960px': '75vw', '640px': '100vw'}" :style="{width: '50vw'}" />
   <div class="p-d-flex p-flex-column p-ai-center">
 
     <Button label="Dodaj Klienta" icon="pi pi-user-plus" @click="openClientAddForm()"
@@ -11,7 +10,7 @@
       </div>
     
 
-    <DataTable :value="recivedClients" responsiveLayout="stack" breakpoint="1250px" stripedRows 
+    <DataTable :value="recivedClients" responsiveLayout="stack" breakpoint="1280px" stripedRows 
     showGridlines v-model:filters="tableFilters" filterDisplay="menu" :loading="!recivedClients || isLoading" 
     class="p-my-5" dataKey="Tel">
       <template #header>
@@ -45,7 +44,7 @@
                       @click="confirmDeleteModal(data, 'removeClient', onlyCars(data).length)"></i>
             </div>
             <div class="p-d-flex p-flex-row">
-              <i class="fas fa-info-circle p-pr-2" v-tooltip.right="'Szczegółowe dane klienta'"></i>
+              <i class="fas fa-info-circle p-pr-2" v-tooltip.right="'Szczegółowe dane klienta'" @click="redirectToClientDetails(data)"></i>
               <i class="fas fa-plus" v-tooltip.right="'Przypisz pojazd do klienta'" @click="openVehicleAddForm(data.Tel)"><i class="fas fa-car"></i></i>
             </div>
           </div>
@@ -74,25 +73,25 @@
       </template>
       </Column>
       <!-- <Column field="Adres" header="Adres" class="p-text-center"></Column> -->
-      <Column header="Pojazd" class="p-text-center" style="width:250px" field="Pojazdy">
+      <Column header="Pojazd" class="p-text-center" style="width:270px" field="Pojazdy">
         <template #body="{data}"> 
           <!-- zamiast pisac SlotProps.data moge uzyc destrukturyzacji i skrocic zapis -->
-          <div class="p-d-flex p-flex-column smallerFontOnPhones" @dblclick="copyValue($event)"> <!-- trzeba bylo oplesc to jeszcze w jednego DIVa, bo inaczej pod telefony zle wyswietlalo pojazdy -->
+          <div class="p-d-flex p-flex-column smallerFontOnPhones lowerMargin" @dblclick="copyValue($event)"> <!-- trzeba bylo oplesc to jeszcze w jednego DIVa, bo inaczej pod telefony zle wyswietlalo pojazdy -->
             <div v-for="car in onlyCars(data)" :id="`id${car.VIN}`" :key="car.VIN"
             class="p-d-flex p-flex-column Cars">
             <div class="p-d-flex p-flex-row p-ai-center p-jc-between">
               <div class="p-d-flex p-flex-column">
                 <div class="p-text-center p-text-wrap p-text-bold pointer">{{`${car.Marka} ${car.Model}`}}</div>
-                <div class="p-text-nowrap p-text-truncate pointer width160OnPhones" style="width:200px; max-width:225px">{{car.VIN}}</div>
+                <div class="p-text-nowrap p-text-truncate pointer width160OnPhones" style="width:220px; max-width:225px">{{car.VIN}}</div>
               </div>
-              <div class="p-d-flex p-flex-row p-jc-end p-ai-center p-ml-1">
-                <i class="fas fa-info" v-tooltip.top="'Szczegóły pojazdu'" @click="redirectToCarDetails(car)"></i>
+              <div class="p-d-flex p-flex-row p-jc-end p-ai-center lowerMargin p-pl-1">
+                <i class="fas fa-info-circle" v-tooltip.top="'Szczegóły pojazdu'" @click="redirectToCarDetails(car, data)"></i>
                 <i class="fas fa-edit p-pr-1 p-pl-2" v-tooltip.top="'Edytuj dane pojazd'" @click="openVehicleEditForm(car)"></i>
                 <i class="fas fa-trash-alt" v-tooltip.top="'Usuń pojazd'" 
-                @click="confirmDeleteModal(data, 'removeCar', car.VIN)"></i>
+                  @click="confirmDeleteModal(data, 'removeCar', car.VIN)"></i>
               </div>
             </div>
-            <Divider class="lookForLast" />
+            <Divider />
           </div>
           </div>
           
@@ -118,14 +117,11 @@ import { useToast } from "primevue/usetoast"
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Divider from 'primevue/divider';
-import ConfirmDialog from 'primevue/confirmdialog';
 import { useConfirm } from "primevue/useconfirm";
 
 import copyToClipboard from '@/components/copyToClipboard.js'
 
 import { DeleteFunc } from '@/components/EditMoveDeleteOptions.js'
-
-require('firebase/firestore')
 
  export default {
 
@@ -222,6 +218,7 @@ require('firebase/firestore')
           }
           }
           if (operation == 'removeCar') {
+            console.log(clientData);
             const confirmDelete = await DeleteFunc('car', MainPath, Tel, target, JSON.parse(JSON.stringify(clientData))) // prosta konwersja proxy do objektu
             if (confirmDelete !== false) {
               recivedClients.value.map(client => {
@@ -255,9 +252,15 @@ require('firebase/firestore')
        Router.push('/pojazd/dodaj')
      }
 
-     function redirectToCarDetails(car){
+     function redirectToCarDetails(car, data){
        store.commit('setTargetCar', car)
+       store.commit('setTargetClient', data)
        Router.push(`/details/${car.VIN}`)
+     }
+
+     function redirectToClientDetails(client){
+       store.commit('setTargetClient', client)
+       Router.push(`/details/client/${client.Tel}`)
      }
 
     function onlyCars(client){
@@ -297,6 +300,7 @@ require('firebase/firestore')
        totalNumberOfClients,
        disableNextButton,
        redirectToCarDetails,
+       redirectToClientDetails,
 
        FilterMatchMode,
        DataTable,
@@ -309,7 +313,6 @@ require('firebase/firestore')
        copyValue,
 
        confirmDeleteModal,
-       ConfirmDialog,
 
        isLoading,
        showEvent,
@@ -336,6 +339,17 @@ require('firebase/firestore')
 }
 .removeMarginLeft{
   margin-left: -120px;
+}
+
+@media(max-width:1370px){
+  .lowerMargin{
+    margin-left: -12px;
+  }
+}
+@media(max-width:1280px){
+  .lowerMargin{
+    margin-left: 0px;
+  }
 }
 
 @media(max-width:1000px){

@@ -1,5 +1,5 @@
 <template>
-  <div class="p-d-flex p-flex-column p-ai-center">
+  <div class="p-d-flex p-flex-column p-ai-center p-pt-4">
     <Card style="width: min(620px, 100%)">
       <template #title>
         <h3 class="p-mx-3 p-text-center p-my-3">Dane warsztatu, które będą widoczne na fakturze oraz na stronie głównej

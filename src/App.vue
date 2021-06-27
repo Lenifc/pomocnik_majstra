@@ -1,6 +1,7 @@
 <template>
 <div>
   <Toast />
+  <ConfirmDialog :breakpoints="{'960px': '75vw', '640px': '100vw'}" :style="{width: '50vw'}" />
   <Login v-if="!userSignedIn && showLoginForm" @login="(passedCredentials) => signInWithEmailAndPassword(passedCredentials)" @OAuth="loginWithGoogle()" @pwdReset="email => PasswordReset(email)"/>
   <Button icon="pi pi-sign-in" class="p-button-rounded p-button-primary signInBtn" @click="showLoginPanel()" v-tooltip.right="'Zaloguj'" v-if="!userSignedIn && showLogInButton" />
 
@@ -279,7 +280,6 @@ body{
     background-color: #20262E; /* bootstrap BGC dark */
     /* background-color: #17212F; materialize BGC dark */
     color: var(--text-color);
-    position: relative;
     font-family: 'Source Sans Pro', sans-serif;
 }
 
@@ -350,5 +350,9 @@ a{
 
 .pointer, i, .closeForm:hover{
   cursor: pointer;
+}
+
+.relative{
+  position: relative;
 }
 </style>

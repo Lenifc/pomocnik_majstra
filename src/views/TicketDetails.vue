@@ -1,9 +1,9 @@
 <template>
-  <ConfirmDialog :breakpoints="{'960px': '75vw', '640px': '100vw'}" :style="{width: '50vw'}" />
   <CustomRelocateConfirmDialog :message="modalMsg" v-if="showModal" @true="(status, newLocation) => modalResponse(status, newLocation)" @false="modalResponse(false)" />
     
-    <Card class="p-mt-6">
+    <Card class="p-mt-6 relative">
       <template #title>
+        <div class="closeForm" @click="$router.go(-1)">&times;</div>
         <div class="p-text-center">SZCZEGÓŁY zlecenia {{$route.params.ticketDetails}}</div>
       </template>
       <template #content>
@@ -15,6 +15,7 @@
             </div>
             <div>Imie: {{ carDetails?.['Imie'] }}</div>
             <div>Numer Telefonu: {{ carDetails?.['Tel'] }}</div>
+            {{carDetails}}
           </div>
           <div class="vehicle">
             <div class="row">
@@ -39,41 +40,12 @@
         <div>Zlecenie dodane: {{ carDetails?.['Dodane_Czas'] }}</div>
         <div v-if="$route.params.collectionPath == 'zakonczone'">Zlecenie zakonczone:
           {{ carDetails?.['Zakonczone_Czas'] }}</div>
-        <table v-if="carDetails?.['Wykonane_uslugi_czesci'].length">
-          <tr>
-            <th>Nazwa:</th>
-            <th>Ilość:</th>
-            <th>Netto[PLN]:</th>
-            <th>Netto całość[PLN]:</th>
-            <th>Stawka VAT:</th>
-            <th>Brutto[PLN]:</th>
-            <th>Brutto całość[PLN]:</th>
-          </tr>
-          <tr v-for="item in carDetails?.['Wykonane_uslugi_czesci']" :key="item">
-            <td>{{ item['part_service_Name'] }}</td>
-            <td>{{ item['quantity']}}</td>
-            <td>{{ item['price_net']}}</td>
-            <td>{{ item['totalCost_net']}}</td>
-            <td>{{ item['tax']}}%</td>
-            <td>{{ item['price_gross']}}</td>
-            <td>{{ item['totalCost_gross']}}</td>
-          </tr>
-          <tr>
-            <td>Suma Netto: </td>
-            <td colspan="2">{{ ComputedShowTotalNet }} PLN</td>
-          </tr>
-          <tr>
-            <td>Suma Brutto: </td>
-            <td colspan="2">{{ ComputedShowTotalGross }} PLN</td>
-          </tr>
-        </table>
         </div>
-
 
 <!--  wykonac CRUD i wypuscic to do osobnego komponentu!-->
         <DataTable :value="carDetails?.['Wykonane_uslugi_czesci']" editMode="row" dataKey="id"
           v-model:editingRows="editingRows" @rowEditInit="onRowEditInit" @rowEditCancel="onRowEditCancel"
-          responsiveLayout="scroll" stripedRows showGridlines class="p-datatable-sm">
+          responsiveLayout="scroll" stripedRows showGridlines class="p-datatable-sm p-pt-4" v-if="carDetails?.['Wykonane_uslugi_czesci'].length">
           <Column style="width:50px" class="p-text-center">
             <template #body="{index}">
               {{index+1}} 
@@ -105,15 +77,13 @@
           <Column header="Edytuj" :rowEditor="true" style="width: 6%; min-width:4rem" bodyStyle="text-align:center"></Column>
         </DataTable>
 
-
-       
       </template>
       <template #footer>
-        <div class="p-d-flex p-flex-row p-jc-center">
-          <Button class="p-button-danger p-mx-1" @click="confirmDeleteModal(carDetails)" icon="pi pi-trash" label="Usuń" />
-          <Button class="p-button-primary p-mx-1" @click="HandleFunc($event)" label="Edytuj" icon="pi pi-pencil" />
-          <Button class="p-button-warning p-mx-1" @click="openRelocateDialog(carDetails)" label="Przenieś" icon="fas fa-arrows-alt-h" />
-          <Button class="p-button-help p-mx-1" @click="HandleFunc($event)" label="Generuj Fakture" icon="pi pi-print"
+        <div class="p-d-flex p-flex-column p-flex-sm-row p-jc-center">
+          <Button class="p-button-danger p-mx-1 p-my-2 p-my-sm-0" @click="confirmDeleteModal(carDetails)" icon="pi pi-trash" label="Usuń" />
+          <Button class="p-button-primary p-mx-1 p-my-1 p-my-sm-0" @click="HandleFunc($event)" label="Edytuj" icon="pi pi-pencil" />
+          <Button class="p-button-warning p-mx-1 p-my-2 p-my-sm-0" @click="openRelocateDialog(carDetails)" label="Przenieś" icon="fas fa-arrows-alt-h" />
+          <Button class="p-button-help p-mx-1 p-my-1 p-my-sm-0" @click="HandleFunc($event)" label="Generuj Fakture" icon="pi pi-print"
             v-if="$route.params.collectionPath == 'zakonczone' && carDetails?.['Wykonane_uslugi_czesci']?.length" />
         </div>
       </template>
@@ -125,7 +95,6 @@ import firebase from 'firebase/app'
 import { DeleteFunc, RelocateTicket } from '@/components/EditMoveDeleteOptions'
 
 import CustomRelocateConfirmDialog from '@/components/CustomRelocateConfirmDialog.vue'
-import ConfirmDialog from 'primevue/confirmdialog'
   
 import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -292,8 +261,6 @@ export default {
     return {
       carDetails,
       dataToForward,
-
-      ConfirmDialog,
 
       HandleFunc,
       ComputedShowTotalNet,

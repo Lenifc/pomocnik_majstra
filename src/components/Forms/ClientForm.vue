@@ -1,5 +1,6 @@
 <template>
-  <Card class="p-mt-4 relative" style="max-width:800px">
+<div class="p-pt-4">
+  <Card class="relative" style="max-width:800px; margin: 0 auto">
     <template #title>
       <div class="closeForm" @click="$router.go(-1)">&times;</div>
       <div class="p-text-center">{{ $route.path.indexOf('edytuj') > 0 ? 'Edytuj dane klienta' : 'Dodaj nowego klienta' }}</div>
@@ -91,9 +92,9 @@
           icon="fas fa-trash-alt" />
       </div>
     </template>
-
-
   </Card>
+</div>
+  
 </template>
 
 <script>

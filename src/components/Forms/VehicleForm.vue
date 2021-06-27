@@ -1,5 +1,6 @@
 <template>
-  <Card class="p-mt-4 relative" style="max-width:1000px">
+<div class="p-pt-4">
+  <Card class="relative" style="max-width:1000px; margin:0 auto">
     <template #title>
       <div class="closeForm" @click="$router.go(-1)">&times;</div>
       <div class="p-text-center">{{ $route.path.indexOf('edytuj') > 0 ? 'Edytuj dane pojazdu' : 'Dodaj nowy pojazd' }}</div>
@@ -95,26 +96,26 @@
             <h4>Silnik:</h4>
             <div class="p-d-flex p-flex-column p-flex-sm-row p-mt-3">
               <span class="p-float-label">
-                <InputText name="engineCapacity" v-model="carSpec.engineCapacity" style="width:140px" />
+                <InputText id="engineCapacity" v-model="carSpec.engineCapacity" style="width:140px" />
                 <label for="engineCapacity">Pojemność[cm<sup>3</sup>]:</label>
               </span>
-              <span class="p-float-label p-my-1 p-my-sm-0 p-mx-sm-1">
-                <InputText name="enginePower" v-model="carSpec.enginePower" style="width:100px" />
+              <span class="p-float-label p-my-3 p-my-sm-0 p-mx-sm-1">
+                <InputText id="enginePower" v-model="carSpec.enginePower" style="width:100px" />
                 <label for="enginePower">Moc[KM]:</label>
               </span>
               <span class="p-float-label">
-                <InputText name="engineCode" v-model="carSpec.engineCode" style="width:100px" />
+                <InputText id="engineCode" v-model="carSpec.engineCode" style="width:100px" />
                 <label for="engineCode">Kod silnika:</label>
               </span>
             </div>
 
             <label for="transmission" class="p-mt-2 p-mb-1">Rodzaj skrzyni:</label>
-            <Dropdown name="transmission" v-model="carSpec.selectedTransmission" :options="gearboxOptions"
+            <Dropdown id="transmission" v-model="carSpec.selectedTransmission" :options="gearboxOptions"
               optionLabel="name" optionValue="name" required placeholder="Wybierz rodzaj skrzyni" :showClear="true"
               scrollHeight="60vh" />
 
             <label for="drivetrain" class="p-mt-2 p-mb-1">Rodzaj napędu:</label>
-            <Dropdown name="drivetrain" v-model="carSpec.selectedDriveTrain" :options="drivetrainOptions"
+            <Dropdown id="drivetrain" v-model="carSpec.selectedDriveTrain" :options="drivetrainOptions"
               optionLabel="name" optionValue="name" required placeholder="Wybierz rodzaj napędu" :showClear="true"
               scrollHeight="60vh" />
 
@@ -148,12 +149,13 @@
     <template #footer>
       <div class="p-d-flex p-flex-column p-flex-sm-row p-jc-center">
         <Button class="p-button-success p-m-2" @click="validateData"
-          :label="$route.path.indexOf('edytuj') > 0 ? `Aktualizuj dane pojazdu` : `Dodaj pojazd`" />
-        <Button class="p-button-danger p-m-2" @click="clearForm()" label="Wyczyść formularz" />
+          :label="$route.path.indexOf('edytuj') > 0 ? `Aktualizuj dane pojazdu` : `Dodaj pojazd`" icon="pi pi-plus"/>
+        <Button class="p-button-danger p-m-2" @click="clearForm()" label="Wyczyść formularz" icon="pi pi-trash"/>
       </div>
     </template>
   </Card>
-
+</div>
+  
 </template>
 
 <script>
@@ -162,8 +164,8 @@ import { useRoute } from 'vue-router'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 
-import Dropdown from 'primevue/dropdown';
-import Editor from 'primevue/editor';
+import Dropdown from 'primevue/dropdown'
+import Editor from 'primevue/editor'
 
 import { useToast } from "primevue/usetoast"
 import { getTime } from '@/components/getCurrentTime'
@@ -325,15 +327,15 @@ export default {
           Tel: validPhoneNum(phoneNum.value),
           Marka: betterLooking(carSpec.selectedBrand),
           Model: carSpec.selectedModel,
-          Wersja_Rocznik: carSpec.selectedVersion,
+          Wersja_Rocznik: carSpec.selectedVersion.trim(),
           Paliwo: carSpec.selectedFuel,
 
-          Silnik_Pojemnosc: carSpec.engineCapacity || '',
-          Silnik_Moc: carSpec.enginePower || '',
-          Silnik_Kod: carSpec.engineCode || '',
+          Silnik_Pojemnosc: onlyNumbers(carSpec.engineCapacity) || '',
+          Silnik_Moc: onlyNumbers(carSpec.enginePower) || '',
+          Silnik_Kod: carSpec.engineCode.trim() || '',
           SkrzyniaBiegow: carSpec.selectedTransmission || '',
           Naped: carSpec.selectedDriveTrain || '',
-          Numer_rejestracyjny: carSpec.numberPlates?.toUpperCase() || '',
+          Numer_rejestracyjny: carSpec.numberPlates?.toUpperCase().trim() || '',
           VIN: validVIN,
           Przebieg: convertedMileage || "",
 
@@ -345,6 +347,11 @@ export default {
 
       } else toast.add({severity:'warn', summary: 'Błędne danych', detail:'Popraw wszystkie zaznaczone pola!', life: 4000})
     }
+
+    function onlyNumbers(input) {
+      let result = input.replace(/[^0-9]+/g, '');
+      return result
+   } 
 
 
     function sendDataToFirebase(preparedData) {
@@ -524,7 +531,7 @@ export default {
       phoneNumNotStored,
 
       Dropdown,
-      Editor
+      Editor,
     }
   }
 }

@@ -10,7 +10,7 @@
           <div class="inputs">
             <div class="p-d-flex p-flex-column">
               <span class="p-float-label">
-                <InputText id="username" type="text" v-model="credentials.username" />
+                <InputText id="username" type="text" v-model="credentials.username" />  
                 <label for="username">Email</label>
               </span>
               <span class="p-float-label p-mt-4">
@@ -33,7 +33,7 @@
            <Button label="Przypomnij" @click="$emit('pwdReset', credentials.username)" class="p-mb-4" />
         </div>
         <!-- PÓŹNIEJ USUNĄĆ! -->
-          <Button label="Temporary G-login" @click="$emit('OAuth')" class="p-button-help"/>
+          <Button icon="pi pi-google" label="Temporary G-login" @click="$emit('OAuth')" class="p-button-help"/>
         <!-- PÓŹNIEJ USUNĄĆ! -->
       </template>
     </Card>

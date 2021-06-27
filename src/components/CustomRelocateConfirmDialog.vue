@@ -6,9 +6,10 @@
           <h2 class="modal-header">
               {{ message }}
           </h2>
+          <Divider />
 
           <div class="modal-body p-text-justify p-ml-6 p-pl-5 p-d-flex p-flex-column">
-            <span class="p-mt-2">
+            <span>
               <RadioButton id="free" value="wolne" v-model="newLocation" />
               <label for="free"> Wolne</label>
             </span>
@@ -23,6 +24,7 @@
               <label for="done"> Zakończone</label>
             </span>
           </div>
+          <Divider />
 
           <div class="modal-footer p-mt-2">
               <Button class="p-button-success" @click="handleEmit()" v-if="newLocation.length > 0"
@@ -37,6 +39,7 @@
 <script>
 import { ref } from 'vue'
 import RadioButton from 'primevue/radiobutton';
+import Divider from 'primevue/divider';
 
 export default {
   props: ['message'],
@@ -49,7 +52,7 @@ export default {
       emit('true', true, newLocation.value)
     }
 
-    return { newLocation, handleEmit, RadioButton }
+    return { newLocation, handleEmit, RadioButton, Divider }
   }
 }
 </script>

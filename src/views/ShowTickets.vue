@@ -1,10 +1,9 @@
 <template>
-<ConfirmDialog :breakpoints="{'960px': '75vw', '640px': '100vw'}" :style="{width: '50vw'}" />
   <div class="p-d-flex p-flex-column p-ai-center">
     <h1 class="p-my-3">Zlecenia {{collectionPath}}</h1>
 
     <DataTable :value="allTickets" responsiveLayout="stack" stripedRows showGridlines v-model:filters="tableFilters"
-      filterDisplay="menu" :loading="isLoading" class="p-my-5">
+      filterDisplay="menu" :loading="isLoading" class="p-my-5" breakpoint="1050px">
       <template #header>
         <div class="p-d-flex p-jc-between p-flex-column p-flex-sm-row">
           <Button icon="pi pi-filter-slash" label="Wyczyść" class="p-button-outlined"
@@ -30,12 +29,12 @@
       </Column>
       <Column header="OPCJE" class="p-text-center" style="width:160px">
         <template #body="slotProps">
-          <div class="p-d-flex p-jc-center">
+          <div class="p-d-flex p-jc-center p-mx-0">
             <Button @click="redirectToDetails(slotProps.data)"
               class="p-button-outlined p-button-rounded p-button-primary" icon="fas fa-info-circle" 
               v-tooltip.top="'Szczegóły zlecenia'" />
             <Button @click="openRelocateDialog(slotProps.data)"
-              class="p-button-outlined p-button-rounded p-button-warning p-mx-2 relocate" icon="fas fa-arrows-alt-h"
+              class="p-button-outlined p-button-rounded p-button-warning p-mx-1 p-mx-xlg-2 relocate" icon="fas fa-arrows-alt-h"
               v-tooltip.top="'Przenieś zlecenie'" />
             <Button @click="confirmDeleteModal(slotProps.data)"
               class="p-button-outlined p-button-rounded p-button-danger remove" icon="fas fa-trash-alt"
@@ -91,7 +90,6 @@ import { useConfirm } from "primevue/useconfirm";
 import { FilterMatchMode } from "primevue/api";
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
-import ConfirmDialog from 'primevue/confirmdialog';
 
 import copyToClipboard from '@/components/copyToClipboard.js'
 
@@ -305,7 +303,6 @@ export default ({
       tableFilters,
       clearTableFilters,
       copyValue,
-      ConfirmDialog,
 
       confirmDeleteModal,
       CustomRelocateConfirmDialog,
