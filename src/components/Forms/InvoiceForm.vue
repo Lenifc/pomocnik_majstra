@@ -1,19 +1,18 @@
 <template>
-<div class="p-mt-6">
+<div class="p-my-6">
   <Button label="Generuj" class="p-d-flex p-mx-auto" @click="createPDF()" />
-
-  <div class="card p-mt-6">
+  <div class="card p-my-6">
     <div class="card-content">
       <div class="card-header p-mt-4">
         <div class="p-d-flex p-flex-row p-jc-between p-ai-center">
-          <div class="invoice-logo p-d-flex p-flex-row p-ai-center" style="width: 80px">
-            <img alt="workshopLogo" src="@/assets/logo.svg" style="width: 100%">
+          <div class="invoice-logo p-d-flex p-flex-row p-ai-center">
+            <div style="width: 80px"><img alt="workshopLogo" src="@/assets/logo.svg" style="width: 100%"></div>
             <div class="workshopTitle p-text-uppercase p-text-bold">Warsztat_XD</div>
           </div>
-          <div class="invoice-title p-text-center p-text-bold">
+          <div class="invoice-title p-text-right p-text-bold">
             FAKTURA nr {{ randomIndex }}/{{ getYear }}
           </div>
-          <div>{{ getTodaysDate }}</div>
+          <div>Data wystawienia: {{ getTodaysDate }}</div>
         </div>
         <div class="p-mt-4">
           <h3 class="p-text-uppercase">Sprzedawca</h3>
@@ -57,10 +56,11 @@
           <Column field="totalCost_gross" header="Wartość brutto[zł]" class="p-text-right"></Column>
         </DataTable>
 
-        <div class="p-mt-5">
-          <h3>Do zapłaty: {{ '0000' }} zł</h3>
+        <div class="p-mt-5 p-mb-3">
+          <div v-html="calcTotalCosts(ticketDetails?.['Wykonane_uslugi_czesci'])"></div>
           <div>Płatność gotówką</div>
-        </div>
+        </div>     
+        
         <div>{{ `${carDetails?.['Marka']?.toUpperCase()} ${carDetails?.['Model']} ${carDetails?.['Wersja_Rocznik'] || ''}, ${
           carDetails?.['VIN']}, ${carDetails?.['Numer_rejestracyjny'] || ''} ${carDetails?.['Przebieg'] ?  ', Stan licznika: ' + carDetails?.['Przebieg'] + 'km' : ''}`}}</div>
       </div>
@@ -85,9 +85,9 @@
 <script>
 import { computed, onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
 
 import firebase from 'firebase/app'
-import { useRouter } from 'vue-router'
 
 import Skeleton from 'primevue/skeleton';
 import DataTable from 'primevue/datatable';
@@ -149,6 +149,18 @@ export default {
       workshopDetails.value = (await workshopPath.get()).data()
     }
 
+      function calcTotalCosts(order) {
+      let totalGross = 0
+      let totalNet = 0
+      if(order) order.forEach(item => {
+        totalGross += Number(item['totalCost_gross'])
+        totalNet += Number(item['totalCost_net'])
+      })
+      return `<h2>Do zapłaty:  <span class="p-text-bold" style="color: var(--pink-600)">${totalGross.toFixed(2)}</span>zł
+                <div class="p-text-normal" style="font-size: 1.1rem">Netto: <span style="color: var(--pink-600)">${totalNet.toFixed(2)}</span>zł</div>
+              </h2>`
+    }
+
 
     onMounted(() => {
       // w przypadku wejscia w link z wyszukiwarki, a nie z przycisku cofnie nas do poprzedniej strony
@@ -167,6 +179,7 @@ export default {
       clientDetails,
       carDetails,
       workshopDetails,
+      calcTotalCosts,
 
       randomIndex,
       getYear,

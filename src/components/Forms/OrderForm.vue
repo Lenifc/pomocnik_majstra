@@ -1,43 +1,71 @@
 <template>
-  <div class="container">
-    <MINIShowClients v-if="openClientsModal" @openClientModal="() => { openClientsModal = false; setAllData()}" />
-
+<div class="p-pt-5">
+  <Card class="p-text-center" style="max-width:1100px">
 
     <!-- https://intercars.pl/s/lp-czesci-zamienne/ Uzupelnic Firestore o te kategorie -->
 
+    <template #content>
+      <MINIShowClients v-if="openClientsModal" @openClientModal="() => { openClientsModal = false; setAllData()}" />
+      <form class="newDataForm" v-if="!openClientsModal">
+        <Button class="p-button-secondary" label="Wybierz klienta" @click="() => {openClientsModal = true }" />
+        <div v-if="selectedCar" class="newDataForm">
+          <div class="selectedClient">
+            <h3 class="p-pt-2">Aktualnie wybrano:</h3>
+            <p class="p-pt-1">Pojazd: </p>
+            <div class="p-text-bold p-my-1" style="color:var(--yellow-500)">
+              {{ `${selectedCar.Marka} ${selectedCar.Model} ${selectedCar.VIN}`}}
+            </div>
+            <p>Klient:</p>
+            <div style="color:var(--blue-400)" class="p-text-bold">{{ selectedClient?.Tel }}</div>
+            <div>{{ selectedClient?.Imie }}</div>
+            <div v-if="selectedClient.NIP">NIP: {{ selectedClient?.NIP }}</div>
+            <div v-if="selectedClient.KodPocztowy && selectedClient.Miejscowosc && selectedClient.Ulica">
+                {{ `${selectedClient?.KodPocztowy} ${selectedClient?.Miejscowosc} - ul. ${selectedClient?.Ulica}` }}</div>
+          </div>
 
-    <form class="newDataForm" v-if="!openClientsModal">
-      <button class="btn" @click="openAvailableClients($event)">Wybierz klienta</button>
-      <div v-if="selectedCar" class="newDataForm">
-      <div class="selectedClient">
-        <h3>Aktualnie wybrano:</h3>
-        <p>Pojazd: </p>
-        {{ `${selectedCar.Marka} ${selectedCar.Model} ${selectedCar.VIN}`}}
-        <p>Klient:</p>
-        {{ clientPhoneNum }}, {{ clientName }}
-      </div>
+          <label for="Textarea">
+            <h3 class="p-mt-3 p-mb-1 p-text-center">Więcej informacji:</h3>
+          </label>
+          <Editor v-model="description" id="Textarea" class="p-mb-6 p-text-left" style="max-width:600px; margin:  auto;">
+            <template #toolbar>
+              <span class="ql-formats">
+                <button class="ql-bold"></button>
+                <button class="ql-italic"></button>
+                <button class="ql-underline"></button>
+                <button class="ql-list" value="bullet"></button>
+                <button class="ql-link"></button>
+              </span>
+            </template>
+          </Editor>
 
-      <textarea name="description" cols="50" rows="10" placeholder="Opis usterki" v-model="description"></textarea>
+          <div class="p-d-flex p-flex-row p-jc-center">
+            <WorkOrderForm @WOItems="(data) => setWOItems(data)" />
+          </div>
 
-      <WorkOrderForm @WOItems="(data) => setWOItems(data)" />
+          <h2 class="p-my-2">Dodaj zlecenie jako:</h2>
+          <div class="p-d-flex p-flex-column p-jc-center">
+            <span class="p-mb-1">
+              <RadioButton id="waiting" name="ticket" value="wolne" checked v-model="picked" />
+              <label for="waiting">Nowe</label>
+            </span>
+            <span>
+              <RadioButton id="inprogress" name="ticket" value="obecne" v-model="picked" />
+              <label for="inprogress">W realizacji</label>
+            </span>
+          </div>
 
-      <p>Dodaj zlecenie jako:</p>
-      <div>
-        <input type="radio" id="waiting" name="ticket" value="wolne" checked v-model="picked">
-        <label for="waiting">Wolne</label>
-      </div>
-      <div>
-        <input type="radio" id="inprogress" name="ticket" value="obecne" v-model="picked">
-        <label for="inprogress">W realizacji</label>
-      </div>
+        </div>
+      </form>
+    </template>
 
-      <div class="row">
-        <button class="btn addData success" @click="validateData($event)">Dodaj</button>
-        <button class="btn clearForm failed" @click="clearForm($event)">Wyczyść formularz</button>
+  <template #footer>
+      <div class="p-d-flex p-flex-column p-flex-sm-row p-jc-center" v-if="selectedCar">
+        <Button class="p-button-success p-mr-0 p-mr-sm-2 p-mb-2 p-mb-sm-0" @click.prevent="validateData()" label="Dodaj zlecenie" icon="pi pi-plus" />
+        <Button class="p-button-danger" @click.prevent="clearForm()" label="Wyczyść formularz" icon="pi pi-trash" />
       </div>
-      </div>
-    </form>
-  </div>
+  </template>
+  </Card>
+</div>
 </template>
 
 <script>
@@ -46,8 +74,11 @@ import { useStore } from 'vuex'
  
 import MINIShowClients from '@/views/MINIShowClients'
 import WorkOrderForm from '@/components/Forms/WorkOrderForm.vue'
+import RadioButton from 'primevue/radiobutton'
+import Editor from 'primevue/editor'
 
-import PopupFunc from '@/components/PopupFunc.js'
+
+import { useToast } from "primevue/usetoast"
 import { getTime } from '@/components/getCurrentTime'
 
 import firebase from 'firebase/app'
@@ -64,9 +95,10 @@ export default {
     const description = ref('')
     const openClientsModal = ref(false)
     const selectedCar = ref()
-    const clientPhoneNum = ref()
-    const clientName = ref()
+    const selectedClient = ref()
     const WOItems = ref([])
+
+    const toast = useToast()
 
     const picked = ref('wolne')
 
@@ -74,52 +106,45 @@ export default {
       .collection('warsztat')
       .doc('zlecenia')
 
-    function openAvailableClients(e){
-      e.preventDefault()
-      openClientsModal.value = true
-    }
-
     function setAllData(){
       selectedCar.value = store.state.selectedCarForTicket[0]
 
-      clientPhoneNum.value = store.state.selectedCarForTicket[1].Tel
-      clientName.value = store.state.selectedCarForTicket[1].Imie
+      selectedClient.value = store.state.selectedCarForTicket[1]
     }
 
 
-    function validateData(e) {
-      e.preventDefault()
+    function validateData() {
 
         let preparedData = []
         let timeStamp = getTime()
         let ID = Date.now()
-        if (clientName.value == null) {
-          PopupFunc('error', 'Uzupełnij brakujące informacje')
-          return
-        }
+
         preparedData[ID] = {
           id: ID,
 
-          Tel: clientPhoneNum.value,
-          Imie: clientName.value,
+          Tel: selectedClient.value.Tel,
+          Imie: selectedClient.value.Imie,
+          NIP: selectedClient.value.Rodzaj == 'Firma' ? selectedClient.value.NIP  : '',
+          kodPocztowy: selectedClient.value.kodPocztowy ? selectedClient.value.kodPocztowy : '',
+          Miejscowosc: selectedClient.value.Miejscowosc ? selectedClient.value.Miejscowosc : '',
+          Ulica: selectedClient.value.Ulica ? selectedClient.value.Ulica : '',
 
           Marka: selectedCar.value?.["Marka"],
           Model: selectedCar.value?.['Model'],
-          Wersja_Rocznik: selectedCar.value?.['Wersja_Rocznik'],
-          Paliwo: selectedCar.value?.['Paliwo'],
+          Wersja_Rocznik: selectedCar.value?.['Wersja_Rocznik'] || "",
+          Paliwo: selectedCar.value?.['Paliwo'] || "",
 
-          Silnik_Pojemnosc: selectedCar.value?.['Silnik_Pojemnosc'],
-          Silnik_Moc: selectedCar.value?.['Silnik_Moc'],
-          Silnik_Kod: selectedCar.value?.['Silnik_Kod'],
-          SkrzyniaBiegow: selectedCar.value?.['SkrzyniaBiegow'],
-          Naped: selectedCar.value?.['Naped'],
-          Numer_rejestracyjny: selectedCar.value?.['Numer_rejestracyjny'],
+          Silnik_Pojemnosc: selectedCar.value?.['Silnik_Pojemnosc'] || "",
+          Silnik_Moc: selectedCar.value?.['Silnik_Moc'] || "",
+          Silnik_Kod: selectedCar.value?.['Silnik_Kod'] || "",
+          SkrzyniaBiegow: selectedCar.value?.['SkrzyniaBiegow'] || "",
+          Naped: selectedCar.value?.['Naped'] || "",
+          Numer_rejestracyjny: selectedCar.value?.['Numer_rejestracyjny'] || "",
           VIN: selectedCar.value?.['VIN'],
-          Przebieg: selectedCar.value?.['Przebieg'],
+          Przebieg: selectedCar.value?.['Przebieg'] || "",
 
           Opis: description.value || "",
           Wykonane_uslugi_czesci: WOItems.value,
-          Koszt: 0,
           Dodane_Czas: store.state.targetCar?.['Dodane_Czas'] || timeStamp,
           Zakonczone_Czas: '',
         }
@@ -140,14 +165,20 @@ export default {
           docReference.update({
               ...preparedData,
               timeStamp
-            }).then(() => PopupFunc('success', "Do podanego numeru dodano kolejny pojazd"))
-            .catch(err => PopupFunc("error", err.message))
+            }).then(() => {
+                toast.removeAllGroups()
+                toast.add({ severity: 'success', summary: 'Dodano zlecenie', detail: 'Do podanego numeru dodano kolejne zlecenie', life: 4000})
+            })
+            .catch(err => toast.add({ severity: 'error', summary: 'Wystąpił Problem', detail: err.message, life: 5000}))
         } else {
           docReference.set({
               ...preparedData,
               timeStamp
-            }).then(() => PopupFunc('success', `Nowe zlecenie znajdziesz w zakładce "${picked}"`))
-            .catch(err => PopupFunc("error", err.message))
+            }).then(() => {
+                toast.removeAllGroups()
+                toast.add({ severity: 'success', summary: 'Dodano zlecenie', detail: `Nowe zlecenie znajdziesz w zakładce "${picked}"`, life: 4000})
+            })
+            .catch(err => toast.add({ severity: 'error', summary: 'Wystąpił Problem', detail: err.message, life: 5000}))
         }
         // tutaj dodac sprawdzenie w przypadku edycji ticketu, aby nadmiernie nie podbijac licznika
          tickets.update("IloscZlecen", firebase.firestore.FieldValue.increment(1))
@@ -159,7 +190,7 @@ export default {
         store.commit('setTargetCar', '')
 
       }).catch(function (err) {
-        PopupFunc("error", err.message)
+        toast.add({ severity: 'error', summary: 'Wystąpił Problem', detail: err.message, life: 5000})
       })
     }
 
@@ -167,12 +198,10 @@ export default {
       WOItems.value = data
     }
 
-    function clearForm(e) {
-      e?.preventDefault()
+    function clearForm() {
 
       selectedCar.value = ''
-      clientPhoneNum.value = ''
-      clientName.value = ''
+      selectedClient.value = ''
       description.value = ''
       store.commit('setSelectedCarForTicket', '')
     }
@@ -185,27 +214,28 @@ export default {
 
     return {
       description,
+      RadioButton,
 
       validateData,
       picked,
 
       clearForm,
 
-      openAvailableClients,
       openClientsModal,
       setAllData,
-      clientPhoneNum,
+      selectedClient,
       selectedCar,
-      clientName,
       WOItems,
-      setWOItems
+      setWOItems,
+
+      Editor
     }
   }
 }
 </script>
 
 <style>
-.align-center{
-  align-items: center;
+.p-inputnumber-input{
+  max-width: 110px;
 }
 </style>

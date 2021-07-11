@@ -1,6 +1,6 @@
 {
   "name": "inzynierka",
-  "version": "0.66.0",
+  "version": "0.75.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",

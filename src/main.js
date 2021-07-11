@@ -19,6 +19,8 @@ import ConfirmationService from 'primevue/confirmationservice';
 import Toast from "primevue/toast"
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
+import InputNumber from 'primevue/inputnumber'
+import RadioButton from 'primevue/radiobutton';
 import Card from 'primevue/card';
 import Fieldset from 'primevue/fieldset';
 import ConfirmDialog from 'primevue/confirmdialog'
@@ -31,10 +33,12 @@ app.directive('tooltip', Tooltip);
 app.component('Toast', Toast)
 app.component('Button', Button)
 app.component('InputText', InputText)
+app.component('InputNumber', InputNumber)
 app.component('Card', Card)
 app.component('Fieldset', Fieldset)
 app.component('ConfirmDialog', ConfirmDialog)
 app.component('Divider', Divider)
+app.component('RadioButton', RadioButton)
 
 app.use(store).use(router).use(PrimeVue, {ripple: true}).use(ToastService).use(ConfirmationService).mount('#app')
 

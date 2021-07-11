@@ -15,7 +15,6 @@ export default createStore({
   mutations: {
     setFetchedItems(state, data){
       state.fetchedItems = data
-      // console.log(state.fetchedItems);
     },
     setCarDetails(state, data){ // routing przy przejsciu do szczegolow
       state.carDetails = data
@@ -34,7 +33,6 @@ export default createStore({
     },
     setSelectedCarForTicket(state, data){
       state.selectedCarForTicket = data
-      console.log('VUEX:', data)
     },
     setInvoiceData(state, data){
       state.invoiceData = data

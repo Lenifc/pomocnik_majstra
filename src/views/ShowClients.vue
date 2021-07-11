@@ -51,6 +51,7 @@
 
         </template>
       </Column>
+      <Column field="Tel2" class="p-d-none" />
       <Column field="Tel" header="Numer Telefonu" class="p-text-center" style="width:125px">
         <template #body="{data}">
           <div class="p-d-flex p-flex-column" @dblclick="copyValue($event)">

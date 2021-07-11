@@ -21,8 +21,10 @@ export async function DeleteFunc(id, docPath, phoneNumber, target, extraData) {
           ConfirmDelete = false
         })
         .then(() => {
+          if(target != 'doNotCount'){
           counterPathClients.update("Klienci", firebase.firestore.FieldValue.increment(-1))
-          if(target != 0) counterPathClients.update("Pojazdy", firebase.firestore.FieldValue.increment(-target)) 
+          if(target != 0) counterPathClients.update("Pojazdy", firebase.firestore.FieldValue.increment(-target))
+          }
           ConfirmDelete = true
         })
         .catch(err => {
@@ -140,4 +142,39 @@ export function RelocateTicket(id, object, ticketsPath, currentDocPath, newDocPa
     ConfirmRelocate = false
 }
 return ConfirmRelocate
+}
+
+
+
+export async function updateClientNumber(oldData, updatedData) {
+  let ConfirmUpdateClientData
+  const timeStamp = getTime()
+  const clientsPath = firebase.firestore()
+    .collection('warsztat')
+    .doc('Klienci').collection('Numery')
+
+  const newClientPath = clientsPath.doc(updatedData.Tel)
+
+  // aktualizujemy stare dane, ktore maja wszystkie dane potrzebne do przeniesienia nowymi zmiennymi z formularza
+  let setNewData = Object.assign(JSON.parse(JSON.stringify(oldData)), updatedData)
+
+  ConfirmUpdateClientData = await newClientPath.get().then(function (doc) {
+    if (doc.exists) {
+      console.log('Taki numer jest juz przypisany do innego klienta')
+      ConfirmUpdateClientData = false
+    } else {
+      newClientPath.set({
+        ...setNewData,
+        timeStamp
+      }).then(() => {
+        DeleteFunc('client', clientsPath, oldData.Tel, 'doNotCount')
+        ConfirmUpdateClientData = true
+      }).catch(err => {
+        console.log(err.code, err.message)
+        ConfirmUpdateClientData = false
+      })
+    }
+    return ConfirmUpdateClientData
+  })
+  return ConfirmUpdateClientData
 }

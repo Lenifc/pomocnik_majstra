@@ -7,84 +7,53 @@
         <div class="p-text-center">SZCZEGÓŁY zlecenia {{$route.params.ticketDetails}}</div>
       </template>
       <template #content>
-        <div :id="carDetails?.['id']" class="column">
-         <div class="row">
-          <div class="client">
-            <div class="row">
-              <h3>Klient:</h3>
-            </div>
-            <div>Imie: {{ carDetails?.['Imie'] }}</div>
-            <div>Numer Telefonu: {{ carDetails?.['Tel'] }}</div>
-            {{carDetails}}
+        <div :id="ticketDetails?.['id']" class="column">
+         <div class="p-d-flex p-flex-column p-flex-md-row p-jc-center">
+
+          <div class="client p-mr-0 p-mb-5 p-mr-md-5 p-mb-md-0">
+            <h3 class="p-mb-2" style="color:var(--yellow-500)">Klient:</h3>
+            <div>Imie: {{ ticketDetails?.['Imie'] }}</div>
+            <div v-if="ticketDetails?.NIP">NIP: {{ ticketDetails.NIP}}</div>
+            <div>Numer Telefonu: {{ ticketDetails?.['Tel'] }}</div>
           </div>
-          <div class="vehicle">
-            <div class="row">
-              <h3>Pojazd:</h3>
-            </div>
-            <div>Marka: {{ carDetails?.['Marka'] }}</div>
-            <div>Model: {{ carDetails?.['Model'] }}</div>
-            <div>Rok_prod: {{ carDetails?.['Rok_prod'] }}</div>
-            <div>VIN: {{ carDetails?.['VIN'] }}</div>
-            <div>Tablice: {{ carDetails?.['Numer_rejestracyjny'] }}</div>
-            <div>Paliwo: {{ carDetails?.['Paliwo'] }}</div>
-            <div>Silnik: {{ carDetails?.['Silnik'] }}</div>
-            <div>Napęd: {{ carDetails?.['Naped'] }}</div>
-            <div>Skrzynia biegów: {{ carDetails?.['SkrzyniaBiegow'] }}</div>
-            <div>Przebieg: {{ carDetails?.['Przebieg'] }}</div>
-            <div>Opis: {{ carDetails?.['Opis'] }}</div>
+          <div class="vehicle p-mr-0 p-mb-5 p-mr-md-5 p-mb-md-0">
+            <h3 class="p-mb-2" style="color:var(--yellow-500)">Pojazd:</h3>
+            <div>Marka: {{ ticketDetails?.['Marka'] }}</div>
+            <div>Model: {{ ticketDetails?.['Model'] }}</div>
+            <div>Rok_prod: {{ ticketDetails?.['Rok_prod'] || "Brak wprowadzonych danych"}}</div>
+            <div>VIN: {{ ticketDetails?.['VIN'] }}</div>
+            <div>Tablice: {{ ticketDetails?.['Numer_rejestracyjny'] }}</div>
+            <div>Paliwo: {{ ticketDetails?.['Paliwo'] || "Brak wprowadzonych danych"}}</div>
+            <div v-if="ticketDetails?.['Silnik_Pojemnosc'] && ticketDetails?.['Silnik_Moc'] && ticketDetails?.['Silnik_Kod']">Silnik: 
+              {{ ticketDetails?.['Silnik_Pojemnosc'] }}cm<sup>3</sup> ; {{ ticketDetails?.['Silnik_Moc'] }}KM ; {{ ticketDetails?.['Silnik_Kod'] }}</div>
+            <div>Napęd: {{ ticketDetails?.['Naped'] || "Brak wprowadzonych danych"}}</div>
+            <div>Skrzynia biegów: {{ ticketDetails?.['SkrzyniaBiegow'] || "Brak wprowadzonych danych"}}</div>
+            <div>Przebieg: {{ ticketDetails?.['Przebieg'] }}km</div>
+            <div v-if="ticketDetails?.['Opis']">Opis:<div v-html="ticketDetails?.['Opis']"></div></div>
           </div>
         </div> 
-        <div class="row">
-              <h3>Szczegóły zlecenia:</h3>
-            </div>
-        <div>Zlecenie dodane: {{ carDetails?.['Dodane_Czas'] }}</div>
-        <div v-if="$route.params.collectionPath == 'zakonczone'">Zlecenie zakonczone:
-          {{ carDetails?.['Zakonczone_Czas'] }}</div>
+        <div class="p-text-center p-mt-4">
+          <h3 class="p-mb-2" style="color:var(--yellow-500)">Szczegóły zlecenia:</h3>
+          <div>id: {{ ticketDetails?.['id'] }}</div>
+          <div>Status zlecenia: <span class="p-text-bold">{{showStatus($route.params.collectionPath)}}</span></div>
+          <div>Zlecenie dodane: {{ ticketDetails?.['Dodane_Czas'] }}</div>
+          <div v-if="$route.params.collectionPath == 'zakonczone'">Zlecenie zakonczone:
+              {{ ticketDetails?.['Zakonczone_Czas'] }}</div>
+          </div>
         </div>
 
-<!--  wykonac CRUD i wypuscic to do osobnego komponentu!-->
-        <DataTable :value="carDetails?.['Wykonane_uslugi_czesci']" editMode="row" dataKey="id"
-          v-model:editingRows="editingRows" @rowEditInit="onRowEditInit" @rowEditCancel="onRowEditCancel"
-          responsiveLayout="scroll" stripedRows showGridlines class="p-datatable-sm p-pt-4" v-if="carDetails?.['Wykonane_uslugi_czesci'].length">
-          <Column style="width:50px" class="p-text-center">
-            <template #body="{index}">
-              {{index+1}} 
-            </template>
-          </Column>
-          <Column field="part_service_Name" header="Nazwa:">
-            <template #editor="{slotProps}">
-              <InputText v-model="slotProps.data[slotProps.column.props.field]" />
-            </template>
-          </Column>
-          <Column field="quantity" header="Ilość:">
-            <template #editor="slotProps">
-              <InputText v-model="slotProps.data[slotProps.column.props.field]" />
-            </template>
-          </Column>
-          <Column field="price_net" header="Netto[PLN]:" />
-          <Column field="totalCost_net" header="Netto całość[PLN]:">
-            <template #editor="slotProps">
-              <InputText v-model="slotProps.data[slotProps.column.props.field]" />
-            </template>
-          </Column>
-          <Column field="tax" header="Stawka VAT[%]:">
-            <template #editor="slotProps">
-              <InputText v-model="slotProps.data[slotProps.column.props.field]" />
-            </template>
-          </Column>
-          <Column field="price_gross" header="Brutto[PLN]:" />
-          <Column field="totalCost_gross" header="Brutto całość[PLN]:" />
-          <Column header="Edytuj" :rowEditor="true" style="width: 6%; min-width:4rem" bodyStyle="text-align:center"></Column>
-        </DataTable>
+      <div class="p-d-flex p-jc-center">
+        <WorkOrderForm :passedWO="ticketDetails?.['Wykonane_uslugi_czesci']" @WOItems="(data) => setWOItems(data)" />
+      </div>
 
       </template>
       <template #footer>
         <div class="p-d-flex p-flex-column p-flex-sm-row p-jc-center">
-          <Button class="p-button-danger p-mx-1 p-my-2 p-my-sm-0" @click="confirmDeleteModal(carDetails)" icon="pi pi-trash" label="Usuń" />
-          <Button class="p-button-primary p-mx-1 p-my-1 p-my-sm-0" @click="HandleFunc($event)" label="Edytuj" icon="pi pi-pencil" />
-          <Button class="p-button-warning p-mx-1 p-my-2 p-my-sm-0" @click="openRelocateDialog(carDetails)" label="Przenieś" icon="fas fa-arrows-alt-h" />
-          <Button class="p-button-help p-mx-1 p-my-1 p-my-sm-0" @click="HandleFunc($event)" label="Generuj Fakture" icon="pi pi-print"
-            v-if="$route.params.collectionPath == 'zakonczone' && carDetails?.['Wykonane_uslugi_czesci']?.length" />
+          <Button class="p-button-success p-mx-1 p-my-1 p-my-sm-0" @click="updateTicket()" label="Aktualizuj zmiany" icon="pi pi-pencil" />
+          <Button class="p-button-warning p-mx-1 p-my-2 p-my-sm-0" @click="openRelocateDialog(ticketDetails)" label="Przenieś" icon="fas fa-arrows-alt-h" />
+          <Button class="p-button-danger p-mx-1 p-my-2 p-my-sm-0" @click="confirmDeleteModal(ticketDetails)" icon="pi pi-trash" label="Usuń zlecenie" />
+          <Button class="p-button-help p-mx-1 p-my-1 p-my-sm-0" @click="OpenInvoiceVizualization()" label="Generuj Fakture" icon="pi pi-print"
+            v-if="$route.params.collectionPath == 'zakonczone' && ticketDetails?.['Wykonane_uslugi_czesci']?.length" />
         </div>
       </template>
     </Card>
@@ -95,6 +64,7 @@ import firebase from 'firebase/app'
 import { DeleteFunc, RelocateTicket } from '@/components/EditMoveDeleteOptions'
 
 import CustomRelocateConfirmDialog from '@/components/CustomRelocateConfirmDialog.vue'
+import WorkOrderForm from '@/components/Forms/WorkOrderForm.vue'
   
 import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -113,12 +83,12 @@ export default {
     const router = useRouter()
     const store = useStore()
     const toast = useToast()
-    const confirm = useConfirm()
+    const confirmDialog = useConfirm()
 
     const showModal = ref(false)
     const modalMsg = ref('')
 
-    const carDetails = ref()
+    const ticketDetails = ref()
     const originalRows = ref({})
     const editingRows = ref([])
     const dataToForward = ref()
@@ -139,24 +109,24 @@ export default {
         .get().then(recived => {
           // console.log(recived.data())
           let response = Object.entries(recived.data()).filter(item => item?.[1]['id'] == route.params.ticketDetails)
-          carDetails.value = response[0][1]
+          ticketDetails.value = response[0][1]
           dataToForward.value = response[0]
 
-          if(carDetails.value['Wykonane_uslugi_czesci']){
-            carDetails.value['Wykonane_uslugi_czesci'].forEach(item =>{
+          if(ticketDetails.value['Wykonane_uslugi_czesci']){
+            ticketDetails.value['Wykonane_uslugi_czesci'].forEach(item =>{
               showTotalGross.value += Number(item['totalCost_gross'])
               showTotalNet.value += Number(item['totalCost_net'])
             })
           }
 
         }).catch(() => {
-          carDetails.value = ''
+          ticketDetails.value = ''
           toast.add({severity:'warn', detail:`Wystąpił problem ze znalezieniem danego numeru: ${currentPhoneNum}`, life: 4000})
         })
     }
 
         const confirmDeleteModal = (ticketData) => {
-      confirm.require({
+      confirmDialog.require({
         message: `Czy na pewno chcesz usunąć zlecenie klienta ${ticketData.Tel},
         Pojazd: ${ticketData.Marka} ${ticketData.Model}?`,
         header: `Usunąć zlecenie?`,
@@ -173,33 +143,72 @@ export default {
           if (confirmDelete !== false) {
             router.go(-1)
             toast.removeAllGroups()
-            toast.add({
-              severity: 'success',
-              summary: 'Potwierdzenie',
-              detail: 'Pomyślnie usunięto zlecenia',
-              life: 4000
-            })
+            toast.add({ severity: 'success', summary: 'Potwierdzenie', detail: 'Pomyślnie usunięto zlecenia', life: 4000})
           }
         },
         reject: () => {}
       });
     }
+
+    function updateTicket() {
+      let updatedTicket = []
+      updatedTicket[ticketDetails.value.id] = JSON.parse(JSON.stringify(ticketDetails.value)) // zamiana Proxy na Object
+
+      const { Tel } = ticketDetails.value
+      const ticketStatus = route.params.collectionPath
+
+      const collectionReference = tickets.collection(ticketStatus).doc(Tel)
+
+      collectionReference.get().then(function (doc) {
+        if (doc.exists) {
+          collectionReference.update({
+              ...updatedTicket,
+              timeStamp: ticketDetails.value['Dodane_Czas']
+            }).then(() => {
+                toast.removeAllGroups()
+                toast.add({ severity: 'success', summary: 'Aktualizacja', detail: 'Poprawnie zaktualizowano dane zlecenia', life: 4000})
+            })
+            .catch(err => toast.add({ severity: 'error', summary: 'Wystąpił Problem', detail: err.message, life: 5000}))
+        } else {
+          toast.removeAllGroups()
+          toast.add({ severity: 'error', summary: 'Wystąpił Problem', detail: `Zlecenie musiało zostać wczesniej usunięte, więc nie można go było zaktualizować`, life: 6000})
+          router.go(-1)
+        }
+    }).catch(err => toast.add({ severity: 'error', summary: 'Wystąpił Problem', detail: err.message, life: 5000}))
+  }
+
+    function setWOItems(data){
+      ticketDetails.value['Wykonane_uslugi_czesci'] = data
+    }
+
+      function calcTotalCosts(order) {
+        let totalGross = 0
+        let totalNet = 0
+        order.forEach(item => {
+          totalGross += Number(item['totalCost_gross'])
+          totalNet += Number(item['totalCost_net'])
+        })
+        return `<div>Suma Brutto: <span style="color: var(--primary-color)">${totalGross.toFixed(2)} </span>PLN</div>
+                <div>Suma Netto: <span style="color: var(--primary-color)" >${totalNet.toFixed(2)} </span>PLN</div>`
+    }
       
 
-    async function HandleFunc(e) {
-      const target = e.target.innerText
-      const id = e.target.parentElement.parentElement.parentElement.id
-      if (target == 'Edytuj') EditFunc(id)
-      if(target == 'Generuj Fakture') {
+    async function OpenInvoiceVizualization() {
         const invoiceData = {
           phoneNum: currentPhoneNum,
-          vehicleVIN: carDetails.value['VIN'],
+          vehicleVIN: ticketDetails.value['VIN'],
           ticketID: route.params.ticketDetails
         }
         store.commit('setInvoiceData', invoiceData)
         router.push('/generujFakture')
       }
-    }
+
+      function showStatus(path){
+        if(path == 'wolne') return 'Nowy'
+        if(path == 'obecne') return 'W trakcie realizacji'
+        if(path == 'zakonczone') return 'Zakończony'
+      }
+
 
     function openRelocateDialog(ticketInfo) {
       modalMsg.value = `Gdzie przenosimy zlecenie ${ticketInfo['Tel']}?`
@@ -218,7 +227,7 @@ export default {
         
         const confirmRelocate = await RelocateTicket('ticket', ticketData, tickets, route.params.collectionPath, newLocation, Tel)
         if (confirmRelocate !== false) {
-          router.go(-1)
+          router.push(`/${newLocation}`)
           toast.removeAllGroups()
           toast.add({
             severity: 'success',
@@ -238,14 +247,10 @@ export default {
     }
 
     const onRowEditInit = (event) => {
-      originalRows.value[event.index] = {...carDetails?.value['Wykonane_uslugi_czesci'][event.index]}
+      originalRows.value[event.index] = {...ticketDetails?.value['Wykonane_uslugi_czesci'][event.index]}
     }
     const onRowEditCancel = (event) => {
-      carDetails.value['Wykonane_uslugi_czesci'][event.index] = originalRows.value[event.index]
-    }
-
-    function EditFunc() {
-      router.push(`/edytuj/${route.params.collectionPath}/${currentPhoneNum}/${route.params.ticketDetails}`)
+      ticketDetails.value['Wykonane_uslugi_czesci'][event.index] = originalRows.value[event.index]
     }
 
     onMounted(() => {
@@ -259,10 +264,11 @@ export default {
     watch(() => route.params.collectionPath, () => route.path.includes('details') ? fetchData() : '')
 
     return {
-      carDetails,
+      ticketDetails,
       dataToForward,
+      calcTotalCosts,
 
-      HandleFunc,
+      OpenInvoiceVizualization,
       ComputedShowTotalNet,
       ComputedShowTotalGross,
 
@@ -274,6 +280,8 @@ export default {
       modalResponse,
       confirmDeleteModal,
 
+      WorkOrderForm,
+
       DataTable,
       Column,
       copyToClipboard,
@@ -282,17 +290,17 @@ export default {
       onRowEditCancel,
       editingRows,
       originalRows,
+
+      setWOItems,
+      updateTicket,
+      showStatus
     }
   }
 }
 </script>
 
 <style>
-.cars-details {
-  margin-top: 128px;
-  display: flex;
-  justify-content: center;
-  color: black;
-  width: max(300px, 50%);
+.p-inputnumber-input{
+  max-width: 100px;
 }
 </style>

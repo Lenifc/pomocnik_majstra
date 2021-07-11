@@ -81,6 +81,7 @@ setup(props) {
     }
 
     function openEditClientForm(client){
+      store.commit('setTargetClient', client)
       router.push(`/klient/${client['Tel']}/edytuj`)
     }
 

@@ -1,53 +1,64 @@
 <template>
   <div class="p-mt-6 p-mb-3 p-text-center">
-          <Button v-if="!historyLoaded" label="Pobierz historię zleceń naprawy danego pojazdu" class="p-button-info"
-            icon="pi pi-download" @click="fetchHistoryTicketsResults()"/>
-          <h3 v-if="historyLoaded">Historia zleceń naprawy danego pojazdu:</h3>
-          <div v-if="ticketsHistory.length" class="p-text-left">
-            <div v-for="ticket in ticketsHistory" :key="ticket" :id="ticket[0]">
-              <Fieldset :legend="showName(ticket[0])" :toggleable="true" :collapsed="true" v-if="ticket[1].length"
-                        class="p-my-2">
-                <div v-for="unique in ticket[1]" :key="unique.id" class="p-text-center" :id="ticket[0]">
-                  <Fieldset :legend="`Utworzone: ${unique['Dodane_Czas']}`" :toggleable="true" :collapsed="true"
-                    class="p-my-2">
-                    <div>ID zlecenia: {{unique.id}}</div>
-                    <div>Przebieg: {{unique.Przebieg}} km</div>
-                    <div v-if="unique['Wykonane_uslugi_czesci'].length">Wykonane zadania:
-                      <DataTable :value="unique['Wykonane_uslugi_czesci']" responsiveLayout="scroll" stripedRows
-                        showGridlines class="p-my-2 p-text-center p-datatable-sm" dataKey="id">
-                        <template #header>
-                          <div v-html="calcTotalCosts(unique['Wykonane_uslugi_czesci'])">
-                          </div>
-                        </template>
-                        <Column style="width:40px" class="p-text-center">
-                          <template #body="{index}">
-                            {{index+1}}
-                          </template>
-                        </Column>
-                        <Column field="part_service_Name" header="Nazwa:" class="p-text-center">
-                          <template #body="{data}">
-                            <div class="p-text-left">
-                              {{data['part_service_Name'] || ''}}
-                            </div>
-                          </template>
-                        </Column>
-                        <Column field="quantity" header="Ilość" />
-                        <Column field="price_net" header="Cena Netto[PLN]:" />
-                        <Column field="totalCost_net" header="Wartość Netto[PLN]:" />
-                        <Column field="tax" header="Stawka VAT[%]:" />
-                        <Column field="price_gross" header="Cena Netto[PLN]:" />
-                        <Column field="totalCost_gross" header="Wartość Brutton[PLN]:" />
-                      </DataTable>
-                    </div>
-                    <div v-if="!unique['Wykonane_uslugi_czesci'].length">To zlecenie nie posiada jeszcze wprowadzonych zadań</div>
-                  </Fieldset>
-                  </div>
-                  <!-- {{ticket[1].map(item => item)}} -->
-                  </Fieldset>
-            </div>
+    <Button v-if="!historyLoaded" label="Pobierz historię zleceń naprawy danego pojazdu" class="p-button-info"
+      icon="pi pi-download" @click="fetchHistoryTicketsResults()" />
+    <h3 v-if="historyLoaded">Historia zleceń naprawy danego pojazdu:</h3>
+    <div v-if="ticketsHistory.length" class="p-text-left">
+      <div v-for="ticket in ticketsHistory" :key="ticket" :id="ticket[0]">
+        <Fieldset :legend="showName(ticket[0])" :toggleable="true" :collapsed="true" v-if="ticket[1].length"
+          class="p-my-2">
+          <div v-for="unique in ticket[1]" :key="unique.id" class="p-text-center" :id="ticket[0]">
+            <Fieldset :legend="`Utworzone: ${unique['Dodane_Czas']}`" :toggleable="true" :collapsed="true"
+              class="p-my-2">
+              <div class="fieldset-data p-my-2">
+                <div>ID zlecenia: <a class="p-text-bold"
+                    :href="`/#/details/${ticket[0]}/${unique?.['Tel']}/${unique?.['id']}`">{{unique.id}}</a></div>
+                <div>Status zlecenia: <span class="p-text-bold">{{showName(ticket[0])}}</span></div>
+                <div>Przebieg: {{unique.Przebieg}} km</div>
+                <div class="p-mt-2">Data utworzenia zlecenia: {{unique['Dodane_Czas']}}</div>
+                <div v-if="unique['Zakonczone_Czas'] && ticket[0] == 'zakonczone'">Data zakończenia zlecenia:
+                  {{unique['Zakonczone_Czas']}}</div>
+              </div>
+
+              <div v-if="unique['Wykonane_uslugi_czesci'].length">
+                <div v-if="ticket[0] == 'wolne'">Zadania do wykonania:</div>
+                <div v-if="ticket[0] == 'obecne'">Wykonywane zadania:</div>
+                <div v-if="ticket[0] == 'zakonczone'">Zakończone zadania:</div>
+                <DataTable :value="unique['Wykonane_uslugi_czesci']" responsiveLayout="scroll" stripedRows showGridlines
+                  class="p-my-2 p-text-center p-datatable-sm" dataKey="id">
+                  <template #header>
+                    <div v-html="calcTotalCosts(unique['Wykonane_uslugi_czesci'])"></div>
+                  </template>
+                  <Column style="width:40px" class="p-text-center">
+                    <template #body="{index}">
+                      {{index+1}}
+                    </template>
+                  </Column>
+                  <Column field="part_service_Name" header="Nazwa:" class="p-text-center">
+                    <template #body="{data}">
+                      <div class="p-text-left">
+                        {{data['part_service_Name'] || ''}}
+                      </div>
+                    </template>
+                  </Column>
+                  <Column field="quantity" header="Ilość" />
+                  <Column field="price_net" header="Cena Netto[PLN]:" />
+                  <Column field="totalCost_net" header="Wartość Netto[PLN]:" />
+                  <Column field="tax" header="Stawka VAT[%]:" />
+                  <Column field="price_gross" header="Cena Brutto[PLN]:" />
+                  <Column field="totalCost_gross" header="Wartość Brutto[PLN]:" />
+                </DataTable>
+              </div>
+              <div v-if="!unique['Wykonane_uslugi_czesci'].length">To zlecenie nie posiada jeszcze wprowadzonych zadań
+              </div>
+            </Fieldset>
           </div>
-          <div v-if="!isAnyDataInHistory && historyLoaded">Pojazd nie został jeszcze ani razu zlecony przez danego klienta.</div>
-        </div>
+        </Fieldset>
+      </div>
+    </div>
+    <div v-if="!isAnyDataInHistory && historyLoaded">Pojazd nie został jeszcze ani razu zlecony przez danego klienta.
+    </div>
+  </div>
 </template>
 
 <script>
@@ -142,5 +153,7 @@ setup(props) {
 </script>
 
 <style>
-
+.p-fieldset-content{
+  padding: 3px!important;
+}
 </style>

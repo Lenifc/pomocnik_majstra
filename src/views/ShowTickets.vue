@@ -50,6 +50,7 @@
           <div @dblclick="copyValue($event)">{{ data['Imie'] }}</div>
         </template>
       </Column>
+      <Column field="Tel2" class="p-d-none" />
       <Column field="Tel" header="Numer Telefonu" class="p-text-center">
         <template #body="{data}" >
           <div @dblclick="copyValue($event)">{{ data['Tel'] }}</div>

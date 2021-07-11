@@ -1,49 +1,71 @@
 <template>
-  <div class="container column">
-    <input type="text" class="filterNumbers" placeholder="Znajdź klienta/pojazd" @keyup="filterNumbers()" v-model="filterInput">
-
-    <table class="showElements" v-if="(recivedClients && !filterInput) || (filterInput && filteredNumbers && filteredNumbers.length)">
-      <tr>
-        <th></th>
-        <th>Imie klienta:</th>
-        <th>Numer telefonu:</th>
-        <th>Wybierz Pojazd:</th>
-      </tr>
-
-      <tr v-for="(client, index) in filteredNumbers || recivedClients" :key="client.id" :id="`id${client.Tel}`">
-        <td class="id hideUnder900">{{index+1}}</td>
-        <td class="wrap">{{client.Imie }}</td>
-        <td class="wrapSpace bold width-140">{{client.Tel }} {{ client.Tel2 ? `(${client.Tel2})` : ''}}</td>
-
-        <div class="borders width-300">
-          <div v-for="car in onlyCars(client)" :id="`id${car.VIN}`" :key="car.VIN">
-            <div v-if="car.VIN" class="row">
-              <div class="left column">
-                <div>{{ car.Marka }} {{ car.Model }}</div>
-                <div>{{ car.VIN }}</div>
+  <div>
+    <h3 class="p-text-center">Wyszukaj pojazd na którym ma być wykonane zlecenie</h3>
+    <DataTable :value="recivedClients" dataKey="id" responsiveLayout="stack" stripedRows showGridlines
+      class="p-datatable-sm p-pt-4 p-text-center" v-model:filters="tableFilters" filterDisplay="menu"
+      :loading="isLoading" breakpoint="888px">
+      <template #header>
+        <div class="p-d-flex p-jc-between p-flex-column p-flex-sm-row">
+          <Button icon="pi pi-filter-slash" label="Wyczyść" class="p-button-outlined" @click="clearTableFilters()" />
+          <span class="p-input-icon-left">
+            <i class="pi pi-search" />
+            <InputText placeholder="Wyszukaj..." v-model="searchValue" @keyup="showEvent($event)" v-tooltip.bottom="'Wyszukiwanie aktywuje się po podaniu 3 znaków'" />
+          </span>
+        </div>
+      </template>
+      <template #empty>
+        <div>Brak wyników</div>
+      </template>
+      <template #loading>
+        Pobieranie danych z serwera...
+      </template>
+      <Column style="width: 4%; min-width:3rem" class="p-text-center">
+        <template #body="{index}">
+          {{index+1}}
+        </template>
+      </Column>
+      <Column field="Imie" header="Imie klienta:" class="p-text-center"/>
+      <Column field="Tel2" class="p-d-none" />
+      <Column field="Tel" header="Numer kontaktowy:" class="p-text-nowrap p-text-center p-px-2">
+        <template #body="{data}">
+          <div>{{data.Tel}}</div>
+          <div v-if="data.Tel2">{{data.Tel2}}</div>
+        </template>
+      </Column>
+      <Column header="Pojazdy" field="Pojazdy" style="width:350px">
+        <template #body={data}>
+          <div>
+            <div v-for="car in onlyCars(data)" :id="`id${car.VIN}`" :key="car.VIN" class="Cars">
+              <div if="car.VIN" class="p-d-flex p-flex-row p-jc-between">
+                <div class="left p-d-flex p-flex-column p-p-2">
+                  <div>{{ car.Marka }} {{ car.Model }}</div>
+                  <div class="p-text-nowrap p-text-truncate" style="max-width:200px">{{ car.VIN }}</div>
+                </div>
+                <div class="right p-d-flex p-flex-row p-ai-center">
+                  <RadioButton name="select" v-model="selectedCar" :value="[car, data]" class="p-mr-2" />
+                  <Button class="p-button-primary submit" v-if="selectedCar?.[0] == car"
+                    @click="$emit('openClientModal', 'false')" label="Zatwierdź" />
+                </div>
               </div>
-              <div class="right row">
-                <button class="btn submit" v-if="selectedCar?.[0] == car" @click="$emit('openClientModal', 'false')">Zatwierdź</button>
-                <input type="radio" name="select" v-model="selectedCar" :value="[car, client]">
-              </div>
+              <Divider />
             </div>
           </div>
-        </div>
-        
-      </tr>
-
-    </table>
-    <div v-else>Brak wyników wyszukiwania</div>
-    <!-- <button class="btn"
-          @click="getClientsFromFirebase('more')" v-if="!disableNextButton">Załaduj więcej klientów</button> -->
+        </template>
+      </Column>
+    </DataTable>
   </div>
 </template>
 
 <script>
 import firebase from 'firebase/app'
-import { onMounted, ref, watch } from 'vue'
-import PopupFunc from '@/components/PopupFunc'
+import { onMounted, ref, reactive, watch } from 'vue'
 import { useStore } from 'vuex'
+
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
+import { FilterMatchMode } from "primevue/api";
+
+import { useToast } from "primevue/usetoast"
 
 
 require('firebase/firestore')
@@ -53,15 +75,31 @@ require('firebase/firestore')
    setup() {
      
      const store = useStore()
+     const toast = useToast()
 
      const recivedClients = ref([])
      const filteredNumbers = ref()
+
+     const isLoading = ref(true)
+     const searchValue = ref()
 
      const limit = ref(100)
      const lastDoc = ref(0)
      const disableNextButton = ref(true)
      const selectedCar = ref()
      const filterInput = ref('')
+
+   const tableFilters = reactive({
+      'global': { value: '', matchMode: FilterMatchMode.CONTAINS }
+    })
+    const clearTableFilters = () => {
+      inittableFilters();
+    }
+    const inittableFilters = () => {
+      tableFilters.value = {
+        'global': { value: null, matchMode: FilterMatchMode.CONTAINS }
+      }
+    }
 
      const MainPath = firebase.firestore()
        .collection('warsztat').doc('Klienci').collection('Numery')
@@ -70,8 +108,7 @@ require('firebase/firestore')
        if(req == 'more') limit.value += 100
 
       const clientPath = MainPath
-      .orderBy("Ostatnia_Aktualizacja", "desc") // StartAt nie dziala wraz z poprawnym zapisem w indexedDB
-      //  .limit(limit.value)
+      .orderBy("Ostatnia_Aktualizacja", "desc") 
 
       //  let clientResponse = await clientPath.get({source: 'cache'})
        let clientResponse = await clientPath.get()
@@ -80,7 +117,7 @@ require('firebase/firestore')
 
        if (!clientResponse.docs.length) {
         disableNextButton.value = true
-        PopupFunc('warning', 'Wczytano już wszystkich klientów.')
+        toast.add({ severity: 'info', detail: 'Wczytano wszystkie pojazdy.', life: 4000})
        }
 
        recivedClients.value = clientResponse.docs.map(doc => doc.data())
@@ -88,27 +125,21 @@ require('firebase/firestore')
       disableNextButton.value = false
         if (clientResponse.docs.length < limit.value) {
           disableNextButton.value = true
-          PopupFunc('warning', 'Wczytano już wszystkich klientów.')
+          toast.add({ severity: 'info', detail: 'Wczytano wszystkie pojazdy.', life: 4000})
         }
+          isLoading.value = false
+
+         recivedClients.value.map(client => client['Pojazdy'] = (Object.values(client).filter(item => item instanceof Object)).map(car => `${car.Marka} ${car.Model} ${car.VIN} `))
      }
 
     function onlyCars(client){
-      return Object.values(client).filter(item => item instanceof Object)
+      return Object.values(client).filter(item => item instanceof Object && item.VIN)
     }
+        function showEvent(e){
+      searchValue.value = e.target.value
 
-    function filterNumbers() {
-      if (filterInput.value.trim() != '') {
-        let tempInput = filterInput.value.trim().replace(/[^0-9]+/g, '');
-        console.log(filterInput.value);
-
-        filteredNumbers.value = recivedClients.value.filter(item => {
-          let tempOutput = item.Tel.replace(/[^0-9]+/g, '');
-          if(item[tempInput]) return item
-          if (tempOutput.indexOf(tempInput) > -1) return item
-        })
-      }
-      else filteredNumbers.value = null
-
+      if(searchValue.value.trim().length > 2) tableFilters['global'].value = searchValue.value.trim()
+      else tableFilters['global'].value = ''
     }
 
      onMounted(() => {
@@ -117,14 +148,12 @@ require('firebase/firestore')
 
      watch(() => selectedCar.value, () => store.commit('setSelectedCarForTicket', selectedCar.value))
 
-    //  watch(() => filterInput.value, () => filterNumbers())
 
      return {
 
        recivedClients,
        filteredNumbers,
 
-       filterNumbers,
        filterInput,
 
        onlyCars,
@@ -132,6 +161,15 @@ require('firebase/firestore')
        disableNextButton,
 
        selectedCar,
+
+      DataTable,
+      Column,
+      showEvent,
+      searchValue,
+
+      isLoading,
+      tableFilters,
+      clearTableFilters,
        
      }
 
@@ -139,102 +177,8 @@ require('firebase/firestore')
  }
 </script>
 
-<style scoped>
-table{
-  width: fit-content;
-  height: fit-content;
-}
-
-.buttons-section{
-  padding: 8px 0;
-}
-.buttons-section i{
-  padding: 4px 0;
-}
-
-.borders{
-  border-right: 3px solid green;
-  height: 100%;
-  padding: 6px 4px;
-  position: relative;
-  display: grid;
-  align-items: center;
-}
-
-.borders::after{
-  content: '';
-  position: absolute;
-  top: -1px;
-  left: 0px;
-  width: 100%;
-  height: 3px;
-  background-color: green; 
-}
-.borders::before{
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: -1px;
-  width: 101%;
-  height: 2px;
-  background-color: green;
-}
-
-.row{
-  gap: 10px;
-  width: 100%;
-}
-
-.fa-plus{
-  font-size: 0.85rem!important;
-  padding: 12px 0;
-  display: flex;
-  align-items: center;
-  margin-left: 50%;
-  transform: translateX(-50%)
-}
-
-i{
-  width: fit-content;
-  font-size: 1.66rem;
-}
-.left,
-.right{
-  padding: 8px 0;
-}
-
-.left.column{
-  width: fit-content;
-  padding-left: 4px;
-}
-
-.right.row{
-  align-items: center;
-  justify-content: flex-end;
-  padding: 0;
-}
-
-.width-50{
-  width: 50px;
-}
-.width-140{
-  width: 140px;
-  min-width: 130px;
-}
-.width-280{
-  min-width: 200px;
-  width: 280px;
-}
-
-.width-300{
-  max-width: 300px;
-}
-
-.width-42{
-  width: 42px;
-}
-
-tr:nth-child(even){
-  background-color: #444;
+<style>
+.Cars:last-child > .p-divider{
+  display: none;
 }
 </style>
