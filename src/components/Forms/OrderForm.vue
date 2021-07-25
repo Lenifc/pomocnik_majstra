@@ -119,7 +119,7 @@ export default {
         let timeStamp = getTime()
         let ID = Date.now()
 
-        preparedData[ID] = {
+        preparedData = {
           id: ID,
 
           Tel: selectedClient.value.Tel,
@@ -147,6 +147,7 @@ export default {
           Wykonane_uslugi_czesci: WOItems.value,
           Dodane_Czas: store.state.targetCar?.['Dodane_Czas'] || timeStamp,
           Zakonczone_Czas: '',
+          Aktualizacja: timeStamp
         }
         let pick = picked.value
 
@@ -154,26 +155,17 @@ export default {
     }
 
     function sendDataToFirebase(preparedData, picked) {
-      let Tel = Object.values(preparedData)[0].Tel
-      let timeStamp = Object.values(preparedData)[0]['Dodane_Czas']
+      let ID = preparedData.id
 
       const collectionReference = tickets.collection(picked)
-      const docReference = collectionReference.doc(Tel)
+      const docReference = collectionReference.doc(`zlecenie-${ID}`)
 
       docReference.get().then(function (doc) {
         if (doc.exists) {
-          docReference.update({
-              ...preparedData,
-              timeStamp
-            }).then(() => {
-                toast.removeAllGroups()
-                toast.add({ severity: 'success', summary: 'Dodano zlecenie', detail: 'Do podanego numeru dodano kolejne zlecenie', life: 4000})
-            })
-            .catch(err => toast.add({ severity: 'error', summary: 'Wystąpił Problem', detail: err.message, life: 5000}))
+          toast.add({ severity: 'error', summary: 'Wystąpił Problem', detail: 'Wystąpił nieznany błąd, Wymagany DEBUG', life: 10000})
         } else {
           docReference.set({
-              ...preparedData,
-              timeStamp
+              ...preparedData
             }).then(() => {
                 toast.removeAllGroups()
                 toast.add({ severity: 'success', summary: 'Dodano zlecenie', detail: `Nowe zlecenie znajdziesz w zakładce "${picked}"`, life: 4000})

@@ -33,7 +33,9 @@
               <Button class="p-button-primary p-button-rounded" icon="pi pi-pencil" v-tooltip.left="'Edytuj dane pojazdu'" @click="openEditVehicleForm(car)"/>
             </div>
             <div class="p-my-1 p-text-bold">{{ `${car['Marka']} ${car['Model']} ${car['Wersja_Rocznik'] || ''}`}}</div>
-            <div class="p-my-1"><span class="p-text-bold">VIN:</span> {{car['VIN']}}</div>
+            <div class="p-my-1"><span class="p-text-bold">VIN:</span> <a class="p-text-bold"
+                    :href="`/#/details/${car['VIN']}`">{{car['VIN']}}</a>
+            </div>
             <div class="p-my-1"><span class="p-text-bold">Numer rejestracyjny:</span> {{car['Numer_rejestracyjny']}}</div>
             <div class="p-my-1"><span class="p-text-bold">Paliwo:</span> {{car['Paliwo']}}</div>
             <div class="p-my-1" v-if="car['Przebieg']"><span class="p-text-bold">Przebieg:</span> {{car['Przebieg']}} km</div>

@@ -29,7 +29,6 @@
             <div>Napęd: {{ ticketDetails?.['Naped'] || "Brak wprowadzonych danych"}}</div>
             <div>Skrzynia biegów: {{ ticketDetails?.['SkrzyniaBiegow'] || "Brak wprowadzonych danych"}}</div>
             <div>Przebieg: {{ ticketDetails?.['Przebieg'] }}km</div>
-            <div v-if="ticketDetails?.['Opis']">Opis:<div v-html="ticketDetails?.['Opis']"></div></div>
           </div>
         </div> 
         <div class="p-text-center p-mt-4">
@@ -39,6 +38,7 @@
           <div>Zlecenie dodane: {{ ticketDetails?.['Dodane_Czas'] }}</div>
           <div v-if="$route.params.collectionPath == 'zakonczone'">Zlecenie zakonczone:
               {{ ticketDetails?.['Zakonczone_Czas'] }}</div>
+          <div v-if="ticketDetails?.['Opis']">Opis:<div v-html="ticketDetails?.['Opis']"></div></div>
           </div>
         </div>
 
@@ -72,6 +72,8 @@ import { useStore } from 'vuex'
 import { useToast } from "primevue/usetoast"
 import { useConfirm } from "primevue/useconfirm"
 
+import { getTime } from '@/components/getCurrentTime'
+
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import copyToClipboard from '@/components/copyToClipboard.js'
@@ -91,7 +93,6 @@ export default {
     const ticketDetails = ref()
     const originalRows = ref({})
     const editingRows = ref([])
-    const dataToForward = ref()
     const showTotalNet = ref(0)
     const showTotalGross = ref(0)
     const ComputedShowTotalNet = computed(() => showTotalNet.value.toFixed(2))
@@ -102,15 +103,12 @@ export default {
       .doc('zlecenia')
 
     const currentPhoneNum = route.params.phoneNum
-
+    const ticketID = route.params.ticketDetails
 
     function fetchData() {
-      tickets.collection(route.params.collectionPath).doc(currentPhoneNum)
+      tickets.collection(route.params.collectionPath).doc(`zlecenie-${ticketID}`)
         .get().then(recived => {
-          // console.log(recived.data())
-          let response = Object.entries(recived.data()).filter(item => item?.[1]['id'] == route.params.ticketDetails)
-          ticketDetails.value = response[0][1]
-          dataToForward.value = response[0]
+          ticketDetails.value = recived.data()
 
           if(ticketDetails.value['Wykonane_uslugi_czesci']){
             ticketDetails.value['Wykonane_uslugi_czesci'].forEach(item =>{
@@ -136,10 +134,10 @@ export default {
         acceptLabel: 'Tak',
         rejectLabel: 'Nie',
         accept: async () => {
-          const { id, Tel } = ticketData
+          const { id } = ticketData
 
           const currentPath = tickets.collection(route.params.collectionPath)
-          const confirmDelete = await DeleteFunc('ticket', currentPath, Tel, '', id)
+          const confirmDelete = await DeleteFunc('ticket', currentPath, id)
           if (confirmDelete !== false) {
             router.go(-1)
             toast.removeAllGroups()
@@ -152,18 +150,19 @@ export default {
 
     function updateTicket() {
       let updatedTicket = []
-      updatedTicket[ticketDetails.value.id] = JSON.parse(JSON.stringify(ticketDetails.value)) // zamiana Proxy na Object
+      updatedTicket = JSON.parse(JSON.stringify(ticketDetails.value)) // zamiana Proxy na Object
 
-      const { Tel } = ticketDetails.value
+      updatedTicket.Aktualizacja = getTime()
+
+      const { id } = ticketDetails.value
       const ticketStatus = route.params.collectionPath
 
-      const collectionReference = tickets.collection(ticketStatus).doc(Tel)
+      const collectionReference = tickets.collection(ticketStatus).doc(`zlecenie-${id}`)
 
       collectionReference.get().then(function (doc) {
         if (doc.exists) {
           collectionReference.update({
-              ...updatedTicket,
-              timeStamp: ticketDetails.value['Dodane_Czas']
+              ...updatedTicket
             }).then(() => {
                 toast.removeAllGroups()
                 toast.add({ severity: 'success', summary: 'Aktualizacja', detail: 'Poprawnie zaktualizowano dane zlecenia', life: 4000})
@@ -216,16 +215,12 @@ export default {
     }
 
     async function modalResponse(response, newLocation) {
-      const { Tel } = dataToForward.value[1]
+      const { id } = ticketDetails.value
 
       if (response == true) {
-        let ticketData = []
-            ticketData[dataToForward.value[0]] = dataToForward.value[1]
-          
-            store.commit('setTargetCar', ticketData)
+        store.commit('setTargetCar', ticketDetails.value)
         
-        
-        const confirmRelocate = await RelocateTicket('ticket', ticketData, tickets, route.params.collectionPath, newLocation, Tel)
+        const confirmRelocate = await RelocateTicket('ticket', ticketDetails.value, tickets, route.params.collectionPath, newLocation, id)
         if (confirmRelocate !== false) {
           router.push(`/${newLocation}`)
           toast.removeAllGroups()
@@ -265,7 +260,6 @@ export default {
 
     return {
       ticketDetails,
-      dataToForward,
       calcTotalCosts,
 
       OpenInvoiceVizualization,

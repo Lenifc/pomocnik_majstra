@@ -219,7 +219,6 @@ import { DeleteFunc } from '@/components/EditMoveDeleteOptions.js'
           }
           }
           if (operation == 'removeCar') {
-            console.log(clientData);
             const confirmDelete = await DeleteFunc('car', MainPath, Tel, target, JSON.parse(JSON.stringify(clientData))) // prosta konwersja proxy do objektu
             if (confirmDelete !== false) {
               recivedClients.value.map(client => {
@@ -344,12 +343,15 @@ import { DeleteFunc } from '@/components/EditMoveDeleteOptions.js'
 
 @media(max-width:1370px){
   .lowerMargin{
-    margin-left: -12px;
+    margin-left: -16px;
   }
 }
 @media(max-width:1280px){
   .lowerMargin{
     margin-left: 0px;
+  }
+  .DescriptionDisplayNone{
+    display: none;
   }
 }
 
@@ -357,6 +359,9 @@ import { DeleteFunc } from '@/components/EditMoveDeleteOptions.js'
   .removeMarginLeft{
     margin-left:0px
   } 
+  .DescriptionDisplayNone{
+    display: flexbox;
+  }
 }
 
 @media(max-width:500px){

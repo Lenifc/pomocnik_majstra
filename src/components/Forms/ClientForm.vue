@@ -168,14 +168,15 @@ export default {
           Ostatnia_Aktualizacja: timeStamp,
         }
 
+      if(route.path.indexOf('edytuj') > 0){
         if(validPhoneNum(store.state.targetClient.Tel) != validPhoneNum(client.phoneNum)) {
           let confirmUpdate = await updateClientNumber(store.state.targetClient, preparedData)
-          console.log(confirmUpdate);
           if(confirmUpdate != false) {
             toast.add({severity:'success', summary: 'Zaktualizowano pomyślnie', detail: `Klient uzyskał nowy numer telefonu: \n${preparedData.Tel}`, life: 4000})
             router.go(-1)
           } else toast.add({severity:'error', summary: 'Wystąpił błąd', detail: `Nie udało się zaktualizować danych klienta`, life: 5000})
         } else sendDataToFirebase(preparedData)
+      } else sendDataToFirebase(preparedData)
     }
         else{
           toast.removeAllGroups()
@@ -184,7 +185,6 @@ export default {
     }
 
     function sendDataToFirebase(preparedData) {
-      if(preparedData == 'x') return 
       let Tel = preparedData.Tel
 
       const collectionReference = clients.collection("Numery")

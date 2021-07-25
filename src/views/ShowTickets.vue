@@ -8,7 +8,7 @@
         <div class="p-d-flex p-jc-between p-flex-column p-flex-sm-row">
           <Button icon="pi pi-filter-slash" label="Wyczyść" class="p-button-outlined"
             @click="clearTableFilters()" />
-            <div class="p-my-3 p-my-sm-0 p-text-center">Wczytano {{ recivedItems?.length/2 }} z {{ totalNumberOfTickets }} zleceń</div>
+            <div class="p-my-3 p-my-sm-0 p-text-center">Wczytano {{ recivedItems?.length }} z {{ totalNumberOfTickets }} zleceń</div>
           <span class="p-input-icon-left">
             <i class="pi pi-search" />
             <InputText v-model="tableFilters['global'].value" placeholder="Wyszukaj..." />
@@ -56,9 +56,12 @@
           <div @dblclick="copyValue($event)">{{ data['Tel'] }}</div>
         </template>
       </Column>
+      <Column field="Model" class="p-d-none" /> <!-- potrzebne do wyszukania i filtrowania pojazdu, ale nie wmusi być widoczne -->
+      <Column field="VIN" class="p-d-none" /> <!-- potrzebne do wyszukania i filtrowania pojazdu, ale nie wmusi być widoczne -->
       <Column field="Marka" header="Pojazd" style="width:200px" class="p-text-center">
         <template #body="{data}" >
           <div @dblclick="copyValue($event)">{{ `${data['Marka']} ${data['Model']} ${(data['Wersja_Rocznik'] || '')}` }}</div>
+          <div @dblclick="copyValue($event)">{{ `${data['VIN']}` }}</div>
         </template>
       </Column>
       <Column field="Numer_rejestracyjny" header="Numer rejestracyjny" class="p-text-center" >
@@ -95,8 +98,6 @@ import Column from 'primevue/column';
 import copyToClipboard from '@/components/copyToClipboard.js'
 
 import firebase from 'firebase/app'
-// require('firebase/firestore')
-let _ = require('lodash')
 
 import { DeleteFunc, RelocateTicket } from '@/components/EditMoveDeleteOptions'
 
@@ -146,10 +147,10 @@ export default ({
         acceptLabel: 'Tak',
         rejectLabel: 'Nie',
         accept: async () => {
-          const { id, Tel } = ticketData
+          const { id } = ticketData
 
           const currentPath = tickets.collection(collectionPath.value)
-          const confirmDelete = await DeleteFunc('ticket', currentPath, Tel, '', id)
+          const confirmDelete = await DeleteFunc('ticket', currentPath, id)
           if (confirmDelete !== false) {
             allTickets.value = allTickets.value.filter(ticket => ticket.id != id)
             toast.removeAllGroups()
@@ -177,7 +178,7 @@ export default ({
 
       if (req == 'more') limit.value += 50
 
-      const collectionReference = tickets.collection(collectionPath.value).orderBy('timeStamp', 'desc')
+      const collectionReference = tickets.collection(collectionPath.value).orderBy('Aktualizacja', 'desc')
         .limit(limit.value || 50)
 
       // na podstawie linku powiekszam pierwsza litere i pobieram tylko jeden potrzebny mi wynik
@@ -186,8 +187,8 @@ export default ({
       let data = await collectionReference.get()
       lastDoc.value = data.docs[data.docs.length - 1]
 
-      recivedItems.value = data.docs.map(doc => Object.entries(doc.data()).filter(item => item[0] != 'timeStamp'))
-      recivedItems.value = _.flattenDeep(recivedItems.value)
+      recivedItems.value = data.docs.map(doc => doc.data())
+
       store.commit('setFetchedItems', recivedItems.value)
 
       allTickets.value = recivedItems.value.filter(item => item instanceof Object ? item : '')
@@ -232,20 +233,14 @@ export default ({
     }
 
     async function modalResponse(response, newLocation) {
-      const { id, Tel } = store.state.targetClient
+      const targetClient = store.state.targetClient
 
       if (response == true) {
-        let ticketData = []
-
-        for (let i = 0; i < recivedItems.value.length; i++) {
-          if (recivedItems.value[i] == id) {
-            ticketData[recivedItems.value[i]] = recivedItems.value[i + 1]
-            store.commit('setTargetCar', ticketData)
-          }
-        }
-        const confirmRelocate = await RelocateTicket('ticket', ticketData, tickets, collectionPath.value, newLocation, Tel)
+        store.commit('setTargetCar', targetClient)
+          
+        const confirmRelocate = await RelocateTicket('ticket', targetClient, tickets, collectionPath.value, newLocation, targetClient.id)
         if (confirmRelocate !== false) {
-          allTickets.value = allTickets.value.filter(car => car.id != id)
+          allTickets.value = allTickets.value.filter(car => car.id != targetClient.id)
           toast.removeAllGroups()
           toast.add({
             severity: 'success',

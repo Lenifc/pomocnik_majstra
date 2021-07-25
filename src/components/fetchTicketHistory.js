@@ -1,8 +1,6 @@
 import firebase from 'firebase/app'
-let _ = require('lodash')
 
-
-export async function callTicketsHistory(VIN, phoneNum) {
+export async function callTicketsHistory(VIN) {
   let ticketsHistory = []
   const paths = ['wolne', 'obecne', 'zakonczone']
 
@@ -12,17 +10,14 @@ export async function callTicketsHistory(VIN, phoneNum) {
     const clients = firebase.firestore()
       .collection('warsztat')
       .doc('zlecenia').collection(path)
-      .doc(phoneNum)
+      .where(`VIN`, '==', VIN)
 
     const response = await clients.get()
-    let outData = response.data()
 
-    outData = outData ? Object.entries(outData).filter(item => item[0] != 'timeStamp') : ''
-    outData = _.flattenDeep(outData)
+    let outData = response.docs.map(doc => doc.data())
+    // console.log(outData);
 
-    let readyData = await outData.filter(item => (item instanceof Object && item.VIN == VIN) ? item : '')
-
-    if (readyData) ticketsHistory.push([path, readyData])
+    if (outData) ticketsHistory.push([path, outData])
     if (ticketsHistory.length == 3) return ticketsHistory
 
   })

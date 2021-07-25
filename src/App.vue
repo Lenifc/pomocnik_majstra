@@ -287,32 +287,10 @@ i{
   font-size: 1.5rem;
 }
 
-table{
-  width: min(1400px, fit-content);
-  max-width: 100%;
-  border-collapse: collapse;
-}
-
 .signInBtn{
   position: fixed;
   top: 8px;
   left: 8px;
-}
-
-tr{
-  margin: 0;
-}
-
-tr th{
-  padding: 2px 4px;
-}
-
-td{
-  width: max-content;
-  padding: 0 10px;
-  white-space:wrap;
-  overflow: hidden;
-  border: 3px solid green;
 }
 
 .loader {
@@ -325,11 +303,11 @@ td{
     width: min(94%, 1400px);
 }
 
-.signedIn{
+/* .signedIn{
     height: 100vh;
     justify-content: center;
     align-content: center;
-}
+} */
 
 a{
   color:var(--yellow-200);

@@ -25,7 +25,7 @@
           <div>nr konta bankowego: {{ workshopDetails?.['kontoBankowe'] }}</div>
         </div>
 
-        <div class="p-mt-3">
+        <div class="p-mt-3" v-if="clientDetails">
           <h3 class="p-text-uppercase">Nabywca</h3>
           <div>{{ clientDetails?.['Imie'] }}</div>
           <div v-if="clientDetails?.['NIP']">NIP: {{ clientDetails?.['NIP'] }}</div>
@@ -35,6 +35,7 @@
             </div>
           <div>{{ clientDetails?.['Ulica'] }}</div>
         </div>
+        <div class="p-mt-2" v-else><h3>Dane klienta zostały usunięte z bazy!</h3></div>
 
       </div>
       <div class="card-main p-mt-4">
@@ -61,8 +62,9 @@
           <div>Płatność gotówką</div>
         </div>     
         
-        <div>{{ `${carDetails?.['Marka']?.toUpperCase()} ${carDetails?.['Model']} ${carDetails?.['Wersja_Rocznik'] || ''}, ${
+        <div v-if="carDetails">{{ `${carDetails?.['Marka']?.toUpperCase()} ${carDetails?.['Model']} ${carDetails?.['Wersja_Rocznik'] || ''}, ${
           carDetails?.['VIN']}, ${carDetails?.['Numer_rejestracyjny'] || ''} ${carDetails?.['Przebieg'] ?  ', Stan licznika: ' + carDetails?.['Przebieg'] + 'km' : ''}`}}</div>
+          <div v-else><h3>Dane pojazdu zostały usunięte z bazy!</h3></div>
       </div>
       <div class="p-d-flex p-flex-row p-jc-evenly p-mt-10">
         <div class="client p-w-150 p-text-center">
@@ -86,6 +88,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
+import { useToast } from "primevue/usetoast"
 
 import firebase from 'firebase/app'
 
@@ -106,6 +109,8 @@ export default {
     const clientDetails = ref()
     const carDetails = ref()
     const workshopDetails = ref()
+    const toast = useToast()
+
 
     const randomIndex = computed(() => Math.floor((Math.random()*123)+2))
     const getYear = computed(() => new Date().getFullYear())
@@ -114,11 +119,10 @@ export default {
     async function fetchTicketDetails() {
 
       const ticketPath = firebase.firestore()
-        .collection('warsztat').doc('zlecenia').collection('zakonczone').doc(dataToFetch.value.phoneNum)
+        .collection('warsztat').doc('zlecenia').collection('zakonczone').doc(`zlecenie-${store.state.invoiceData.ticketID}`)
 
       ticketPath.get().then(recived => {
-        let response = Object.entries(recived.data()).filter(item => item ?.[1]['id'] == dataToFetch.value.ticketID)
-        ticketDetails.value = response[0][1]
+        ticketDetails.value = recived.data()
       }).catch(err => console.log(err))
     }
 
@@ -130,6 +134,7 @@ export default {
       clientPath.get().then(recived => {
         // odfiltrowuje pojazdy przypisane do klienta i zostawiam same dane klienta
         // filtrowanie zamienia nam Obiekt na tablice, wiec w nastepnym kroku musimy przywrocic stan Obiektu
+        if(recived.data()){
         let clientResponse = Object.entries(recived.data()).filter(item => !(item[1] instanceof Object))
 
         // zamieniam tablice z powrotem na obiekt, ktory zawiera keys oraz values
@@ -138,6 +143,9 @@ export default {
         // odfiltrowuje ten jeden konkretny pojazd przypisany do klienta
         let response = Object.entries(recived.data()).filter(item => item ?.[1]['VIN'] == dataToFetch.value.vehicleVIN)
         carDetails.value = response[0][1]
+        } else{
+          toast.add({severity:'warn', detail:`Dane klienta o podanym numerze zostały usunięte z bazy`, life: 5000})
+        }
       }).catch(err => console.log(err))
     }
 

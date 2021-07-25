@@ -123,7 +123,7 @@ setup(props) {
             })
             toast.add({ severity: 'info', detail: 'W przypadku pełnej historii użyj wyszukiwarki z menu po lewej stronie', life: 6000
             })
-            console.log(Object.values(ticketsHistory.value))
+            // console.log(Object.values(ticketsHistory.value))
           } else {
             toast.removeAllGroups()
             toast.add({ severity: 'warn', detail: 'Brak zleceń u danego klienta', life: 6000

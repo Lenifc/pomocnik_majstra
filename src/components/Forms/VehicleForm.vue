@@ -12,7 +12,7 @@
           <div class="required p-d-flex p-flex-column">
             <h3>Pola obowiązkowe: </h3>
             <span class="p-float-label p-mt-5" v-if="phoneNumNotStored">
-              <InputText id="phoneNum" v-model="phoneNum" v-if="phoneNumNotStored" />
+              <InputText id="phoneNum" v-model="phoneNum" v-if="phoneNumNotStored" v-tooltip.focus.bottom="'W przypadku zmiany numeru telefonu pojazd zostanie przeniesiony do innego klienta!'" />
               <label for="phoneNum">Numer telefonu</label>
             </span>
 
@@ -86,7 +86,7 @@
               optionValue="name" required placeholder="Wybierz rodzaj paliwa" :showClear="true" scrollHeight="60vh" />
             
             <span class="p-float-label p-mt-4">
-              <InputText id="VIN" maxlength="17" v-model="carSpec.VIN" required />
+              <InputText id="VIN" maxlength="17" v-model="carSpec.VIN" required v-tooltip.focus.bottom="'17-znakowy numer identyfikacyjny'" />
               <label for="VIN">VIN:</label>
             </span>
           </div>
@@ -120,12 +120,12 @@
               scrollHeight="60vh" />
 
             <span class="p-float-label p-mt-4">
-              <InputText id="numberPlates" minlength="7" maxlength="9" v-model="carSpec.numberPlates" />
+              <InputText id="numberPlates" maxlength="9" v-model="carSpec.numberPlates" />
               <label for="numberPlates">Tablica rejestracyjna:</label>
             </span>
             <span class="p-float-label p-mt-4">
-              <InputText id="mileage" maxlength="7" v-model="carSpec.mileage" />
-              <label for="mileage">Przebieg:</label>
+              <InputText id="mileage" maxlength="6" v-model="carSpec.mileage" />
+              <label for="mileage">Przebieg:[km]</label>
             </span>
 
           </div>
@@ -171,6 +171,8 @@ import { useToast } from "primevue/usetoast"
 import { getTime } from '@/components/getCurrentTime'
 import validPhoneNum from '@/components/validPhoneNum.js'
 import validateVIN from '@/components/validateVIN.js'
+
+import { DeleteFunc } from '@/components/EditMoveDeleteOptions.js'
 
 import axios from 'axios'
 import firebase from 'firebase/app'
@@ -304,10 +306,10 @@ export default {
       document.querySelectorAll('.p-invalid').forEach(input => input.classList.remove('p-invalid'))
 
       if(!phoneNum.value || !validPhoneNum(phoneNum.value)) document.querySelector('#phoneNum').classList.add('p-invalid')
+      if(!carSpec.VIN || !validateVIN(carSpec.VIN)) document.querySelector('#VIN').classList.add('p-invalid')
       if(!carSpec.selectedBrand) document.querySelector('#brand').classList.add('p-invalid')
       if(!carSpec.selectedModel) document.querySelector('#model').classList.add('p-invalid')
       if(!carSpec.selectedFuel) document.querySelector('#fuel').classList.add('p-invalid')
-      if(!carSpec.VIN || !validateVIN(carSpec.VIN)) document.querySelector('#VIN').classList.add('p-invalid')
       
 
       let checkForInvalids = document.querySelectorAll('.p-invalid')
@@ -327,15 +329,15 @@ export default {
           Tel: validPhoneNum(phoneNum.value),
           Marka: betterLooking(carSpec.selectedBrand),
           Model: carSpec.selectedModel,
-          Wersja_Rocznik: carSpec.selectedVersion.trim(),
+          Wersja_Rocznik: carSpec.selectedVersion?.trim() || '',
           Paliwo: carSpec.selectedFuel,
 
-          Silnik_Pojemnosc: onlyNumbers(carSpec.engineCapacity) || '',
-          Silnik_Moc: onlyNumbers(carSpec.enginePower) || '',
-          Silnik_Kod: carSpec.engineCode.trim() || '',
+          Silnik_Pojemnosc: carSpec.engineCapacity ? onlyNumbers(carSpec.engineCapacity) : '',
+          Silnik_Moc: carSpec.enginePower ? onlyNumbers(carSpec.enginePower) : '',
+          Silnik_Kod: carSpec.engineCode?.trim() || '',
           SkrzyniaBiegow: carSpec.selectedTransmission || '',
           Naped: carSpec.selectedDriveTrain || '',
-          Numer_rejestracyjny: carSpec.numberPlates?.toUpperCase().trim() || '',
+          Numer_rejestracyjny: carSpec.numberPlates?.toUpperCase()?.trim() || '',
           VIN: validVIN,
           Przebieg: convertedMileage || "",
 
@@ -343,23 +345,36 @@ export default {
           Ostatnia_Aktualizacja: (store.state.targetCar && store.state.targetCar['Ostatnia_Aktualizacja']) || timeStamp,
 
         }
-        sendDataToFirebase(preparedData)
 
-      } else toast.add({severity:'warn', summary: 'Błędne danych', detail:'Popraw wszystkie zaznaczone pola!', life: 4000})
+        if (route.path.indexOf('edytuj') > 0) {
+          // console.log(store.state.targetCar.VIN, validVIN, store.state.targetCar.VIN == validVIN)
+          // console.log(validPhoneNum(store.state.targetCar.Tel), validPhoneNum(phoneNum.value), validPhoneNum(store.state.targetCar.Tel) == validPhoneNum(phoneNum.value));
+          if (validPhoneNum(store.state.targetCar.Tel) != validPhoneNum(phoneNum.value) && store.state.targetCar.VIN == validVIN) {
+            changeCarOwner(preparedData, validVIN)
+          } else sendDataToFirebase(preparedData)
+        } else sendDataToFirebase(preparedData)
+
+      } else toast.add({severity:'warn', summary: 'Błędne dane', detail:'Popraw wszystkie zaznaczone pola!', life: 4000})
     }
 
     function onlyNumbers(input) {
-      let result = input.replace(/[^0-9]+/g, '');
+      let result = String(input).replace(/[^0-9]+/g, '') // funkcja replace nie dziala dla cyfr - czyli w przypadku poprawnego wypelnienie program wyrzuci blad
       return result
    } 
 
+   async function changeCarOwner(preparedData, validVIN){
+     sendDataToFirebase(preparedData)
+     let downloadPreviousOwnerData = await tickets.doc(store.state.targetCar.Tel).get()
+     let previousOwnerData = downloadPreviousOwnerData.data()
+     await DeleteFunc('car', tickets, previousOwnerData.Tel, validVIN, JSON.parse(JSON.stringify(previousOwnerData)), 'doNotCount')
+   }
 
-    function sendDataToFirebase(preparedData) {
+     function sendDataToFirebase(preparedData) {
       let Tel = Object.values(preparedData)[0].Tel
 
       const docReference = tickets.doc(Tel)
 
-      docReference.get().then(function (doc) {
+       docReference.get().then(function (doc) {
 
         if (!doc.exists) {
           toast.add({severity:'error', summary: 'Brak klienta', detail:'W pierwszej kolejności dodaj dane klienta, następnie pojazdu.', life: 4000})
