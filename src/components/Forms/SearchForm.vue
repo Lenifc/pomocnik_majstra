@@ -27,7 +27,7 @@
       </template>
     </Card>
   </div>
-<SearchResults :outputData="outputData" v-if="outputData?.length" class="p-pt-5"/>
+<SearchResults :outputData="outputData" v-if="outputData?.length" :searchType="searchType" class="p-pt-5"/>
 
 </div>
  
@@ -51,6 +51,8 @@ setup(){
     const ticketsHistory = ref([])
 
     const toast = useToast()
+
+    const searchType = ref('')
 
 function validSearchData(e) {
   let target = e.target.classList
@@ -85,6 +87,7 @@ function validSearchData(e) {
       outputData.value = ""
 
       if (searchType == 'VIN') {
+        searchType.value = 'VIN'
         const clients = firebase.firestore()
           .collection('warsztat')
           .doc('Klienci').collection("Numery")
@@ -104,6 +107,7 @@ function validSearchData(e) {
 
       }
       if (searchType == 'phoneNum') {
+        searchType.value = 'phoneNum'
         const clients = firebase.firestore()
           .collection('warsztat')
           .doc('Klienci').collection("Numery").doc(searchData)
@@ -126,6 +130,7 @@ function validSearchData(e) {
         searchInFirestore,
         ticketsHistory,
         SearchResults,
+        searchType
     }
 }
 }

@@ -149,6 +149,11 @@ export async function updateClientNumber(oldData, updatedData) {
   // aktualizujemy stare dane, ktore maja wszystkie dane potrzebne do przeniesienia nowymi zmiennymi z formularza
   let setNewData = Object.assign(JSON.parse(JSON.stringify(oldData)), updatedData)
 
+  // zmiana numeru takze dla wszystkich pojazdow przypisanych do danego klienta
+  Object.values(setNewData).map(element => {
+    if(element.VIN && element.Tel) element.Tel = updatedData.Tel
+  });
+
   ConfirmUpdateClientData = await newClientPath.get().then(function (doc) {
     if (doc.exists) {
       console.log('Taki numer jest juz przypisany do innego klienta')

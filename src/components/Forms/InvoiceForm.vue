@@ -27,13 +27,18 @@
 
         <div class="p-mt-3" v-if="clientDetails">
           <h3 class="p-text-uppercase">Nabywca</h3>
-          <div>{{ clientDetails?.['Imie'] }}</div>
-          <div v-if="clientDetails?.['NIP']">NIP: {{ clientDetails?.['NIP'] }}</div>
-          <div>Tel: {{ clientDetails?.['Tel'] }}</div>
-          <div v-if="clientDetails?.['KodPocztowy'] && clientDetails?.['Miejscowosc']">
-            {{ `${clientDetails?.['KodPocztowy']} ${clientDetails?.['Miejscowosc']} `}}
+          <div>{{ clientDetails?.['Imie'] || ticketDetails?.['Imie']}}</div>
+          <div v-if="clientDetails?.['NIP'] || ticketDetails?.['NIP']">NIP: {{ clientDetails?.['NIP'] || ticketDetails?.['NIP'] }}</div>
+          <div>Tel: {{ clientDetails?.['Tel'] || ticketDetails?.['Tel']}}</div>
+          <div v-if="clientDetails?.['KodPocztowy'] && clientDetails?.['Miejscowosc'] || ticketDetails?.['KodPocztowy'] && ticketDetails?.['Miejscowosc']">
+            {{ `${clientDetails?.['KodPocztowy']} ${clientDetails?.['Miejscowosc'] || ticketDetails?.['KodPocztowy']} ${ticketDetails?.['Miejscowosc']} `}}
             </div>
-          <div>{{ clientDetails?.['Ulica'] }}</div>
+          <div>{{ clientDetails?.['Ulica'] || ticketDetails?.['Ulica']}}</div>
+          <br><br>
+           <div v-if="carDetails">{{ `${carDetails?.['Marka']?.toUpperCase()} ${carDetails?.['Model']} ${carDetails?.['Wersja_Rocznik'] || ''}, ${
+          carDetails?.['VIN']}, ${carDetails?.['Numer_rejestracyjny'] || ''} ${carDetails?.['Przebieg'] ?  ', Stan licznika: ' + carDetails?.['Przebieg'] + 'km' : ''}`}}</div>
+        <div v-if="ticketDetails">{{ `${ticketDetails?.['Marka']?.toUpperCase()} ${ticketDetails?.['Model']} ${ticketDetails?.['Wersja_Rocznik'] || ''}, ${
+          ticketDetails?.['VIN']}, ${ticketDetails?.['Numer_rejestracyjny'] || ''} ${ticketDetails?.['Przebieg'] ?  ', Stan licznika: ' + ticketDetails?.['Przebieg'] + 'km' : ''}`}}</div>
         </div>
         <div class="p-mt-2" v-else><h3>Dane klienta zostały usunięte z bazy!</h3></div>
 
@@ -62,9 +67,6 @@
           <div>Płatność gotówką</div>
         </div>     
         
-        <div v-if="carDetails">{{ `${carDetails?.['Marka']?.toUpperCase()} ${carDetails?.['Model']} ${carDetails?.['Wersja_Rocznik'] || ''}, ${
-          carDetails?.['VIN']}, ${carDetails?.['Numer_rejestracyjny'] || ''} ${carDetails?.['Przebieg'] ?  ', Stan licznika: ' + carDetails?.['Przebieg'] + 'km' : ''}`}}</div>
-          <div v-else><h3>Dane pojazdu zostały usunięte z bazy!</h3></div>
       </div>
       <div class="p-d-flex p-flex-row p-jc-evenly p-mt-10">
         <div class="client p-w-150 p-text-center">
@@ -97,7 +99,7 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Divider from 'primevue/divider';
 
-import createPDF from '@/components/CreatePDF'
+import { createPDF, fetchInvoiceData } from '@/components/CreatePDF'
 
 export default {
   setup() {
@@ -116,6 +118,21 @@ export default {
     const getYear = computed(() => new Date().getFullYear())
     const getTodaysDate = computed(() => new Date().toLocaleDateString())
 
+    function saveToLocalStorage(){
+      // dla pewnosci funkcja jest wywolywana po kazdym fetchu, aby weszystko bylo jak najaktualniejsze
+      let requiredData = {
+        clientData: clientDetails.value,
+        vehicleData: carDetails.value,
+        invoiceData: ticketDetails.value,
+        workshopData: workshopDetails.value,
+        invoiceNumber: randomIndex.value,
+        getYear: getYear.value,
+        getTodaysDate: getTodaysDate.value
+      }
+      fetchInvoiceData(JSON.stringify(requiredData))
+    }
+
+
     async function fetchTicketDetails() {
 
       const ticketPath = firebase.firestore()
@@ -123,6 +140,7 @@ export default {
 
       ticketPath.get().then(recived => {
         ticketDetails.value = recived.data()
+        saveToLocalStorage()
       }).catch(err => console.log(err))
     }
 
@@ -142,7 +160,13 @@ export default {
 
         // odfiltrowuje ten jeden konkretny pojazd przypisany do klienta
         let response = Object.entries(recived.data()).filter(item => item ?.[1]['VIN'] == dataToFetch.value.vehicleVIN)
-        carDetails.value = response[0][1]
+        saveToLocalStorage()
+        
+        try{
+          carDetails.value = response[0][1]
+        } catch{
+          toast.add({severity:'warn', detail:`Dane pojazdu zostały usunięte z bazy\n Wprowadzone dane moga być nieaktualne!`, life: 5000})
+        }
         } else{
           toast.add({severity:'warn', detail:`Dane klienta o podanym numerze zostały usunięte z bazy`, life: 5000})
         }
@@ -155,6 +179,7 @@ export default {
         .collection('warsztat').doc('DaneDoFaktur')
 
       workshopDetails.value = (await workshopPath.get()).data()
+      saveToLocalStorage()
     }
 
       function calcTotalCosts(order) {
@@ -174,13 +199,16 @@ export default {
       // w przypadku wejscia w link z wyszukiwarki, a nie z przycisku cofnie nas do poprzedniej strony
       // klikniecie w przycisk zapisuje potrzebne nam dane do wykonania Fetch requestu
       dataToFetch.value = store.state.invoiceData
+
       if (!dataToFetch.value || Object.values(dataToFetch.value).length < 1) router.go(-1)
       else {
         fetchTicketDetails()
         fetchClientDetails()
         fetchWorkshopDetails()
+        toast.add({severity:'info', detail:`Obecnie generator PDF nie wspiera polskich znaków - użyto enkodowania na podstawowe`, life: 11000})
       }
     })
+    
     return {
       dataToFetch,
       ticketDetails,

@@ -25,6 +25,10 @@
         </div>
             <Divider />
         <div class="vehicles">
+          <!-- POZNIEJ USUNAC -->
+          <h1>Wyszukano {{ props.searchType}}</h1>
+          <!-- POZNIEJ USUNAC -->
+
           <h3 v-if="FilterOnlyCars(client).length" class="p-text-center">Pojazdy klienta:</h3>
           <h3 v-else>Klient nie posiada przypisanych pojazdów</h3>
           <div class="vehicle relative" v-for="car in FilterOnlyCars(client)" :key="car.VIN">
@@ -67,7 +71,7 @@ import { useStore } from 'vuex'
 
 
 export default {
-  props:['outputData'],
+  props:['outputData', 'searchType'],
 setup(props) {
 
   const router = useRouter()
