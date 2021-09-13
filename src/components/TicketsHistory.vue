@@ -13,6 +13,8 @@
               <div class="fieldset-data p-my-2">
                 <div>ID zlecenia: <a class="p-text-bold"
                     :href="`/#/details/${ticket[0]}/${unique?.['Tel']}/${unique?.['id']}`">{{unique.id}}</a></div>
+                <div>Imie klienta/Nazwa firmy: {{unique?.['Imie']}}</div>
+                <div>Numer telefonu klienta: {{unique?.['Tel']}}</div>
                 <div>Status zlecenia: <span class="p-text-bold">{{showName(ticket[0])}}</span></div>
                 <div>Przebieg: {{unique.Przebieg}} km</div>
                 <div class="p-mt-2">Data utworzenia zlecenia: {{unique['Dodane_Czas']}}</div>
@@ -119,10 +121,6 @@ setup(props) {
           historyLoaded.value = true
           if (isAnyDataInHistory.value) {
             toast.removeAllGroups()
-            toast.add({ severity: 'info', summary: Tel, detail: `Wyświetlona jest historia tylko dla numeru: ${Tel}`, life: 6000
-            })
-            toast.add({ severity: 'info', detail: 'W przypadku pełnej historii użyj wyszukiwarki z menu po lewej stronie', life: 6000
-            })
             // console.log(Object.values(ticketsHistory.value))
           } else {
             toast.removeAllGroups()

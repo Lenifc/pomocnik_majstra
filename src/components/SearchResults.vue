@@ -15,7 +15,9 @@
       <template #content>
         <div class="client">
           <div class="p-my-1"><span class="p-text-bold">Imie:</span> {{ client['Imie']}}</div>
-          <div class="p-my-1"><span class="p-text-bold">Numer telefonu:</span> {{ client['Tel']}}</div>
+          <div class="p-my-1"><span class="p-text-bold">Numer telefonu:</span> <a class="p-text-bold mouse-pointer"
+                    @click="openClientDetails(client)">{{ client['Tel']}}</a>
+          </div>
           <div v-if="client.Tel2" class="p-my-1"><span class="p-text-bold">Dodatkowy numer telefonu:</span> {{ client['Tel2']}}</div>
           <div v-if="client.kodPocztowy && client.Miejscowosc && client.Ulica">
             <div class="p-my-1"><span class="p-text-bold">{{ client['kodPocztowy'] }}</span> {{ client['Miejscowosc'] }}</div>
@@ -25,9 +27,6 @@
         </div>
             <Divider />
         <div class="vehicles">
-          <!-- POZNIEJ USUNAC -->
-          <h1>Wyszukano {{ props.searchType}}</h1>
-          <!-- POZNIEJ USUNAC -->
 
           <h3 v-if="FilterOnlyCars(client).length" class="p-text-center">Pojazdy klienta:</h3>
           <h3 v-else>Klient nie posiada przypisanych pojazdów</h3>
@@ -37,8 +36,8 @@
               <Button class="p-button-primary p-button-rounded" icon="pi pi-pencil" v-tooltip.left="'Edytuj dane pojazdu'" @click="openEditVehicleForm(car)"/>
             </div>
             <div class="p-my-1 p-text-bold">{{ `${car['Marka']} ${car['Model']} ${car['Wersja_Rocznik'] || ''}`}}</div>
-            <div class="p-my-1"><span class="p-text-bold">VIN:</span> <a class="p-text-bold"
-                    :href="`/#/details/${car['VIN']}`">{{car['VIN']}}</a>
+            <div class="p-my-1"><span class="p-text-bold">VIN:</span> <a class="p-text-bold mouse-pointer"
+                    @click="openCarDetails(car)">{{car['VIN']}}</a>
             </div>
             <div class="p-my-1"><span class="p-text-bold">Numer rejestracyjny:</span> {{car['Numer_rejestracyjny']}}</div>
             <div class="p-my-1"><span class="p-text-bold">Paliwo:</span> {{car['Paliwo']}}</div>
@@ -68,6 +67,7 @@ import { useRouter } from 'vue-router'
 import { useToast } from "primevue/usetoast"
 import { useConfirm } from "primevue/useconfirm"
 import { useStore } from 'vuex'
+import { onMounted } from '@vue/runtime-core'
 
 
 export default {
@@ -94,6 +94,16 @@ setup(props) {
     function openEditVehicleForm(car){
       store.commit('setTargetCar', car)
       router.push(`/pojazd/${car['VIN']}/edytuj`)
+    }
+
+    function openCarDetails(car){
+      store.commit('setTargetCar', car)
+      router.push(`/details/${car['VIN']}`)
+    }
+
+    function openClientDetails(client){
+      store.commit('setTargetClient', client)
+      router.push(`/details/client/${client['Tel']}`)
     }
 
             const confirmDeleteModal = (clientData, operation, target) => {
@@ -136,12 +146,18 @@ setup(props) {
       });
     }
 
+    onMounted(() =>{
+      console.log(props.outputData, props.searchType)
+    })
+
     return {
       TicketsHistory,
       FilterOnlyCars,
 
       openEditClientForm,
       openEditVehicleForm,
+      openCarDetails,
+      openClientDetails,
       confirmDeleteModal,
 
 
@@ -161,5 +177,8 @@ setup(props) {
   position: absolute;
   top: 0px;
   right: 0px;
+}
+.mouse-pointer{
+  cursor: pointer;
 }
 </style>

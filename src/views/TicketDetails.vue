@@ -20,7 +20,7 @@
             <h3 class="p-mb-2" style="color:var(--yellow-500)">Pojazd:</h3>
             <div>Marka: {{ ticketDetails?.['Marka'] }}</div>
             <div>Model: {{ ticketDetails?.['Model'] }}</div>
-            <div>Rok_prod: {{ ticketDetails?.['Rok_prod'] || "Brak wprowadzonych danych"}}</div>
+            <div>Rok_prod: {{ ticketDetails?.['Wersja_Rocznik'] || "Brak wprowadzonych danych"}}</div>
             <div>VIN: {{ ticketDetails?.['VIN'] }}</div>
             <div>Tablice: {{ ticketDetails?.['Numer_rejestracyjny'] }}</div>
             <div>Paliwo: {{ ticketDetails?.['Paliwo'] || "Brak wprowadzonych danych"}}</div>

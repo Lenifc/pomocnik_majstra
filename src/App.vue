@@ -90,7 +90,7 @@ export default {
           },
           {
             href: '/wolne',
-            title: 'Wolne',
+            title: 'Oczekujące',
             icon: 'fa fa-parking',
           },
           {
@@ -125,7 +125,7 @@ export default {
           },
           {
             href: '/DaneWarsztatu',
-            title: 'Dane do faktury',
+            title: 'Dane warsztatu',
             icon: 'fas fa-file-invoice-dollar'
           },
           {
@@ -133,11 +133,6 @@ export default {
             title: 'Zarządzaj klientami',
             icon: 'fa fa-user',
           },
-          // {
-          //   disabled: true,
-          //   title: 'Zarządzaj pojazdami',
-          //   icon: 'fa fa-car',
-          // },
           {
             component: CustomDivider
           },
@@ -149,7 +144,6 @@ export default {
         ]
   
 
-    // Log in with Google auth 
     function showLoginPanel() {
       showLoginForm.value = true
       showLogInButton.value = false

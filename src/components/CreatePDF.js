@@ -106,15 +106,17 @@ ${invoiceData?.workshopData?.nazwaWarsztatu}\n` +
   .text("NABYWCA", 10, 75)
   .setFontSize(13)
   .setFont('times', "normal")
-  .text( `${invoiceData?.clientData?.Imie || invoiceData?.invoiceData?.Imie}\n` +
-`${invoiceData?.clientData?.Rodzaj != 'Prywatny' ? invoiceData?.clientData?.NIP + '\n' : ''}` +
+  .text( `${unidecode(invoiceData?.clientData?.Imie) || unidecode(invoiceData?.invoiceData?.Imie)}\n` +
+`${invoiceData?.clientData?.Rodzaj != 'Prywatny' ? 'NIP: ' + invoiceData?.clientData?.NIP + '\n' : ''}` +
 `Tel: ${invoiceData?.clientData?.Tel || invoiceData?.invoiceData?.Tel} ${invoiceData?.clientData?.Tel2 || ''}\n` +
-`${invoiceData?.clientData?.KodPocztowy || invoiceData?.invoiceData?.KodPocztowy || ''} ${invoiceData?.invoiceData?.Miejscowosc + '\n' || invoiceData?.invoiceData?.Miejscowosc + '\n' || ''}` +
+`${invoiceData?.clientData?.KodPocztowy || invoiceData?.invoiceData?.KodPocztowy || ''} ${unidecode(invoiceData?.invoiceData?.Miejscowosc) + '\n' || unidecode(invoiceData?.invoiceData?.Miejscowosc) + '\n' || ''}` +
 `${invoiceData?.clientData?.Adres || invoiceData?.invoiceData?.Adres || ''}\n`,10, 80)
+  .setFontSize(11)
   .text(`${invoiceData?.invoiceData?.['Marka']?.toUpperCase()} ${invoiceData?.invoiceData?.['Model']} ${invoiceData?.invoiceData?.['Wersja_Rocznik'] || ''}, ${
         invoiceData?.invoiceData?.['VIN']}, ${invoiceData?.invoiceData?.['Numer_rejestracyjny'] || ''} ${invoiceData?.invoiceData?.['Przebieg'] ? 
         ', Stan licznika: ' + invoiceData?.invoiceData?.['Przebieg'] + 'km' : ''}`, 10, 102)
   .setFont('times', 'normal')
+  .setFontSize(13)
   .table(5, 105, generateData(tableData.length), headers, { autoSize: false})
   .setFontSize(15)
   .setFont('times', 'bold')

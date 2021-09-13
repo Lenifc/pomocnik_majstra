@@ -121,6 +121,7 @@ import Divider from 'primevue/divider';
 import { useConfirm } from "primevue/useconfirm";
 
 import copyToClipboard from '@/components/copyToClipboard.js'
+import { callTicketsHistory } from '@/components/fetchTicketHistory.js'
 
 import { DeleteFunc } from '@/components/EditMoveDeleteOptions.js'
 
@@ -195,6 +196,7 @@ import { DeleteFunc } from '@/components/EditMoveDeleteOptions.js'
      }
 
         const confirmDeleteModal = (clientData, operation, target) => {
+        // console.log(clientData, target);
       confirm.require({
         message: operation == 'removeClient' ?
           `Czy napewno chcesz usunąć klienta o podanym numerze telefonu: ${clientData['Tel']}?` : 
@@ -229,9 +231,20 @@ import { DeleteFunc } from '@/components/EditMoveDeleteOptions.js'
             }
           }
         },
-        reject: () => {}
+        reject: async () => {
+          let log
+          console.log(log);
+          log = await callTicketsHistory(target)
+          console.log(log);
+          // co tu sie odkurwia, ze teoretycznie nie widzi,a mozna rozwinac liste i wszystko jest...
+        }
       });
+
     }
+
+    //  function checkForCreatedTickets(VIN){
+    //   return callTicketsHistory(VIN)
+    // }
 
      function openClientEditForm(item) {
        store.commit('setTargetClient', item)

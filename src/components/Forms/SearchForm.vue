@@ -83,10 +83,10 @@ function validSearchData(e) {
     }
   }
 
-    async function searchInFirestore(searchData, searchType) {
+    async function searchInFirestore(searchData, searchOption) {
       outputData.value = ""
 
-      if (searchType == 'VIN') {
+      if (searchOption == 'VIN') {
         searchType.value = 'VIN'
         const clients = firebase.firestore()
           .collection('warsztat')
@@ -106,7 +106,7 @@ function validSearchData(e) {
         else toast.add({severity:'warn', summary: 'Nieprawidłowa wartość', detail:`Nie udało się wyszukać pojazdu o podanym numerze VIN.`, life: 5000})
 
       }
-      if (searchType == 'phoneNum') {
+      if (searchOption == 'phoneNum') {
         searchType.value = 'phoneNum'
         const clients = firebase.firestore()
           .collection('warsztat')

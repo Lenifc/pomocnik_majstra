@@ -4,7 +4,7 @@
       <template #title>
         <div class="closeForm" @click="$router.go(-1)">&times;</div>
         <div class="p-text-center p-my-2">Szczegółowe dane pojazdu:
-          {{ `${carDetails?.Marka} ${carDetails?.Model} ${carDetails?.Rok_prod || ''}` }}</div>
+          {{ `${carDetails?.Marka} ${carDetails?.Model} ${carDetails?.Wersja_Rocznik || ''}` }}</div>
       </template>
       <template #content>
         <div class="p-d-flex p-flex-column p-flex-lg-row p-jc-center" @dblclick="copyValue($event)">
@@ -132,7 +132,7 @@ export default {
     const confirmDeleteModal = (clientData, operation, target) => {
       confirm.require({
         message: operation == 'removeCar' ? 
-            `Czy na pewno chcesz usunąć pojazd klienta ${clientData.Tel}\n o numerze VIN: ${target}?` : 'Jezeli sie to wyswietla to jest cos do poprawy!',
+            `Czy na pewno chcesz usunąć pojazd klienta ${clientData?.Tel}\n o numerze VIN: ${target}?` : 'Jezeli sie to wyswietla to jest cos do poprawy!',
         header: `Usuń pojazd`,
         icon: 'pi pi-exclamation-triangle',
         acceptClass: 'p-button-success',

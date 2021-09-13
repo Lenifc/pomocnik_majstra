@@ -31,13 +31,13 @@
           <div v-if="clientDetails?.['NIP'] || ticketDetails?.['NIP']">NIP: {{ clientDetails?.['NIP'] || ticketDetails?.['NIP'] }}</div>
           <div>Tel: {{ clientDetails?.['Tel'] || ticketDetails?.['Tel']}}</div>
           <div v-if="clientDetails?.['KodPocztowy'] && clientDetails?.['Miejscowosc'] || ticketDetails?.['KodPocztowy'] && ticketDetails?.['Miejscowosc']">
-            {{ `${clientDetails?.['KodPocztowy']} ${clientDetails?.['Miejscowosc'] || ticketDetails?.['KodPocztowy']} ${ticketDetails?.['Miejscowosc']} `}}
+            {{ `${clientDetails?.['KodPocztowy']} ${clientDetails?.['Miejscowosc']}` || `${ticketDetails?.['KodPocztowy']} ${ticketDetails?.['Miejscowosc']} `}}
             </div>
           <div>{{ clientDetails?.['Ulica'] || ticketDetails?.['Ulica']}}</div>
           <br><br>
            <div v-if="carDetails">{{ `${carDetails?.['Marka']?.toUpperCase()} ${carDetails?.['Model']} ${carDetails?.['Wersja_Rocznik'] || ''}, ${
           carDetails?.['VIN']}, ${carDetails?.['Numer_rejestracyjny'] || ''} ${carDetails?.['Przebieg'] ?  ', Stan licznika: ' + carDetails?.['Przebieg'] + 'km' : ''}`}}</div>
-        <div v-if="ticketDetails">{{ `${ticketDetails?.['Marka']?.toUpperCase()} ${ticketDetails?.['Model']} ${ticketDetails?.['Wersja_Rocznik'] || ''}, ${
+        <div v-if="ticketDetails && !carDetails">{{ `${ticketDetails?.['Marka']?.toUpperCase()} ${ticketDetails?.['Model']} ${ticketDetails?.['Wersja_Rocznik'] || ''}, ${
           ticketDetails?.['VIN']}, ${ticketDetails?.['Numer_rejestracyjny'] || ''} ${ticketDetails?.['Przebieg'] ?  ', Stan licznika: ' + ticketDetails?.['Przebieg'] + 'km' : ''}`}}</div>
         </div>
         <div class="p-mt-2" v-else><h3>Dane klienta zostały usunięte z bazy!</h3></div>
