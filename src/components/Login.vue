@@ -2,6 +2,7 @@
   <div class="">
     <Card class="p-d-flex p-flex-column p-ai-center p-mt-6 p-mx-auto relative" style="width:min(94%, 500px)">
       <template #title>
+        <div class="closeForm" style="font-size: 2.25rem" @click="$emit('closeForm', 0)">&times;</div>
         <div v-if="!showPwdResetForm" class="p-text-center">Zaloguj do panelu zarządzania</div>
         <div v-else class="p-text-center">Wyślij link do zrestartowania hasła na podany adres email</div>
       </template>
@@ -48,7 +49,7 @@ import { reactive, ref } from '@vue/reactivity';
 
 
 export default {
-  emits: ['login', 'OAuth', 'pwdReset'],
+  emits: ['login', 'OAuth', 'pwdReset', 'closeForm'],
 setup(){
   const credentials = reactive({
     username: null,

@@ -6,7 +6,7 @@ import firebase from 'firebase/app'
 // Usuwanie danych z kolekcji firebase
 //
 export async function DeleteFunc(type, docPath, ID, target, extraData, doNotCount) {
-  console.log(type, ID, target, extraData);
+  // console.log(type, ID, target, extraData);
 
   const counterPathTickets = firebase.firestore().collection('warsztat').doc('zlecenia')
   const counterPathClients = firebase.firestore().collection('warsztat').doc('Klienci')
@@ -135,6 +135,42 @@ export function RelocateTicket(type, object, ticketsPath, currentDocPath, newDoc
 return ConfirmRelocate
 }
 
+export async function relocateCarToUnassigned(type, docPath, ID, target, extraData, doNotCount){
+let confirmRelocate = ''
+
+  const unassignedPath = firebase.firestore()
+    .collection('warsztat')
+    .doc('Klienci').collection('Numery').doc('000-000-000')
+    // .where('Tel' == extraData.Tel)
+
+    unassignedPath.get().then(function (doc) {
+      let data = doc.data()
+      let targetData = data[target]
+      let carToRelocate = []
+      carToRelocate[target] = extraData[target]
+      carToRelocate[target].Tel = '000-000-000' //usuniecie oryginalnego numeru telefonu poprzez nadpisanie
+      // console.log(data, targetData)
+      // console.log(carToRelocate)
+
+      if (targetData) {
+        unassignedPath.update({
+          ...data, ...carToRelocate
+          }).catch(err => {
+            console.log(err.code, err.message)
+          })
+      } else {
+        unassignedPath.set({
+            ...data, ...carToRelocate
+          }).catch(err => {
+            console.log(err.code, err.message)
+          })
+      }
+      confirmRelocate = 'OK'
+    }).then(() =>{
+      if(confirmRelocate == 'OK') DeleteFunc(type, docPath, ID, target, extraData, doNotCount)
+      else console.log('powinno wyjsc inaczej...');
+    }).catch(err => console.log(err.code, err.message))
+}
 
 
 export async function updateClientNumber(oldData, updatedData) {

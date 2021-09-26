@@ -3,7 +3,7 @@
     
     <Card class="p-mt-6 relative">
       <template #title>
-        <div class="closeForm" @click="$router.go(-1)">&times;</div>
+        <div class="closeForm" @click="$router.push(`/${$route.params.collectionPath}`)">&times;</div>
         <div class="p-text-center">SZCZEGÓŁY zlecenia {{$route.params.ticketDetails}}</div>
       </template>
       <template #content>

@@ -89,7 +89,10 @@
 </template>
 
 <script>
-import { DeleteFunc } from '@/components/EditMoveDeleteOptions'
+import { callTicketsHistory } from '@/components/fetchTicketHistory.js'
+import TicketsHistory from '@/components/TicketsHistory.vue'
+import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDeleteOptions.js'
+
 import firebase from 'firebase/app'
   
 import { ref, onBeforeMount } from 'vue'
@@ -100,7 +103,7 @@ import { useConfirm } from "primevue/useconfirm";
 
 import copyToClipboard from '@/components/copyToClipboard.js'
 
-import TicketsHistory from '@/components/TicketsHistory.vue'
+
 
 export default {
   setup() {
@@ -112,6 +115,9 @@ export default {
 
     const carDetails = ref()
     const clientDetails = ref()
+
+     const allTickets = ref()
+     const isThereAnyTicket = ref()
 
     const MainPath = firebase.firestore()
        .collection('warsztat').doc('Klienci').collection('Numery')
@@ -129,7 +135,14 @@ export default {
       }
     }
 
-    const confirmDeleteModal = (clientData, operation, target) => {
+    const confirmDeleteModal = async (clientData, operation, target) => {
+      allTickets.value = await callTicketsHistory(target)
+
+       setTimeout(() => {
+        //  console.log(allTickets.value)
+         isThereAnyTicket.value = allTickets.value.some(ticket => ticket[1].length > 0)
+       }, 500)
+
       confirm.require({
         message: operation == 'removeCar' ? 
             `Czy na pewno chcesz usunąć pojazd klienta ${clientData?.Tel}\n o numerze VIN: ${target}?` : 'Jezeli sie to wyswietla to jest cos do poprawy!',
@@ -142,14 +155,23 @@ export default {
         accept: async () => {
           const { Tel } = clientData
           if (operation == 'removeCar') {
+            if(isThereAnyTicket.value == false || clientData['Tel'] == '000-000-000'){
             const confirmDelete = await DeleteFunc('car', MainPath, Tel, target, JSON.parse(JSON.stringify(clientData))) // prosta konwersja proxy do objektu
             if (confirmDelete !== false) {
               toast.removeAllGroups()
               toast.add({severity:'success', detail:'Pomyślnie usunięto pojazd z listy klienta.', life: 4000})
               router.go(-1)
             }
-          }
-        },
+            } else if(isThereAnyTicket.value == true){
+              const confirmDelete = await relocateCarToUnassigned('car', MainPath, Tel, target, JSON.parse(JSON.stringify(clientData)), 'doNotCount') // prosta konwersja proxy do objektu
+               if (confirmDelete !== false) {
+                 toast.removeAllGroups()
+                  toast.add({severity:'success', detail:'Pomyślnie usunięto pojazd z listy klienta.', life: 4000})
+                  router.go(-1)
+               }
+             }
+            }
+          },
         reject: () => {}
       });
     }

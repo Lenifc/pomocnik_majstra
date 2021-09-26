@@ -123,7 +123,7 @@ import { useConfirm } from "primevue/useconfirm";
 import copyToClipboard from '@/components/copyToClipboard.js'
 import { callTicketsHistory } from '@/components/fetchTicketHistory.js'
 
-import { DeleteFunc } from '@/components/EditMoveDeleteOptions.js'
+import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDeleteOptions.js'
 
  export default {
 
@@ -134,124 +134,128 @@ import { DeleteFunc } from '@/components/EditMoveDeleteOptions.js'
      const confirm = useConfirm()
 
      const searchValue = ref()
+     const allTickets = ref()
+     const isThereAnyTicket = ref()
 
      const recivedClients = ref()
      const limit = ref(50)
      const totalNumberOfClients = ref(0)
-    //  const lastDoc = ref(0)
      const disableNextButton = ref(true)
      const isLoading = ref(true)
 
-    const tableFilters = reactive({
-      'global': { value: '', matchMode: FilterMatchMode.CONTAINS }
-    })
-    const clearTableFilters = () => {
-      tableFilters['global'].value = ''
-    }
+     const tableFilters = reactive({ 'global': { value: '', matchMode: FilterMatchMode.CONTAINS }})
+     const clearTableFilters = () => { tableFilters['global'].value = '' }
 
      const MainPath = firebase.firestore()
        .collection('warsztat').doc('Klienci').collection('Numery')
 
-      const totalClientsPath = firebase.firestore()
+     const totalClientsPath = firebase.firestore()
        .collection('warsztat').doc('Klienci')
 
      async function getClientsFromFirebase(req) {
-       if(req == 'more') limit.value += 100
+       if (req == 'more') limit.value += 100
 
-      let clientPath = MainPath
-      .orderBy("Ostatnia_Aktualizacja", "desc")
-       .limit(limit.value)
+       let clientPath = MainPath
+         .orderBy("Ostatnia_Aktualizacja", "desc")
+         .limit(limit.value)
 
-       if(req == 'all') {
+       if (req == 'all') {
          clientPath = MainPath.orderBy("Ostatnia_Aktualizacja", "desc")
          isLoading.value = true
-         toast.add({severity:'warn', summary:"Możliwe spore obciążenie", detail:'W przypadku bardzo dużej ilości klientów ładowanie może zająć nawet 10 sekund!', life: 0})
+         toast.add({ severity: 'warn', summary: "Możliwe spore obciążenie", detail: 'W przypadku bardzo dużej ilości klientów ładowanie może zająć nawet 10 sekund!', life: 0})
        }
 
        let clientResponse = await clientPath.get()
 
        totalNumberOfClients.value = (await totalClientsPath.get()).data().Klienci
-      //  lastDoc.value = clientResponse.docs[clientResponse.docs.length - 1]
 
        if (!clientResponse.docs.length) {
-        disableNextButton.value = true
-        toast.add({severity:'info', detail:'Wczytano wszystkich klientów', life: 4000})
+         disableNextButton.value = true
+         toast.add({ severity: 'info', detail: 'Wczytano wszystkich klientów', life: 4000 })
        }
 
        recivedClients.value = clientResponse.docs.map(doc => doc.data())
 
        // Dodano podstawowe dane pojazdu o poziom wyzej w obiekcie ze wzgledu na filtrowanie tabeli
-      //  await recivedClients.value.map(client => client['Pojazdy'] = (Object.values(client).filter(item => item instanceof Object)).map(car => `${car.Marka} ${car.Model} ${car.VIN} `)) //dziala
+       //  await recivedClients.value.map(client => client['Pojazdy'] = (Object.values(client).filter(item => item instanceof Object)).map(car => `${car.Marka} ${car.Model} ${car.VIN} `)) //dziala
        await recivedClients.value.map(client => client['Pojazdy'] = (Object.values(client).filter(item => item instanceof Object)).map(car => `${car.Marka} ${car.Model} ${car.VIN} `))
-      // https://github.com/dg92/Performance-Analysis-JS/blob/master/small_data_set_result.png
-       
-      isLoading.value = false
-      disableNextButton.value = false
+       // https://github.com/dg92/Performance-Analysis-JS/blob/master/small_data_set_result.png
 
-        if(req == 'all' || clientResponse.docs.length < limit.value) {
-          disableNextButton.value = true
-          toast.removeAllGroups()
-          toast.add({severity:'info', detail:'Wczytano wszystkich klientów', life: 4000})
+       isLoading.value = false
+       disableNextButton.value = false
+
+       if (req == 'all' || clientResponse.docs.length < limit.value) {
+         disableNextButton.value = true
+         toast.removeAllGroups()
+         toast.add({ severity: 'info', detail: 'Wczytano wszystkich klientów', life: 4000 })
+       }
      }
+
+     const confirmDeleteModal = async (clientData, operation, target) => {
+       // console.log(clientData, target);
+       allTickets.value = await callTicketsHistory(target)
+
+       setTimeout(() => {
+        //  console.log(allTickets.value)
+         isThereAnyTicket.value = allTickets.value.some(ticket => ticket[1].length > 0)
+       }, 500)
+
+       confirm.require({
+         message: operation == 'removeClient' ?
+           `Czy napewno chcesz usunąć klienta o podanym numerze telefonu: ${clientData['Tel']}?` : (operation == 'removeCar' ?
+             `Czy na pewno chcesz usunąć pojazd klienta ${clientData.Tel}\n o numerze VIN: ${target}?` : 'Jezeli sie to wyswietla to jest cos do poprawy!'),
+         header: operation == 'removeClient' ? `Usuń klienta` : (operation == 'removeCar' ? `Usuń pojazd` : 'Jezeli sie to wyswietla to jest cos do poprawy!'),
+         icon: 'pi pi-exclamation-triangle',
+         acceptClass: 'p-button-success',
+         rejectClass: 'p-button-danger',
+         acceptLabel: 'Tak',
+         rejectLabel: 'Nie',
+         accept: async () => {
+           const { Tel } = clientData
+
+           if (operation == 'removeClient') {
+             const confirmDelete = await DeleteFunc('client', MainPath, Tel, target)
+             if (confirmDelete !== false) {
+               recivedClients.value = recivedClients.value.filter(client => client.Tel != Tel)
+               toast.removeAllGroups()
+               toast.add({ severity: 'success', detail: 'Pomyślnie usunięto dane klienta', life: 4000 })
+             }
+           }
+           if (operation == 'removeCar') {
+            //  console.log(isThereAnyTicket.value)
+             if(isThereAnyTicket.value == false || clientData['Tel'] == '000-000-000'){
+               const confirmDelete = await DeleteFunc('car', MainPath, Tel, target, JSON.parse(JSON.stringify(clientData))) // prosta konwersja proxy do objektu
+               if (confirmDelete !== false) {
+                 recivedClients.value.map(client => {
+                   if (client.Tel == Tel) delete client[`${target}`]
+                 })
+               }
+               }
+                else if(isThereAnyTicket.value == true){
+                   const confirmDelete = await relocateCarToUnassigned('car', MainPath, Tel, target, JSON.parse(JSON.stringify(clientData)), 'doNotCount') // prosta konwersja proxy do objektu
+               if (confirmDelete !== false) {
+                 recivedClients.value.map(client => {
+                   if (client.Tel == Tel) delete client[`${target}`]
+                 })
+             }
+                }
+             else{
+               toast.add({ severity: 'warn', detail: 'To nie powinno sie pokazac, sprawdz logi....', life: 0})
+             }
+               toast.removeAllGroups()
+               toast.add({ severity: 'success', detail: 'Pomyślnie usunięto pojazd z listy klienta.', life: 4000})
+             }
+         },
+         reject: async () => {}
+       })
      }
-
-        const confirmDeleteModal = (clientData, operation, target) => {
-        // console.log(clientData, target);
-      confirm.require({
-        message: operation == 'removeClient' ?
-          `Czy napewno chcesz usunąć klienta o podanym numerze telefonu: ${clientData['Tel']}?` : 
-          (operation == 'removeCar' ? 
-            `Czy na pewno chcesz usunąć pojazd klienta ${clientData.Tel}\n o numerze VIN: ${target}?` : 'Jezeli sie to wyswietla to jest cos do poprawy!'),
-        header: operation == 'removeClient' ?
-          `Usuń klienta` : (operation == 'removeCar' ? `Usuń pojazd` : 'Jezeli sie to wyswietla to jest cos do poprawy!'),
-        icon: 'pi pi-exclamation-triangle',
-        acceptClass: 'p-button-success',
-        rejectClass: 'p-button-danger',
-        acceptLabel: 'Tak',
-        rejectLabel: 'Nie',
-        accept: async () => {
-          const { Tel } = clientData
-
-          if (operation == 'removeClient') {
-            const confirmDelete = await DeleteFunc('client', MainPath, Tel, target)
-            if (confirmDelete !== false) {
-              recivedClients.value = recivedClients.value.filter(client => client.Tel != Tel)
-              toast.removeAllGroups()
-              toast.add({severity:'success', detail:'Pomyślnie usunięto dane klienta', life: 4000})
-          }
-          }
-          if (operation == 'removeCar') {
-            const confirmDelete = await DeleteFunc('car', MainPath, Tel, target, JSON.parse(JSON.stringify(clientData))) // prosta konwersja proxy do objektu
-            if (confirmDelete !== false) {
-              recivedClients.value.map(client => {
-                if (client.Tel == Tel) delete client[`${target}`]
-              })
-              toast.removeAllGroups()
-              toast.add({severity:'success', detail:'Pomyślnie usunięto pojazd z listy klienta.', life: 4000})
-            }
-          }
-        },
-        reject: async () => {
-          let log
-          console.log(log);
-          log = await callTicketsHistory(target)
-          console.log(log);
-          // co tu sie odkurwia, ze teoretycznie nie widzi,a mozna rozwinac liste i wszystko jest...
-        }
-      });
-
-    }
-
-    //  function checkForCreatedTickets(VIN){
-    //   return callTicketsHistory(VIN)
-    // }
 
      function openClientEditForm(item) {
        store.commit('setTargetClient', item)
        Router.push(`/klient/${item.Tel}/edytuj`)
      }
 
-     function openClientAddForm(){
+     function openClientAddForm() {
        Router.push(`/klient/dodaj`)
      }
 
@@ -260,43 +264,48 @@ import { DeleteFunc } from '@/components/EditMoveDeleteOptions.js'
        Router.push(`/pojazd/${item.VIN}/edytuj`)
      }
 
-     function openVehicleAddForm(Tel){
+     function openVehicleAddForm(Tel) {
        store.commit('setNumberForNewVehicle', Tel)
        Router.push('/pojazd/dodaj')
      }
 
-     function redirectToCarDetails(car, data){
+     function redirectToCarDetails(car, data) {
        store.commit('setTargetCar', car)
        store.commit('setTargetClient', data)
        Router.push(`/details/${car.VIN}`)
      }
 
-     function redirectToClientDetails(client){
+     function redirectToClientDetails(client) {
        store.commit('setTargetClient', client)
        Router.push(`/details/client/${client.Tel}`)
      }
 
-    function onlyCars(client){
-      return Object.values(client).filter(item => item instanceof Object && item.VIN)
-    }
+     function onlyCars(client) {
+       return Object.values(client).filter(item => item instanceof Object && item.VIN)
+     }
 
-    function showEvent(e){
-      searchValue.value = e.target.value
+     function showEvent(e) {
+       searchValue.value = e.target.value
 
-      if(searchValue.value.trim().length > 2) tableFilters['global'].value = searchValue.value.trim()
-      else tableFilters['global'].value = ''
-    }
+       if (searchValue.value.trim().length > 2) tableFilters['global'].value = searchValue.value.trim()
+       else tableFilters['global'].value = ''
+     }
 
-    async function copyValue(e){
-      const text = e.target?.innerText
-      await copyToClipboard(text)
-      toast.add({severity:'info', summary: 'Wartość skopiowana', detail:`Wartość "${text}" została skopiowana do schowka`, life: 3000})
-    }
+     async function copyValue(e) {
+       const text = e.target?.innerText
+       await copyToClipboard(text)
+       toast.add({
+         severity: 'info',
+         summary: 'Wartość skopiowana',
+         detail: `Wartość "${text}" została skopiowana do schowka`,
+         life: 3000
+       })
+     }
 
 
      onMounted(() => {
        getClientsFromFirebase()
-        limit.value = 50
+       limit.value = 50
      })
 
      return {

@@ -120,7 +120,8 @@ require('firebase/firestore')
         toast.add({ severity: 'info', detail: 'Wczytano wszystkie pojazdy.', life: 4000})
        }
 
-       recivedClients.value = clientResponse.docs.map(doc => doc.data())
+        // dodano filtr zapobiegajacy wyswietlaniu na liscie pojazdow nieprzypisanych
+       recivedClients.value = clientResponse.docs.map(doc => doc.data()).filter(client => client.Tel != '000-000-000')
 
       disableNextButton.value = false
         if (clientResponse.docs.length < limit.value) {

@@ -2,11 +2,11 @@
 <div>
   <Toast />
   <ConfirmDialog :breakpoints="{'960px': '75vw', '640px': '100vw'}" :style="{width: '50vw'}" />
-  <Login v-if="!userSignedIn && showLoginForm" @login="(passedCredentials) => signInWithEmailAndPassword(passedCredentials)" @OAuth="loginWithGoogle()" @pwdReset="email => PasswordReset(email)"/>
-  <Button icon="pi pi-sign-in" class="p-button-rounded p-button-primary signInBtn" @click="showLoginPanel()" v-tooltip.right="'Zaloguj'" v-if="!userSignedIn && showLogInButton" />
+  <Login v-if="!userSignedIn && showLoginForm" @login="(passedCredentials) => signInWithEmailAndPassword(passedCredentials)" @OAuth="loginWithGoogle()" @pwdReset="email => PasswordReset(email)" @closeForm="hideLoginPanel" />
+  <Button  v-if="!userSignedIn && showLogInButton" icon="pi pi-sign-in" class="p-button-rounded p-button-primary signInBtn" @click="showLoginPanel()" v-tooltip.right="'Zaloguj'" />
 
 <!-- Przerobic aby osoba niezalogowana widziala tylko podstawowe dane kontaktowe do warsztatu(tel, mail,adres) i maly przycisk zaloguj dla admina-->
-
+  <ContactInfo  v-if="!userSignedIn && showLogInButton" />
   <div class="signedIn" v-if="userSignedIn">
     <div class="container">
 
@@ -27,6 +27,7 @@ import { ref, onMounted, watch } from 'vue'
 import firebase from 'firebase/app'
 import CustomDivider from '@/components/CustomDivider.vue'
 import Login from '@/components/Login.vue'
+import ContactInfo from '@/components/ContactInfo.vue'
 
 import { useToast } from "primevue/usetoast"
 import { useRouter } from 'vue-router'
@@ -144,9 +145,14 @@ export default {
         ]
   
 
+// tutaj mozna bylo zrobic switch (a = !a) zamiast dwoch funckji 
     function showLoginPanel() {
       showLoginForm.value = true
       showLogInButton.value = false
+    }
+    function hideLoginPanel() {
+      showLoginForm.value = false
+      showLogInButton.value = true
     }
 
     function loginWithGoogle(){
@@ -251,8 +257,10 @@ export default {
       Login,
       signInWithEmailAndPassword,
       showLoginForm,
+      hideLoginPanel,
       loginWithGoogle,
       PasswordReset,
+      ContactInfo
     }
   },
 
@@ -294,7 +302,7 @@ i{
 .container{
     margin: 0 auto;
     padding-left: max(56px, 10%);
-    width: min(94%, 1400px);
+    width: min(96%, 1400px);
 }
 
 /* .signedIn{
