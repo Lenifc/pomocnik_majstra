@@ -49,6 +49,7 @@ import { reactive, ref } from '@vue/reactivity';
 
 
 export default {
+  components: { Password },
   emits: ['login', 'OAuth', 'pwdReset', 'closeForm'],
 setup(){
   const credentials = reactive({

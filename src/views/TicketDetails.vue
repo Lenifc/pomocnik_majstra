@@ -80,6 +80,10 @@ import copyToClipboard from '@/components/copyToClipboard.js'
 
 
 export default {
+  components:{
+    CustomRelocateConfirmDialog,
+    WorkOrderForm
+  },
   setup() {
     const route = useRoute()
     const router = useRouter()

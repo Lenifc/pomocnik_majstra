@@ -94,7 +94,6 @@ import { useToast } from "primevue/usetoast"
 
 import firebase from 'firebase/app'
 
-import Skeleton from 'primevue/skeleton';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Divider from 'primevue/divider';
@@ -102,6 +101,9 @@ import Divider from 'primevue/divider';
 import { createPDF, fetchInvoiceData } from '@/components/CreatePDF'
 
 export default {
+  components:{
+    Divider,
+  },
   setup() {
 
     const store = useStore()
@@ -223,7 +225,6 @@ export default {
 
       createPDF,
 
-      Skeleton,
       DataTable,
       Column,
       Divider

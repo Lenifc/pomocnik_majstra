@@ -115,6 +115,11 @@ import InputMask from 'primevue/inputmask';
 
 
 export default {
+  components:{
+    Editor,
+    RadioButton,
+    InputMask,
+  },
   setup() {
     const route = useRoute()
     const router = useRouter()

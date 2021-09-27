@@ -86,7 +86,8 @@ import firebase from 'firebase/app'
 export default {
   components:{
     MINIShowClients,
-    WorkOrderForm
+    WorkOrderForm,
+    Editor
   },
   setup() {
     

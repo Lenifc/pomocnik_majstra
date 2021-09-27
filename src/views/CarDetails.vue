@@ -106,6 +106,9 @@ import copyToClipboard from '@/components/copyToClipboard.js'
 
 
 export default {
+  components:{
+    TicketsHistory
+  },
   setup() {
     // const route = useRoute()
     const router = useRouter()

@@ -44,7 +44,10 @@ import SearchResults from '@/components/SearchResults.vue'
 import { useToast } from "primevue/usetoast"
 
 export default {
-setup(){
+  components:{
+    SearchResults
+  },
+  setup(){
     const searchNumber = ref('')
     const searchVIN = ref('')
     const outputData = ref()

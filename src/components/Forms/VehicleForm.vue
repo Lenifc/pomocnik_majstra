@@ -178,6 +178,10 @@ import axios from 'axios'
 import firebase from 'firebase/app'
 
 export default {
+  components:{
+    Dropdown,
+    Editor,
+  },
   setup() {
     const route = useRoute()
     const router = useRouter()

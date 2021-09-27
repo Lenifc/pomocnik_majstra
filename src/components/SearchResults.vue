@@ -67,12 +67,14 @@ import { useRouter } from 'vue-router'
 import { useToast } from "primevue/usetoast"
 import { useConfirm } from "primevue/useconfirm"
 import { useStore } from 'vuex'
-import { onMounted } from '@vue/runtime-core'
 
 
 export default {
+  components:{
+    TicketsHistory
+  },
   props:['outputData', 'searchType'],
-setup(props) {
+  setup(props) {
 
   const router = useRouter()
   const toast = useToast()
@@ -131,7 +133,6 @@ setup(props) {
           }
           }
           if (operation == 'removeCar') {
-            console.log(clientData);
             const confirmDelete = await DeleteFunc('car', MainPath, Tel, target, JSON.parse(JSON.stringify(clientData))) // prosta konwersja proxy do objektu
             if (confirmDelete !== false) {
               props.outputData.map(client => {
@@ -145,10 +146,6 @@ setup(props) {
         reject: () => {}
       });
     }
-
-    onMounted(() =>{
-      console.log(props.outputData, props.searchType)
-    })
 
     return {
       TicketsHistory,

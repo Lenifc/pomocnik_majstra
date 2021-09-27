@@ -45,6 +45,7 @@ require('@/store/notifications.css')
 firebase.initializeApp(firebaseConfig)
 
 firebase.firestore().settings({
+  merge: true, // wylacza ostrzezenie w logach
   cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
 });
 
@@ -52,6 +53,11 @@ firebase.firestore().enablePersistence() // daje dostep do danych w trybie offli
 
 
 export default {
+  components: {
+    Login,
+    ContactInfo,
+    SidebarMenu,
+  },
   setup() {
     const provider = new firebase.auth.GoogleAuthProvider();
     const auth = firebase.auth()

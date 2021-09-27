@@ -25,6 +25,8 @@ import Card from 'primevue/card';
 import Fieldset from 'primevue/fieldset';
 import ConfirmDialog from 'primevue/confirmdialog'
 import Divider from 'primevue/divider'
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
 
 
 const app = createApp(App)
@@ -39,6 +41,9 @@ app.component('Fieldset', Fieldset)
 app.component('ConfirmDialog', ConfirmDialog)
 app.component('Divider', Divider)
 app.component('RadioButton', RadioButton)
+app.component('DataTable', DataTable)
+app.component('Column', Column)
+
 
 app.use(store).use(router).use(PrimeVue, {ripple: true}).use(ToastService).use(ConfirmationService).mount('#app')
 

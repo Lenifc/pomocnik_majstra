@@ -81,6 +81,11 @@ import { useToast } from "primevue/usetoast"
 import ProgressSpinner from 'primevue/progressspinner';
 
 export default {
+  components:{
+    InputMask,
+    Textarea,
+    ProgressSpinner
+  },
   setup() {
     const recivedData = ref()
     const isLoading = ref(true)

@@ -102,6 +102,9 @@ import firebase from 'firebase/app'
 import { DeleteFunc, RelocateTicket } from '@/components/EditMoveDeleteOptions'
 
 export default ({
+  components:{
+    CustomRelocateConfirmDialog
+  },
 
   setup() {
     const route = useRoute()
