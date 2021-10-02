@@ -37,6 +37,7 @@ import 'vue-sidebar-menu/dist/vue-sidebar-menu.css'
 
 require('firebase/auth')
 require('firebase/firestore')
+require('firebase/functions')
 import firebaseConfig from '@/firebase.js'
 require('@/store/notifications.js')
 require('@/store/notifications.css')
@@ -80,6 +81,11 @@ export default {
             href: '/',
             title: 'Dashboard',
             icon: 'fa fa-desktop',
+          },
+          {
+            href: '/klienci',
+            title: 'Zarządzaj klientami',
+            icon: 'fa fa-user',
           },
           {
             component: CustomDivider
@@ -135,11 +141,11 @@ export default {
             title: 'Dane warsztatu',
             icon: 'fas fa-file-invoice-dollar'
           },
-          {
-            href: '/klienci',
-            title: 'Zarządzaj klientami',
-            icon: 'fa fa-user',
-          },
+          // {
+          //   href: '/ustawienia',
+          //   title: 'Ustawienia i pomoc',
+          //   icon: 'fas fa-cogs',
+          // },
           {
             component: CustomDivider
           },
@@ -307,8 +313,8 @@ i{
 
 .container{
     margin: 0 auto;
-    padding-left: max(56px, 10%);
-    width: min(96%, 1400px);
+    padding-left: max(50px, 10%);
+    width: min(98%, 1400px);
 }
 
 /* .signedIn{
@@ -331,8 +337,15 @@ a{
 
 .v-sidebar-menu .vsm--link_active {
   background-color: black!important;
-  box-shadow: inset 3px 0 0 0 greenyellow!important;;
+  box-shadow: inset 3px 0 0 0 greenyellow!important;
 }
+
+@media (max-width: 600px) {
+  .v-sidebar-menu .vsm--link {padding-left: 8px; font-size: 15px}
+  .v-sidebar-menu.vsm_expanded, .v-sidebar-menu.vsm_extended .vsm--link_active{width: 210px}
+  .v-sidebar-menu.vsm_collapsed, .v-sidebar-menu.vsm_collapsed .vsm--link_active {width: 52px}
+}
+
 
 .pointer, i, .closeForm:hover{
   cursor: pointer;

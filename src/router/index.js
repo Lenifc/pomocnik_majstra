@@ -92,6 +92,15 @@ const routes = [
     name: 'Faktura',
     component: () => import('@/components/Forms/InvoiceForm.vue'),
   },
+  {
+    path: '/ustawienia',
+    name: 'Ustawienia',
+    component: () => import('@/views/Settings.vue'),
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    component: () => import('@/views/Dashboard.vue')
+  },
 ]
 
 const router = createRouter({

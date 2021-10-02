@@ -1,7 +1,7 @@
 <template>
   <div>
     <h3 class="p-text-center">Wyszukaj pojazd na którym ma być wykonane zlecenie</h3>
-    <DataTable :value="recivedClients" dataKey="id" responsiveLayout="stack" stripedRows showGridlines
+    <DataTable :value="recivedClients" dataKey="id" responsiveLayout="stack" stripedRows showGridlines :paginator="true" :rows="20"
       class="p-datatable-sm p-pt-4 p-text-center" v-model:filters="tableFilters" filterDisplay="menu"
       :loading="isLoading" breakpoint="888px">
       <template #header>
@@ -44,7 +44,7 @@
                 <div class="right p-d-flex p-flex-row p-ai-center">
                   <RadioButton name="select" v-model="selectedCar" :value="[car, data]" class="p-mr-2" />
                   <Button class="p-button-primary submit" v-if="selectedCar?.[0] == car"
-                    @click="$emit('openClientModal', 'false')" label="Zatwierdź" />
+                    @click="$emit('openClientModal', 'false')" label="Dodaj" />
                 </div>
               </div>
               <Divider />

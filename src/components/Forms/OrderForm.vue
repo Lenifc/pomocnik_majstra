@@ -1,13 +1,22 @@
 <template>
 <div class="p-pt-5">
-  <Card class="p-text-center" style="max-width:1100px">
+  <MINIShowClients v-if="openClientsModal" @openClientModal="() => { openClientsModal = false; setAllData()}" />
+  <Card class="p-text-center" style="max-width:1100px" v-if="!openClientsModal">
 
     <!-- https://intercars.pl/s/lp-czesci-zamienne/ Uzupelnic Firestore o te kategorie -->
 
     <template #content>
-      <MINIShowClients v-if="openClientsModal" @openClientModal="() => { openClientsModal = false; setAllData()}" />
-      <form class="newDataForm" v-if="!openClientsModal">
-        <Button class="p-button-secondary" label="Wybierz klienta" @click="() => {openClientsModal = true }" />
+      <form class="newDataForm">
+        <div class="p-d-flex p-flex-column p-jc-center p-flex-sm-row p-ml-4 p-ml-sm-0">
+          <div class="p-mr-0 p-mb-5 p-mb-sm-0 p-mr-sm-4" style="max-width:280px">
+            <p>Klient i pojazd już istnieje w bazie:</p>
+            <Button class="p-button-primary p-mt-2" :label="`${!selectedCar ? 'Wybierz klienta' : 'Wybierz innego klienta'}`" @click="() => {openClientsModal = true }" />
+          </div>
+          <div style="max-width:280px" v-if="!selectedCar">
+            <p>Brakuje danych klienta lub pojazdu: </p>
+            <Button class="p-button-primary p-mt-2" label="Dodaj nowego klienta" @click="() => $router.push('/klient/dodaj/') " />
+          </div>
+        </div>
         <div v-if="selectedCar" class="newDataForm">
           <div class="selectedClient">
             <h3 class="p-pt-2">Aktualnie wybrano:</h3>
@@ -169,7 +178,7 @@ export default {
               ...preparedData
             }).then(() => {
                 toast.removeAllGroups()
-                toast.add({ severity: 'success', summary: 'Dodano zlecenie', detail: `Nowe zlecenie znajdziesz w zakładce "${picked}"`, life: 4000})
+                toast.add({ severity: 'success', summary: 'Dodano zlecenie', detail: `Nowe zlecenie znajdziesz w zakładce "${picked == 'wolne' ? 'Oczekujące' : (picked == 'obecne' ? 'W trakcie realizacji' : 'Zakończone')}"`, life: 4000})
             })
             .catch(err => toast.add({ severity: 'error', summary: 'Wystąpił Problem', detail: err.message, life: 5000}))
         }

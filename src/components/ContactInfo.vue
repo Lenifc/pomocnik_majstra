@@ -1,5 +1,5 @@
 <template>
-    <div class="p-pt-4">
+    <div class="p-pt-6">
   <Card class="relative" style="max-width:800px; margin: 0 auto">
     <template #title>
       <h2>Dane kontaktowe</h2>

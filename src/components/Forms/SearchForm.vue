@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import firebase from 'firebase/app'
 import validPhoneNum from '@/components/validPhoneNum.js'
 import validateVIN from '@/components/validateVIN.js'
@@ -42,6 +42,7 @@ import validateVIN from '@/components/validateVIN.js'
 import SearchResults from '@/components/SearchResults.vue'
 
 import { useToast } from "primevue/usetoast"
+import { useStore } from 'vuex'
 
 export default {
   components:{
@@ -50,10 +51,11 @@ export default {
   setup(){
     const searchNumber = ref('')
     const searchVIN = ref('')
-    const outputData = ref()
+    const outputData = ref('')
     const ticketsHistory = ref([])
 
     const toast = useToast()
+    const store = useStore()
 
     const searchType = ref('')
 
@@ -118,10 +120,15 @@ function validSearchData(e) {
         const response = await clients.get()
         if(response.exists) {
           outputData.value = [response.data()]
+          store.commit('setSearchData', outputData.value)
         }
         else toast.add({severity:'warn', summary: 'Nieprawidłowa wartość', detail:`Nie udało się wyszukać klienta o podanym numerze telefonu.`, life: 5000})
       }
     }
+
+    onMounted(() =>{
+      if(store.state.searchData) outputData.value = store.state.searchData
+    })
 
 
     return{

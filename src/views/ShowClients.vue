@@ -10,7 +10,7 @@
       </div>
     
 
-    <DataTable :value="recivedClients" responsiveLayout="stack" breakpoint="1280px" stripedRows 
+    <DataTable :value="recivedClients" responsiveLayout="stack" breakpoint="1280px" stripedRows :paginator="true" :rows="20"
     showGridlines v-model:filters="tableFilters" filterDisplay="menu" :loading="!recivedClients || isLoading" 
     class="p-my-5" dataKey="Tel">
       <template #header>

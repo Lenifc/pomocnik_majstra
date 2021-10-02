@@ -59,6 +59,12 @@ export async function DeleteFunc(type, docPath, ID, target, extraData, doNotCoun
       const docReference = docPath.doc(ID)
       delete extraData[`${target}`]
 
+
+      console.log('Powinno wyslac request');
+      const run = firebase.functions().httpsCallable('randomNumberCall')
+      run().then(res => console.log(res.data))
+
+
       await docReference.get().then(()=> {
 
       extraData['Ostatnia_Aktualizacja'] = getTime()

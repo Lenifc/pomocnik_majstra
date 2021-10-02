@@ -1,6 +1,6 @@
 <template>
 <div class="p-my-6">
-  <Button label="Generuj" class="p-d-flex p-mx-auto" @click="createPDF()" />
+  <Button label="Generuj" class="p-d-flex p-mx-auto" @click="generatePDF" />
   <div class="card p-my-6">
     <div class="card-content">
       <div class="card-header p-mt-4">
@@ -114,6 +114,7 @@ export default {
     const carDetails = ref()
     const workshopDetails = ref()
     const toast = useToast()
+    const combinedData = ref()
 
 
     const randomIndex = computed(() => Math.floor((Math.random()*123)+2))
@@ -131,7 +132,15 @@ export default {
         getYear: getYear.value,
         getTodaysDate: getTodaysDate.value
       }
+      combinedData.value = requiredData
       fetchInvoiceData(JSON.stringify(requiredData))
+    }
+
+    function generatePDF(){
+      const call = firebase.functions().httpsCallable('GenerateInvoice')
+      call({...combinedData.value})
+      
+      createPDF()
     }
 
 
@@ -224,6 +233,7 @@ export default {
       getTodaysDate,
 
       createPDF,
+      generatePDF,
 
       DataTable,
       Column,

@@ -3,7 +3,7 @@
     <h1 class="p-my-3">Zlecenia {{collectionPath}}</h1>
 
     <DataTable :value="allTickets" responsiveLayout="stack" stripedRows showGridlines v-model:filters="tableFilters"
-      filterDisplay="menu" :loading="isLoading" class="p-my-5" breakpoint="1050px">
+      filterDisplay="menu" :loading="isLoading" class="p-my-5" breakpoint="1050px" :paginator="true" :rows="25">
       <template #header>
         <div class="p-d-flex p-jc-between p-flex-column p-flex-sm-row">
           <Button icon="pi pi-filter-slash" label="Wyczyść" class="p-button-outlined"

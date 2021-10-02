@@ -9,7 +9,8 @@ export default createStore({
     clientData: null,
     numberForNewVehicle: null,
     selectedCarForTicket: null,
-    invoiceData: null
+    invoiceData: null,
+    searchData: null,
 
   },
   mutations: {
@@ -36,7 +37,10 @@ export default createStore({
     },
     setInvoiceData(state, data){
       state.invoiceData = data
-    }
+    },
+    setSearchData(state, data){
+      state.searchData = data
+    },
   },
   actions: {
   },

@@ -1,7 +1,12 @@
 <template>
 <div class="p-d-flex  p-flex-column p-jc-center p-ai-center">
-  <h3 class="p-pt-6 p-text-center"> Wyniki wyszukiwania:</h3>
-  <div v-for="client in outputData" :key="client.id" class="p-pb-4 p-pt-3" style="width:90%; max-width:1000px">
+      <div class="p-d-flex p-flex-row p-jc-center p-pt-4" v-if="resultData && resultData.length">
+      <Button @click="() => {
+        $store.commit('setSearchData', null) 
+        resultData = null }" icon="pi pi-ban" class="p-button-secondary" label="Wyczyść dane wyszukiwania" />
+    </div>
+  <h3 class="p-pt-6 p-text-center" v-if="resultData"> Wyniki wyszukiwania:</h3>
+  <div v-for="client in resultData" :key="client.id" class="p-pb-4 p-pt-3" style="width:100%; max-width:1000px">
     <Card class="relative">
       <template #header>
         <div class="p-text-center p-pt-3">
@@ -67,6 +72,7 @@ import { useRouter } from 'vue-router'
 import { useToast } from "primevue/usetoast"
 import { useConfirm } from "primevue/useconfirm"
 import { useStore } from 'vuex'
+import { onMounted, ref } from '@vue/runtime-core'
 
 
 export default {
@@ -80,6 +86,7 @@ export default {
   const toast = useToast()
   const confirm = useConfirm()
   const store = useStore()
+  const resultData = ref()
 
   const MainPath = firebase.firestore()
        .collection('warsztat').doc('Klienci').collection('Numery')
@@ -147,6 +154,12 @@ export default {
       });
     }
 
+    onMounted(() => {
+      if(!props.outputData){
+        resultData.value = store.state.searchData
+      } else resultData.value = props.outputData
+    })
+
     return {
       TicketsHistory,
       FilterOnlyCars,
@@ -156,9 +169,7 @@ export default {
       openCarDetails,
       openClientDetails,
       confirmDeleteModal,
-
-
-
+      resultData
     }
 }
 }
