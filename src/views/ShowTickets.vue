@@ -1,9 +1,11 @@
 <template>
   <div class="p-d-flex p-flex-column p-ai-center">
-    <h1 class="p-my-3">Zlecenia {{collectionPath}}</h1>
+    <h1 class="p-my-3">Zlecenia {{collectionPath == 'wolne' ? 'Oczekujące na realizację' : (collectionPath == 'obecne' ? 'W trakcie realizacji' : (collectionPath == 'zakonczone' ? 'Zakończone' : 'Coś poszło nie tak...'))}}</h1>
+    <Button class="p-button-secondary p-my-4" label="Załaduj kolejne zlecenia" @click="getDataFromFirebase('more')"
+      v-if="!disableNextButton" icon="pi pi-download" />
 
     <DataTable :value="allTickets" responsiveLayout="stack" stripedRows showGridlines v-model:filters="tableFilters"
-      filterDisplay="menu" :loading="isLoading" class="p-my-5" breakpoint="1050px" :paginator="true" :rows="25">
+      filterDisplay="menu" :loading="isLoading" class="p-my-5" breakpoint="1050px" :paginator="true" :rows="countTicketPages || 20">
       <template #header>
         <div class="p-d-flex p-jc-between p-flex-column p-flex-sm-row">
           <Button icon="pi pi-filter-slash" label="Wyczyść" class="p-button-outlined"
@@ -51,7 +53,7 @@
         </template>
       </Column>
       <Column field="Tel2" class="p-d-none" />
-      <Column field="Tel" header="Numer Telefonu" class="p-text-center">
+      <Column field="Tel" header="Numer Telefonu" class="p-text-center" style="width:126px">
         <template #body="{data}" >
           <div @dblclick="copyValue($event)">{{ data['Tel'] }}</div>
         </template>
@@ -72,8 +74,6 @@
       <Column field="Zakonczone_Czas" header="Zakończenie zlecenia" :class="'p-text-center ' + ($route.path == '/zakonczone' ? '' : 'p-d-none')" style="width:150px" />
     </DataTable>
 
-    <Button class="p-button-secondary p-mb-6" label="Załaduj kolejne zlecenia" @click="getDataFromFirebase('more')"
-      v-if="!disableNextButton" icon="pi pi-download" />
     <transition name="modal">
       <CustomRelocateConfirmDialog :message="modalMsg" v-if="showModal"
         @true="(status, newLocation) => modalResponse(status, newLocation || '')" @false="modalResponse(false)" />
@@ -125,6 +125,7 @@ export default ({
     const isLoading = ref(true)
     const showModal = ref(false)
     const modalMsg = ref('')
+    const countTicketPages = ref()
 
 
     const tableFilters = ref({
@@ -263,6 +264,7 @@ export default ({
     }
 
     onMounted(() => {
+      if(localStorage.getItem('countTicketPages')) countTicketPages.value = JSON.parse(localStorage.getItem('countTicketPages'))
       collectionPath.value = route.path.substring(1)
       limit.value = 50
       getDataFromFirebase()
@@ -305,6 +307,7 @@ export default ({
 
       confirmDeleteModal,
       CustomRelocateConfirmDialog,
+      countTicketPages
 
     }
 

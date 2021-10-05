@@ -1,7 +1,7 @@
 <template>
   <div>
     <h3 class="p-text-center">Wyszukaj pojazd na którym ma być wykonane zlecenie</h3>
-    <DataTable :value="recivedClients" dataKey="id" responsiveLayout="stack" stripedRows showGridlines :paginator="true" :rows="20"
+    <DataTable :value="recivedClients" dataKey="id" responsiveLayout="stack" stripedRows showGridlines :paginator="true" :rows="countClientPages || 20"
       class="p-datatable-sm p-pt-4 p-text-center" v-model:filters="tableFilters" filterDisplay="menu"
       :loading="isLoading" breakpoint="888px">
       <template #header>
@@ -88,6 +88,7 @@ require('firebase/firestore')
      const disableNextButton = ref(true)
      const selectedCar = ref()
      const filterInput = ref('')
+     const countClientPages = ref()
 
    const tableFilters = reactive({
       'global': { value: '', matchMode: FilterMatchMode.CONTAINS }
@@ -144,6 +145,7 @@ require('firebase/firestore')
     }
 
      onMounted(() => {
+       if(localStorage.getItem('countClientPages')) countClientPages.value = JSON.parse(localStorage.getItem('countClientPages'))
        getClientsFromFirebase()
      })
 
@@ -171,6 +173,7 @@ require('firebase/firestore')
       isLoading,
       tableFilters,
       clearTableFilters,
+      countClientPages
        
      }
 

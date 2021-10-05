@@ -99,7 +99,7 @@ const routes = [
   },
   {
     path: '/:pathMatch(.*)*',
-    component: () => import('@/views/Dashboard.vue')
+    redirect: '/'
   },
 ]
 

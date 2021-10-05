@@ -1,9 +1,15 @@
 <template>
-  <div style="margin: 0 auto">
+  <div>
+    <div class="p-d-flex p-jc-center p-ai-center p-pt-5">
+      <vehicleReport :key="$store.state.fillProtocol"/> <!-- podobno key robi rerender obiektu... -->
+       <!-- zamiast emitera zastosowano vuex, bo nie chcial sie emitowac przez 2 warswty, a szkoda mi czasu na diagnozy... -->
+    </div>
+    
 
-    <div class="p-d-flex" style="max-width:1100px">
+    <div style="max-width:1100px" class="p-pb-4">
       <DataTable :value="items" dataKey="id" v-if="items.length" editMode="row" v-model:editingRows="editingRows"
-        @rowEditInit="onRowEditInit" @rowEditCancel="onRowEditCancel" responsiveLayout="scroll" stripedRows showGridlines
+        @rowEditInit="onRowEditInit" @rowEditCancel="onRowEditCancel" stripedRows showGridlines
+        responsiveLayout="stack" breakpoint="950px"
         class="p-datatable-sm p-pt-4 p-text-center">
         <template #header>
           <div v-html="calcTotalCosts(items)"></div>
@@ -49,8 +55,8 @@
       </DataTable>
     </div>
 
-      <div class="workOrder p-d-flex p-jc-center p-mt-3">
-        <div class="workOrderItem p-d-flex p-flex-column p-flex-md-row align-center p-text-left p-text-md-center">
+      <div class="workOrder p-d-flex p-jc-center p-ai-center p-pt-3">
+        <div class="workOrderItem p-d-flex p-flex-column p-flex-md-row align-center p-ai-center p-text-left p-text-md-center p-flex-wrap ">
           <div class="p-d-flex p-flex-column p-mt-2 p-mt-md-0">
             <label class="p-pb-1" for="service">Towar / usługa</label>
             <InputText id="serviceWO" v-model="WO.part_service_Name" />
@@ -72,6 +78,8 @@
             <label class="p-pb-1" for="tax">Stawka VAT</label>
             <InputNumber id="taxWO" suffix="%" v-model="WO.tax" />
           </div>
+          <!-- dodany dodatkowy div aby sie poprawnie wrapowalo kawalkami -->
+          <div class=" p-d-flex p-flex-column p-flex-md-row p-text-left p-text-md-center">
           <div class="p-d-flex p-flex-column p-mt-2 p-mt-md-0">
             <label class="p-pb-1" for="priceGross">Cena Brutto</label>
             <InputNumber id="priceGrossWO" mode="currency" currency="PLN" v-model="WO.price_gross" disabled />
@@ -83,6 +91,7 @@
           <div class="p-d-flex p-ai-end p-mb-2 p-ml-2 p-mt-2 p-mt-md-0"><i class="pi pi-plus p-text-bold" style="fontSize: 1.66rem"
               @click="addNewWO"></i></div>
         </div>
+          </div>
       </div>
     </div>
 
@@ -94,10 +103,14 @@ import { ref, watch, reactive } from 'vue'
 
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
+import vehicleReport from '@/components/vehicleReport.vue'
 
 export default {
   props:['passedWO'],
   emits: ['WOItems'],
+  components:{
+    vehicleReport
+  },
 
   setup(props, {emit}) {
 
@@ -218,6 +231,7 @@ export default {
       editingRows,
       onRowEditInit,
       onRowEditCancel,
+      vehicleReport,
     }
   }
 } 

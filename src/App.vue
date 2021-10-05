@@ -15,7 +15,7 @@
     </div>
   </div>
     <sidebar-menu :menu="menu" width="255px" 
-    :collapsed="false" v-if="userSignedIn"
+    :collapsed="menuCollapsed || false" v-if="userSignedIn"
     @item-click="onItemClick" />
 
 </div>
@@ -69,6 +69,8 @@ export default {
     const showForm = ref(false)
     const showLogInButton = ref(false)
     const showLoginForm = ref(false)
+
+    const menuCollapsed = ref()
 
     const toast = useToast()
 
@@ -141,11 +143,11 @@ export default {
             title: 'Dane warsztatu',
             icon: 'fas fa-file-invoice-dollar'
           },
-          // {
-          //   href: '/ustawienia',
-          //   title: 'Ustawienia i pomoc',
-          //   icon: 'fas fa-cogs',
-          // },
+          {
+            href: '/ustawienia',
+            title: 'Ustawienia i pomoc',
+            icon: 'fas fa-cogs',
+          },
           {
             component: CustomDivider
           },
@@ -242,6 +244,8 @@ export default {
 
     onMounted(() => {
       checkAuthStatus()
+
+      if(localStorage.getItem('menuCollapsed')) menuCollapsed.value = JSON.parse(localStorage.getItem('menuCollapsed'))
     })
 
     watch(() => userSignedIn.value, () => {
@@ -262,6 +266,7 @@ export default {
       showForm,
 
       SidebarMenu,
+      menuCollapsed,
       menu,
       onItemClick,
 
@@ -313,7 +318,7 @@ i{
 
 .container{
     margin: 0 auto;
-    padding-left: max(50px, 10%);
+    padding-left: 10%;
     width: min(98%, 1400px);
 }
 
@@ -344,6 +349,17 @@ a{
   .v-sidebar-menu .vsm--link {padding-left: 8px; font-size: 15px}
   .v-sidebar-menu.vsm_expanded, .v-sidebar-menu.vsm_extended .vsm--link_active{width: 210px}
   .v-sidebar-menu.vsm_collapsed, .v-sidebar-menu.vsm_collapsed .vsm--link_active {width: 52px}
+}
+
+@media (max-width: 1200px){
+  .container{
+    padding-left: 60px;
+}
+}
+@media (max-width: 600px){
+  .container{
+    padding-left: 50px;
+}
 }
 
 

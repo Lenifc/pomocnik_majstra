@@ -11,7 +11,8 @@ export default createStore({
     selectedCarForTicket: null,
     invoiceData: null,
     searchData: null,
-
+    protocolData: [],
+    fillProtocol: [],
   },
   mutations: {
     setFetchedItems(state, data){
@@ -41,6 +42,12 @@ export default createStore({
     setSearchData(state, data){
       state.searchData = data
     },
+    setProtocolData(state, data){
+      state.protocolData = data
+    },
+    setFillProtocol(state, data){
+      state.fillProtocol = data
+    }
   },
   actions: {
   },

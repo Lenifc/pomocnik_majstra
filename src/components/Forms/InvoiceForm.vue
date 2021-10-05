@@ -1,5 +1,5 @@
 <template>
-<div class="p-my-6">
+<div class="p-mt-6 p-mb-3">
   <Button label="Generuj" class="p-d-flex p-mx-auto" @click="generatePDF" />
   <div class="card p-my-6">
     <div class="card-content">
@@ -251,6 +251,7 @@ export default {
   border: 3px solid black;
   border-radius: 6px;
   max-width: 960px;
+  min-width:960px;
   margin: 0 auto;
 }
 .card-content{

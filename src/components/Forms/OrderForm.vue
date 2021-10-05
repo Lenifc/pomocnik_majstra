@@ -47,19 +47,19 @@
             </template>
           </Editor>
 
-          <div class="p-d-flex p-flex-row p-jc-center">
-            <WorkOrderForm @WOItems="(data) => setWOItems(data)" />
+          <div>
+            <WorkOrderForm @WOItems="(data) => setWOItems(data)"  />
           </div>
 
           <h2 class="p-my-2">Dodaj zlecenie jako:</h2>
           <div class="p-d-flex p-flex-column p-jc-center">
             <span class="p-mb-1">
               <RadioButton id="waiting" name="ticket" value="wolne" checked v-model="picked" />
-              <label for="waiting">Nowe</label>
+              <label for="waiting"> Nowe</label>
             </span>
             <span>
               <RadioButton id="inprogress" name="ticket" value="obecne" v-model="picked" />
-              <label for="inprogress">W realizacji</label>
+              <label for="inprogress"> W realizacji</label>
             </span>
           </div>
 
@@ -156,6 +156,7 @@ export default {
           Opis: description.value || "",
           Wykonane_uslugi_czesci: WOItems.value,
           Dodane_Czas: store.state.targetCar?.['Dodane_Czas'] || timeStamp,
+          ProtokolPrzyjecia: store.state.protocolData || '',
           Zakonczone_Czas: '',
           Aktualizacja: timeStamp
         }

@@ -12,7 +12,7 @@
         <h2 class="p-text-center p-py-2">Podsumowanie danych</h2>
       </template>
       <template #content>
-        <div class="p-d-flex p-flex-column p-flex-sm-row p-jc-center">
+        <div class="p-d-flex p-flex-column p-flex-sm-row p-jc-center p-ai-center">
           <div class="p-d-flex p-flex-column p-py-3 p-py-sm-0 p-pr-0 p-pr-sm-4">
             <h3>Zlecenia: <span> {{counterTickets.IloscZlecen}} </span></h3>
             <div>Oczekujące: <span>{{counterTickets.Wolne}}</span></div>
@@ -33,7 +33,7 @@
       <Button class="p-button-secondary p-mt-3" @click="getClientsFromFirebase('all')" label="Załaduj całą historię"
         v-if="!disableNextButton" :icon="(!logs || isLoading) ? 'pi pi-spin pi-spinner' : 'pi pi-download'" />
     </div>
-    <DataTable :value="logs || []" responsiveLayout="stack" breakpoint="1150px" stripedRows :paginator="true" :rows="20"
+    <DataTable :value="logs || []" responsiveLayout="stack" breakpoint="1150px" stripedRows :paginator="true" :rows="countActivityPages || 20"
       showGridlines v-model:filters="tableFilters" filterDisplay="menu" :loading="!logs || isLoading" class="p-my-5"
       dataKey="log.id">
       <template #header>
@@ -89,7 +89,8 @@
       <!-- tutaj dac porownanie co sie zmienilo -->
       <Column header="Zmiany" class="p-text-center" style="width:330px">
         <template #body="{data}">
-          <div @click="() => $toast.add({ severity: 'warn', detail: 'Szczegóły aktywności wyświetlane są w surowym formacie. Lepszy widok jest z konsoli (F12)', life: 6000 })">
+          <div @click="() => { $toast.removeAllGroups()
+                $toast.add({ severity: 'warn', detail: 'Szczegóły aktywności wyświetlane są w surowym formacie. Lepszy widok jest z konsoli (F12)', life: 6000 })}">
 
             <Fieldset v-if="data.task==='Modyfikacja danych'" legend="Szczegóły zmian" :toggleable="true" :collapsed="true" 
                       @click="console.log(JSON.parse(JSON.stringify(lookForChanges(data.previousData, data.newData, data.task))))">
@@ -154,10 +155,7 @@ export default {
     const toast = useToast()
     const limit = ref(50)
     const disableNextButton = ref(false)
-
-    const isEven = ref(true)
-    const oddArray = ref([])
-    const evenArray = ref([])
+    const countActivityPages = ref()
     
     const MainPath = firebase.firestore().collection('logs')
 
@@ -189,12 +187,12 @@ export default {
       //  console.log('values', Object.values(x));
 
       let html = ``
-      let x = JSON.parse(JSON.stringify(obj)) // zamiana Proxy na Object
+      let proxyToObject = JSON.parse(JSON.stringify(obj)) // zamiana Proxy na Object
       // console.log(x);
-      for(let item in x){
+      for(let singleItem in proxyToObject){
         html += `
           <div class="p-py-1">
-            ${item}: <span>${x[item] == '' ? '-' : x[item]}</span>
+            ${singleItem}: <span>${proxyToObject[singleItem] == '' ? '-' : proxyToObject[singleItem]}</span>
           </div>`
       }
 
@@ -259,6 +257,8 @@ export default {
         const clientsResult = await counterPathClients.get()
         const ticketsResult = await counterPathTickets.get()
 
+        if(localStorage.getItem('countActivityPages')) countActivityPages.value = JSON.parse(localStorage.getItem('countActivityPages'))
+
         isLoading.value = false
         limit.value = 50
 
@@ -283,10 +283,7 @@ export default {
       lookForChanges,
       convertObject,
       prettierOutput,
-
-      isEven,
-      oddArray,
-      evenArray,
+      countActivityPages,
     }
   }
 }

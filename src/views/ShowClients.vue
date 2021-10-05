@@ -10,7 +10,7 @@
       </div>
     
 
-    <DataTable :value="recivedClients" responsiveLayout="stack" breakpoint="1280px" stripedRows :paginator="true" :rows="20"
+    <DataTable :value="recivedClients" responsiveLayout="stack" breakpoint="1280px" stripedRows :paginator="true" :rows="countClientPages || 20"
     showGridlines v-model:filters="tableFilters" filterDisplay="menu" :loading="!recivedClients || isLoading" 
     class="p-my-5" dataKey="Tel">
       <template #header>
@@ -142,6 +142,7 @@ import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDelete
      const totalNumberOfClients = ref(0)
      const disableNextButton = ref(true)
      const isLoading = ref(true)
+     const countClientPages = ref()
 
      const tableFilters = reactive({ 'global': { value: '', matchMode: FilterMatchMode.CONTAINS }})
      const clearTableFilters = () => { tableFilters['global'].value = '' }
@@ -304,6 +305,7 @@ import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDelete
 
 
      onMounted(() => {
+       if(localStorage.getItem('countClientPages')) countClientPages.value = JSON.parse(localStorage.getItem('countClientPages'))
        getClientsFromFirebase()
        limit.value = 50
      })
@@ -338,7 +340,8 @@ import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDelete
 
        isLoading,
        showEvent,
-       searchValue
+       searchValue,
+       countClientPages
      }
 
    }

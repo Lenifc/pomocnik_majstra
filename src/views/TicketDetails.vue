@@ -68,7 +68,7 @@ import WorkOrderForm from '@/components/Forms/WorkOrderForm.vue'
   
 import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useStore } from 'vuex'
+import { mapGetters, useStore } from 'vuex'
 import { useToast } from "primevue/usetoast"
 import { useConfirm } from "primevue/useconfirm"
 
@@ -83,6 +83,11 @@ export default {
   components:{
     CustomRelocateConfirmDialog,
     WorkOrderForm
+  },
+    computed: {
+    ...mapGetters({
+      myState: 'getProtocolData'
+    })
   },
   setup() {
     const route = useRoute()
@@ -127,16 +132,16 @@ export default {
         })
     }
 
-        const confirmDeleteModal = (ticketData) => {
-      confirmDialog.require({
-        message: `Czy na pewno chcesz usunąć zlecenie klienta ${ticketData.Tel},
-        Pojazd: ${ticketData.Marka} ${ticketData.Model}?`,
-        header: `Usunąć zlecenie?`,
-        icon: 'pi pi-exclamation-triangle',
-        acceptClass: 'p-button-success',
-        rejectClass: 'p-button-danger',
-        acceptLabel: 'Tak',
-        rejectLabel: 'Nie',
+      const confirmDeleteModal = (ticketData) => {
+        confirmDialog.require({
+          message: `Czy na pewno chcesz usunąć zlecenie klienta ${ticketData.Tel},
+          Pojazd: ${ticketData.Marka} ${ticketData.Model}?`,
+          header: `Usunąć zlecenie?`,
+          icon: 'pi pi-exclamation-triangle',
+          acceptClass: 'p-button-success',
+          rejectClass: 'p-button-danger',
+          acceptLabel: 'Tak',
+          rejectLabel: 'Nie',
         accept: async () => {
           const { id } = ticketData
 
@@ -154,6 +159,8 @@ export default {
 
     function updateTicket() {
       let updatedTicket = []
+      ticketDetails.value['ProtokolPrzyjecia'] = JSON.parse(JSON.stringify(store.state.protocolData))
+
       updatedTicket = JSON.parse(JSON.stringify(ticketDetails.value)) // zamiana Proxy na Object
 
       updatedTicket.Aktualizacja = getTime()
@@ -182,6 +189,8 @@ export default {
 
     function setWOItems(data){
       ticketDetails.value['Wykonane_uslugi_czesci'] = data
+
+      store.commit('setFillProtocol', ticketDetails.value['ProtokolPrzyjecia'])
     }
 
       function calcTotalCosts(order) {
