@@ -137,13 +137,11 @@ export default {
         toast.removeAllGroups()
         toast.add({severity:'success', summary: 'Aktualizacja', detail:'Dane warsztatu zostały zaktualizowane', life: 4000})
       }).then(() => clearTimeout(checkOffline.value)).catch((err) => {
-        toast.removeAllGroups()
         if(err.code == 'permission-denied') toast.add({severity:'error', summary: 'Aktualizacja', detail: 'To konto nie posiada uprawnień do wykonywania zmian!', life: 6000})
         else toast.add({severity:'error', summary: 'Aktualizacja', detail: err.message, life: 5000})
         clearTimeout(checkOffline.value)
       })
       checkOffline.value = setTimeout(() => {
-        toast.removeAllGroups()
         toast.add({severity:'warn', summary: 'Status offline', detail:'Klient jest offline.\n Dane zostaną zaktualizowane po przywróceniu połączenia.', life: 0})
       }, 2500)
     }

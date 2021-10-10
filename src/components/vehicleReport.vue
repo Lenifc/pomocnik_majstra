@@ -10,8 +10,9 @@
             <Checkbox id="visualCheck" v-model="vehicleProtocol.visualChecked" :binary="true" />
             <label for="visualCheck">Wykonano oględziny nadwozia pojazdu podczas przyjęcia</label>
         </div>
-        <div class="p-float-label" v-if="vehicleProtocol.visualChecked">
-          <InputText id="visualCheckNote" type="text" v-model="vehicleProtocol.visualCheckNote" placeholder="Uwagi do stanu wizualnego" />
+        <div class="p-field" v-if="vehicleProtocol.visualChecked">
+          <label for="visualCheckNote" class="p-mr-0 p-mr-lg-2">Uwagi do stanu wizualnego: </label>
+          <InputText id="visualCheckNote" type="text" v-model="vehicleProtocol.visualCheckNote" />
         </div>
         <div class="p-field-checkbox">
             <Checkbox id="testDriveBefore" v-model="vehicleProtocol.testDriveBefore" :binary="true" />
@@ -29,11 +30,13 @@
             <Checkbox id="clientMaxBudget" v-model="vehicleProtocol.clientMaxBudget" :binary="true" />
             <label for="clientMaxBudget">Klient określił maksymalny budżet serwisu</label>
         </div>
-        <div>
-          <InputText v-if="vehicleProtocol.clientMaxBudget" id="clientMaxBudgetNote" type="text" v-model="vehicleProtocol.clientMaxBudgetNote" placeholder="Wpisz kwote"/>
+        <div class="p-field" v-if="vehicleProtocol.clientMaxBudget">
+          <label for="visualCheckNote" class="p-mr-0 p-mr-lg-2">Podaj limit budżetu [PLN]: </label>
+          <InputText  id="clientMaxBudgetNote" type="text" v-model="vehicleProtocol.clientMaxBudgetNote" />
         </div>
 
-        <MultiSelect v-model="vehicleProtocol.selectedServiceReasons" :options="serviceReasons" optionLabel="value" display="chip" placeholder="Powód oddania pojazdu" class="p-mt-2" />
+          <!-- display="chip" -->
+        <MultiSelect v-model="vehicleProtocol.selectedServiceReasons" :options="serviceReasons" optionLabel="value" placeholder="Powód oddania pojazdu" class="p-mt-2" scrollHeight="50vh"/>
 
       </div>
       <div class="p-pl-0 p-pl-lg-4 p-pt-3 p-pt-lg-0">
@@ -57,8 +60,9 @@
             <Checkbox id="lqReplacementsApprove" v-model="vehicleProtocol.lqReplacementsApprove" :binary="true" />
             <label for="lqReplacementsApprove">Klient wyraził zgodę na zakup zamienników GORSZEJ jakości</label>
         </div>
-        <div class="p-float-label">
-          <InputText id="currentMileage" type="number" v-model="vehicleProtocol.currentMileage" placeholder="Podaj aktualny stan licznika"/>
+        <div class="p-field">
+          <label for="visualCheckNote" class="p-mr-0 p-mr-lg-2">Podaj aktualny stan licznika [km]: </label>
+          <InputText id="currentMileage" type="number" v-model="vehicleProtocol.currentMileage" />
         </div>
         <div class="p-field-checkbox">
             <Checkbox id="otherInfo" v-model="vehicleProtocol.otherInfo" :binary="true" />
@@ -106,7 +110,7 @@ export default {
     // DODAC tez tutaj opisy - przyklad ponizej
     let vehicleProtocol = ref({
       reciveDate: '',
-      // reciveDate_SHOW_WHEN_TRUE: 'Czas odbioru pojazdu od klienta:',
+      // reciveDate_NOTE: 'Czas odbioru pojazdu od klienta:',
       visualChecked: false,
       visualCheckNote: '',
       testDriveBefore: '',

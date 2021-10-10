@@ -13,17 +13,18 @@
       </template>
       <template #content>
         <div class="p-d-flex p-flex-column p-flex-sm-row p-jc-center p-ai-center">
-          <div class="p-d-flex p-flex-column p-py-3 p-py-sm-0 p-pr-0 p-pr-sm-4">
+          <div v-if="counterClients" class="p-d-flex p-flex-column p-py-3 p-py-sm-0 p-pr-0 p-pr-sm-4">
             <h3>Zlecenia: <span> {{counterTickets.IloscZlecen}} </span></h3>
             <div>Oczekujące: <span>{{counterTickets.Wolne}}</span></div>
             <div>W trakcie realizacji: <span>{{counterTickets.Obecne}}</span></div>
             <div>Zakończone: <span>{{counterTickets.Zakonczone}}</span></div>
           </div>
-          <div class="p-d-flex p-flex-column">
+          <div v-if="counterClients" class="p-d-flex p-flex-column">
             <div>Ilość klientów: <span>{{counterClients.Klienci}}</span></div>
             <div>Ilość pojazdów: <span>{{counterClients.Pojazdy}}</span></div>
             <!-- <div>Ilość opłaconych faktur: <span> // Do wykonania</span></div> -->
           </div>
+        <ProgressSpinner animationDuration="0.5s" v-if="!counterClients" /> 
         </div>
       </template>
     </Card>
@@ -139,12 +140,16 @@ import copyToClipboard from '@/components/copyToClipboard.js'
 import { useToast } from "primevue/usetoast"
 
 import diff from '@/components/compareTwoArrays.js'
+import ProgressSpinner from 'primevue/progressspinner';
 
 export default {
   // wymagane dodanie console computed aby moc wywolywac konsole z poziomu template
   computed: {
     console: () => console,
     window: () => window,
+  },
+  components:{
+    ProgressSpinner
   },
   setup(){
     const logs = ref('')
@@ -280,6 +285,7 @@ export default {
       getClientsFromFirebase,
       disableNextButton,
       diff,
+      ProgressSpinner,
       lookForChanges,
       convertObject,
       prettierOutput,

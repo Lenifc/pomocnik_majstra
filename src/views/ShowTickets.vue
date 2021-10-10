@@ -158,12 +158,7 @@ export default ({
           if (confirmDelete !== false) {
             allTickets.value = allTickets.value.filter(ticket => ticket.id != id)
             toast.removeAllGroups()
-            toast.add({
-              severity: 'success',
-              summary: 'Potwierdzenie',
-              detail: 'Pomyślnie usunięto zlecenia',
-              life: 4000
-            })
+            toast.add({ severity: 'success', summary: 'Potwierdzenie', detail: 'Pomyślnie usunięto zlecenia', life: 4000})
           }
         },
         reject: () => {}
@@ -242,8 +237,8 @@ export default ({
       if (response == true) {
         store.commit('setTargetCar', targetClient)
           
-        const confirmRelocate = await RelocateTicket('ticket', targetClient, tickets, collectionPath.value, newLocation, targetClient.id)
-        if (confirmRelocate !== false) {
+        const { ConfirmRelocate, clientIsOffline} = await RelocateTicket('ticket', targetClient, tickets, collectionPath.value, newLocation, targetClient.id)
+        if (ConfirmRelocate !== false) {
           allTickets.value = allTickets.value.filter(car => car.id != targetClient.id)
           toast.removeAllGroups()
           toast.add({
@@ -253,6 +248,8 @@ export default ({
             life: 4000
           })
         }
+        if(clientIsOffline) toast.add({severity:'warn', summary: 'Status offline', detail:'Klient jest offline.\n Bez połączenia z siecią przenoszenie zleceń nie jest możliwe.', life: 0})
+        
         if (newLocation == route.path.substring(1)) toast.add({
           severity: 'info',
           summary: 'Zmień target',

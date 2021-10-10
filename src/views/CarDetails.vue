@@ -7,7 +7,7 @@
           {{ `${carDetails?.Marka} ${carDetails?.Model} ${carDetails?.Wersja_Rocznik || ''}` }}</div>
       </template>
       <template #content>
-        <div class="p-d-flex p-flex-column p-flex-lg-row p-jc-center" @dblclick="copyValue($event)">
+        <div v-if="!isLoading" class="p-d-flex p-flex-column p-flex-lg-row p-jc-center" @dblclick="copyValue($event)">
           <div class="p-d-flex p-flex-column" style="max-width:290px">
             <div class="p-d-flex p-flex-row p-mb-1">
               <div class="p-text-bold p-mr-2">Klient: </div>
@@ -52,13 +52,13 @@
             </div>
             <div class="p-d-flex p-flex-row p-my-1">
               <div class="p-text-bold p-mr-2">Rodzaj paliwa: </div>
-              <div class="copy">{{ carDetails?.['Paliwo'] || 'Nie wprowadzono danych'}}</div>
+              <div class="copy">{{ carDetails?.['Paliwo']?.name || 'Nie wprowadzono danych'}}</div>
             </div>
           </div>
           <div class=" p-ml-0 p-mt-4 p-mt-lg-0 p-ml-lg-4 p-d-flex p-flex-column">
             <div class="p-d-flex p-flex-row p-my-1">
               <div class="p-text-bold p-mr-2">Przebieg: </div>
-              <div class="copy">{{ carDetails?.['Przebieg'] + ' km' || 'Nie wprowadzono danych'}}</div>
+              <div class="copy">{{ carDetails?.['Przebieg']?.length ? carDetails?.['Przebieg'] + ' km' : 'Nie wprowadzono danych'}}</div>
             </div>
             <div class="p-d-flex p-flex-row p-my-1">
               <div class="p-text-bold p-mr-2">Rodzaj napędu: </div>
@@ -75,12 +75,13 @@
           </div>
 
         </div>
-        <TicketsHistory :VIN="carDetails?.['VIN']" :Tel="carDetails?.['Tel']" />
+        <ProgressSpinner class="p-d-flex p-jc-center" animationDuration="0.5s" v-if="isLoading" /> 
+        <TicketsHistory v-if="!isLoading" :VIN="carDetails?.['VIN']" :Tel="carDetails?.['Tel']" />
       </template>
       <template #footer>
         <div class="p-d-flex p-flex-column p-flex-md-row p-jc-center p-mb-3">
-          <Button label="Edytuj dane pojazdu" @click="openEditVehicleForm()" icon="pi pi-pencil" />
-          <Button :label="`Usuń pojazd klienta ${carDetails?.['Tel']}`" @click="confirmDeleteModal(clientDetails, 'removeCar', carDetails.VIN)"
+          <Button :disabled="isLoading" label="Edytuj dane pojazdu" @click="openEditVehicleForm()" icon="pi pi-pencil" />
+          <Button :disabled="isLoading" :label="`Usuń pojazd klienta ${carDetails?.['Tel']}`" @click="confirmDeleteModal(clientDetails, 'removeCar', carDetails.VIN)"
             class="p-button-danger p-ml-0 p-ml-md-3 p-mt-3 p-mt-md-0" icon="pi pi-trash" />
         </div>
       </template>
@@ -96,25 +97,29 @@ import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDelete
 import firebase from 'firebase/app'
   
 import { ref, onBeforeMount } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { useToast } from "primevue/usetoast"
 import { useConfirm } from "primevue/useconfirm";
 
 import copyToClipboard from '@/components/copyToClipboard.js'
 
-
+import ProgressSpinner from 'primevue/progressspinner';
 
 export default {
   components:{
-    TicketsHistory
+    TicketsHistory,
+    ProgressSpinner
   },
   setup() {
     // const route = useRoute()
     const router = useRouter()
+    const route = useRoute()
     const store = useStore()
     const toast = useToast()
     const confirm = useConfirm()
+
+    const isLoading = ref(true)
 
     const carDetails = ref()
     const clientDetails = ref()
@@ -136,6 +141,22 @@ export default {
         await copyToClipboard(text)
         toast.add({severity:'info', summary: 'Wartość skopiowana', detail:`Wartość "${text}" została skopiowana do schowka`, life: 3000})
       }
+    }
+
+    async function fetchCarData(){
+      const car = firebase.firestore()
+          .collection('warsztat')
+          .doc('Klienci').collection("Numery")
+          .where(`${route.params['VIN']}.VIN`, '==', route.params['VIN'])
+
+      const getData = await car.get()
+      clientDetails.value = getData.docs.map(doc => doc.data())[0]
+      carDetails.value = clientDetails.value[route.params.VIN]
+
+      isLoading.value = false
+
+      store.commit('setTargetCar', carDetails.value)
+
     }
 
     const confirmDeleteModal = async (clientData, operation, target) => {
@@ -180,13 +201,14 @@ export default {
     }
 
     onBeforeMount(() => {
-      // w przypadku proby wejscia bezposrednio z linku odesle nas do ostatniej strony ze wzgledu na brak danych w pamieci
-      // ew. zamiast powrotu mozna zrobic pobranie danych z firebase
+      // gdy dane nie sa  pamieci np. gdy odswiezymy strone to pobiera je na nowo z firestore
       if(!store.state?.targetCar){
-        router.go(-1)
+        fetchCarData()
       }else{
         carDetails.value = store.state?.targetCar
         clientDetails.value = store.state?.targetClient
+
+        isLoading.value = false
       }
     })
 
@@ -199,6 +221,8 @@ export default {
 
       copyValue,
       TicketsHistory,
+
+      isLoading
     }
   }
 }

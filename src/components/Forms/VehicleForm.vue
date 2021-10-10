@@ -39,7 +39,7 @@
             </span>
 
             <Dropdown v-model="carSpec.selectedModel" :options="models" optionLabel="pl" optionValue="pl" class="p-mt-3"
-              placeholder="Wybierz model" :filter="true" :showClear="true" @change="fetchVersion()" id="model"
+              placeholder="Wybierz model" :filter="true" :showClear="true" @change="() => {fetchVersion(); fetchEngineCapacities()}" id="model"
               v-if="!manualBrandModelVersionInput && !manualModelVersionInput" :disabled="!models" scrollHeight="60vh"
               required>
               <template #value="slotProps">
@@ -79,23 +79,41 @@
             <span class="p-float-label p-mt-4" v-if="(carSpec.selectedModel && manualVersionInput) || manualBrandModelVersionInput || manualModelVersionInput">
               <InputText id="prod_year" v-if="(carSpec.selectedModel && manualVersionInput) || manualBrandModelVersionInput || manualModelVersionInput"
                 v-model="carSpec.selectedVersion" required/>
-              <label for="prod_year">Generacja:</label>
+              <label for="prod_year">Rocznik:</label>
             </span>
 
             <Dropdown id="fuel" v-model="carSpec.selectedFuel" :options="fuelOptions" optionLabel="name" class="p-mt-3"
-              optionValue="name" required placeholder="Wybierz rodzaj paliwa" :showClear="true" scrollHeight="60vh" />
+                      required placeholder="Wybierz rodzaj paliwa" :showClear="true" scrollHeight="60vh"  @change="fetchEngineCapacities()"/>
             
             <span class="p-float-label p-mt-4">
               <InputText id="VIN" maxlength="17" v-model="carSpec.VIN" required v-tooltip.focus.bottom="'17-znakowy numer identyfikacyjny'" />
               <label for="VIN">VIN:</label>
             </span>
+            <a class="p-button-text p-link" target="_blank" rel="noreferrer" v-if="carSpec.VIN && validateVIN(carSpec.VIN)"
+              :href="`https://pl.vindecoder.pl/${carSpec.VIN}`" style="width:250px">Sprawdź dane pojazdu po nr VIN </a>
           </div>
 
           <div class="extraInformation p-d-flex p-flex-column">
             <h3 class="p-mb-3 p-mt-6 p-mt-md-0">Dodatkowe informacje: </h3>
             <h4>Silnik:</h4>
             <div class="p-d-flex p-flex-column p-flex-sm-row p-mt-3">
-              <span class="p-float-label">
+              <Dropdown v-model="carSpec.engineCapacity" :options="capacities" optionLabel="version"
+              placeholder="Pojemność silnika" id="engineCapacity"
+              v-if="carSpec.selectedBrand && carSpec.selectedModel && (capacities && capacities.length)"
+              :disabled="!capacities" required scrollHeight="60vh" :showClear="true">
+              <template #value="slotProps">
+                <div v-if="slotProps.value">
+                  <span>{{slotProps.value}}</span>
+                </div>
+                <span v-else> {{slotProps.placeholder}} </span>
+              </template>
+              <template #option="slotProps">
+                <div>
+                  <span>{{slotProps.option}}</span>
+                </div>
+              </template>
+            </Dropdown>
+              <span class="p-float-label" v-if="!capacities?.length">
                 <InputText id="engineCapacity" v-model="carSpec.engineCapacity" style="width:140px" />
                 <label for="engineCapacity">Pojemność[cm<sup>3</sup>]:</label>
               </span>
@@ -193,6 +211,7 @@ export default {
     const brands = ref()
     const models = ref()
     const versions = ref()
+    const capacities = ref()
 
     const checkOffline = ref()
 
@@ -229,11 +248,11 @@ export default {
       .doc('Klienci')
 
     const fuelOptions = [
-      {name: 'Benzyna'},
-      {name: 'Benzyna LPG'},
-      {name: 'Diesel'},
-      {name: 'Elektryczny'},
-      {name: 'Hybryda'}
+      {name: 'Benzyna', value: 'petrol'},
+      {name: 'Benzyna LPG', value: 'petrol-lpg'},
+      {name: 'Diesel', value: 'diesel'},
+      {name: 'Elektryczny', value: 'electric'},
+      {name: 'Hybryda', value: 'hybrid'}
     ]
 
     const gearboxOptions = [
@@ -305,6 +324,19 @@ export default {
       if(data?.data?.options) versions.value = Object.entries(data?.data?.options).map(item => item[1].pl)
       }
     }
+    async function fetchEngineCapacities() {
+      carSpec.engineCapacity = null
+
+      if(carSpec.selectedModel !== null && carSpec.selectedBrand !== null){
+
+      const data = await axios.get(`${link}/pojemnoscSilnika/${carSpec.selectedBrand}/${replaceSpaces(carSpec.selectedModel)}${carSpec.selectedFuel ? '?fuel_type='+carSpec.selectedFuel.value : ''}`)
+        .catch(() => {
+          toast.add({severity:'warn', summary: 'Brak danych', detail:'Nie uda się pobrać dostępnych pojemności silnika dla tego modelu.', life: 4000})
+        })
+      // ?. jest jak if statement sprawdzajacy czy obiekt istnieje
+      if(data?.data?.options) capacities.value = Object.entries(data?.data?.options).map(item => item[1].pl)
+      }
+    }
 
     function validateData() {
       document.querySelectorAll('.p-invalid').forEach(input => input.classList.remove('p-invalid'))
@@ -313,7 +345,7 @@ export default {
       if(!carSpec.VIN || !validateVIN(carSpec.VIN)) document.querySelector('#VIN').classList.add('p-invalid')
       if(!carSpec.selectedBrand) document.querySelector('#brand').classList.add('p-invalid')
       if(!carSpec.selectedModel) document.querySelector('#model').classList.add('p-invalid')
-      if(!carSpec.selectedFuel) document.querySelector('#fuel').classList.add('p-invalid')
+      if(!carSpec?.selectedFuel?.name) document.querySelector('#fuel').classList.add('p-invalid')
       
 
       let checkForInvalids = document.querySelectorAll('.p-invalid')
@@ -334,7 +366,7 @@ export default {
           Marka: betterLooking(carSpec.selectedBrand),
           Model: carSpec.selectedModel,
           Wersja_Rocznik: carSpec.selectedVersion?.trim() || '',
-          Paliwo: carSpec.selectedFuel,
+          Paliwo: carSpec?.selectedFuel || '',
 
           Silnik_Pojemnosc: carSpec.engineCapacity ? onlyNumbers(carSpec.engineCapacity) : '',
           Silnik_Moc: carSpec.enginePower ? onlyNumbers(carSpec.enginePower) : '',
@@ -406,7 +438,6 @@ export default {
         }
 
         checkOffline.value = setTimeout(() => {
-        toast.removeAllGroups()
         toast.add({severity:'warn', summary: 'Status offline', detail:'Klient jest offline.\n Dane zostaną zaktualizowane po przywróceniu połączenia.', life: 0})
       }, 2500)
 
@@ -530,6 +561,9 @@ export default {
       models,
       fetchVersion,
       versions,
+      fetchEngineCapacities,
+      capacities,
+      validateVIN,
 
       checkOffline,
 

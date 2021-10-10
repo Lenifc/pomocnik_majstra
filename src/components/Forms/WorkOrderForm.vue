@@ -56,7 +56,7 @@
     </div>
 
       <div class="workOrder p-d-flex p-jc-center p-ai-center p-pt-3">
-        <div class="workOrderItem p-d-flex p-flex-column p-flex-md-row align-center p-ai-center p-text-left p-text-md-center p-flex-wrap ">
+        <div class="workOrderItem p-d-flex p-flex-column p-flex-md-row align-center p-ai-center p-text-center p-flex-wrap ">
           <div class="p-d-flex p-flex-column p-mt-2 p-mt-md-0">
             <label class="p-pb-1" for="service">Towar / usługa</label>
             <InputText id="serviceWO" v-model="WO.part_service_Name" />
@@ -66,20 +66,22 @@
             <InputNumber class="quantity" id="quantityWO" mode="decimal" prefix="x " v-model="WO.quantity"
               :maxFractionDigits="2" />
           </div>
-          <div class="p-d-flex p-flex-column p-mt-2 p-mt-md-0">
-            <label class="p-pb-1" for="priceNet">Cena Netto</label>
-            <InputNumber id="priceNetWO" mode="currency" currency="PLN" v-model="WO.price_net" />
-          </div>
-          <div class="p-d-flex p-flex-column p-mt-2 p-mt-md-0">
-            <label class="p-pb-1" for="totalNet">Wartość Netto</label>
-            <InputNumber id="totalNetWO" mode="currency" currency="PLN" v-model="WO.totalCost_net" disabled />
+          <div class=" p-d-flex p-flex-row ">
+            <div class="p-d-flex p-flex-column p-mt-2 p-mt-md-0">
+              <label class="p-pb-1" for="priceNet">Cena Netto</label>
+              <InputNumber id="priceNetWO" mode="currency" currency="PLN" v-model="WO.price_net" />
+            </div>
+            <div class="p-d-flex p-flex-column p-mt-2 p-mt-md-0">
+              <label class="p-pb-1" for="totalNet">Wartość Netto</label>
+              <InputNumber id="totalNetWO" mode="currency" currency="PLN" v-model="WO.totalCost_net" disabled />
+            </div>
           </div>
           <div class="p-d-flex p-flex-column p-mt-2 p-mt-md-0">
             <label class="p-pb-1" for="tax">Stawka VAT</label>
             <InputNumber id="taxWO" suffix="%" v-model="WO.tax" />
           </div>
           <!-- dodany dodatkowy div aby sie poprawnie wrapowalo kawalkami -->
-          <div class=" p-d-flex p-flex-column p-flex-md-row p-text-left p-text-md-center">
+          <div class=" p-d-flex p-flex-row">
           <div class="p-d-flex p-flex-column p-mt-2 p-mt-md-0">
             <label class="p-pb-1" for="priceGross">Cena Brutto</label>
             <InputNumber id="priceGrossWO" mode="currency" currency="PLN" v-model="WO.price_gross" disabled />
@@ -88,7 +90,7 @@
             <label class="p-pb-1" for="totalGross">Wartość Brutto</label>
             <InputNumber id="totalGrossWO" mode="currency" currency="PLN" v-model="WO.totalCost_gross" disabled />
           </div>
-          <div class="p-d-flex p-ai-end p-mb-2 p-ml-2 p-mt-2 p-mt-md-0"><i class="pi pi-plus p-text-bold" style="fontSize: 1.66rem"
+          <div class="p-d-flex p-ai-end p-mb-2 p-ml-2 p-mt-2 p-mt-md-0"><i class="pi pi-plus-circle p-text-bold" style="fontSize: 1.66rem"
               @click="addNewWO"></i></div>
         </div>
           </div>

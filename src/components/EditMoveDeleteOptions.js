@@ -59,12 +59,6 @@ export async function DeleteFunc(type, docPath, ID, target, extraData, doNotCoun
       const docReference = docPath.doc(ID)
       delete extraData[`${target}`]
 
-
-      console.log('Powinno wyslac request');
-      const run = firebase.functions().httpsCallable('randomNumberCall')
-      run().then(res => console.log(res.data))
-
-
       await docReference.get().then(()=> {
 
       extraData['Ostatnia_Aktualizacja'] = getTime()
@@ -91,55 +85,70 @@ export async function DeleteFunc(type, docPath, ID, target, extraData, doNotCoun
 //
 // Przenoszenie danych między kolekcjami
 //
-export function RelocateTicket(type, object, ticketsPath, currentDocPath, newDocPath, ID) {
-
+export async function RelocateTicket(type, object, ticketsPath, currentDocPath, newDocPath, ID) {
   const counterPathTickets = firebase.firestore().collection('warsztat').doc('zlecenia')
   const docReference = ticketsPath.collection(newDocPath).doc(`zlecenie-${ID}`)
   const timeStamp = getTime()
-  let ConfirmRelocate
+  let ConfirmRelocate, clientIsOffline
+
+  function changeDataFunc(doc) {
+    if (doc.exists) {
+      docReference.update({
+          ...object,
+        }).catch(err => {
+          console.log(err.code, err.message)
+          return ConfirmRelocate = false
+        })
+    } else {
+      docReference.set({
+          ...object,
+        }).catch(err => {
+          console.log(err.code, err.message)
+          return ConfirmRelocate = false
+        })
+    }
+    return ConfirmRelocate
+  }
+  
+  function updateCountersFunc() {
+    if(currentDocPath == 'wolne') counterPathTickets.update("Wolne", firebase.firestore.FieldValue.increment(-1))
+    if(currentDocPath == 'obecne') counterPathTickets.update("Obecne", firebase.firestore.FieldValue.increment(-1))
+    if(currentDocPath == 'zakonczone') counterPathTickets.update("Zakonczone", firebase.firestore.FieldValue.increment(-1))
+    if(newDocPath == 'wolne') counterPathTickets.update("Wolne", firebase.firestore.FieldValue.increment(1))
+    if(newDocPath == 'obecne') counterPathTickets.update("Obecne", firebase.firestore.FieldValue.increment(1))
+    if(newDocPath == 'zakonczone') counterPathTickets.update("Zakonczone", firebase.firestore.FieldValue.increment(1))
+    let deleteThis = ticketsPath.collection(currentDocPath)
+    DeleteFunc(type, deleteThis, ID, 'justRelocate', ...Object.keys(object))
+  }
 
   if (currentDocPath != newDocPath) {
     // console.log('CHECK', object);
   if(newDocPath == 'zakonczone') object['Zakonczone_Czas'] = timeStamp
   object['Aktualizacja'] = timeStamp
 
-    docReference.get().then(function (doc) {
-        if (doc.exists) {
-          docReference.update({
-              ...object,
-            }).catch(err => {
-              console.log(err.code, err.message)
-              ConfirmRelocate = false
-            })
-        } else {
-          docReference.set({
-              ...object,
-            }).catch(err => {
-              console.log(err.code, err.message)
-              ConfirmRelocate = false
-            })
+  try{
+    const getDocReference = await docReference.get()
+    await changeDataFunc(getDocReference)
+    await updateCountersFunc()
+    ConfirmRelocate = true
+  }
+  catch (err){
+        // console.log(err.code, err.message);
+        if(err.message.indexOf('offline') > 0) {
+          ConfirmRelocate = false 
+          clientIsOffline = true
+          return {ConfirmRelocate, clientIsOffline}
         }
-
-      }).then(() => {
-        if(currentDocPath == 'wolne') counterPathTickets.update("Wolne", firebase.firestore.FieldValue.increment(-1))
-        if(currentDocPath == 'obecne') counterPathTickets.update("Obecne", firebase.firestore.FieldValue.increment(-1))
-        if(currentDocPath == 'zakonczone') counterPathTickets.update("Zakonczone", firebase.firestore.FieldValue.increment(-1))
-        if(newDocPath == 'wolne') counterPathTickets.update("Wolne", firebase.firestore.FieldValue.increment(1))
-        if(newDocPath == 'obecne') counterPathTickets.update("Obecne", firebase.firestore.FieldValue.increment(1))
-        if(newDocPath == 'zakonczone') counterPathTickets.update("Zakonczone", firebase.firestore.FieldValue.increment(1))
-        ConfirmRelocate = true
-        let deleteThis = ticketsPath.collection(currentDocPath)
-        DeleteFunc(type, deleteThis, ID, 'justRelocate', ...Object.keys(object))
-      })
-      .catch(function (err) {
-        console.log(err.code, err.message);
-        ConfirmRelocate = false
-      })
+        return ConfirmRelocate = false
+      }
+    
   } else {
-    ConfirmRelocate = false
+    return ConfirmRelocate = false
 }
-return ConfirmRelocate
+return { ConfirmRelocate, clientIsOffline}
 }
+
+
 
 export async function relocateCarToUnassigned(type, docPath, ID, target, extraData, doNotCount){
 let confirmRelocate = ''

@@ -189,52 +189,56 @@ export default {
         }
     }
 
-    function sendDataToFirebase(preparedData) {
+    async function sendDataToFirebase(preparedData) {
       let Tel = preparedData.Tel
 
       const collectionReference = clients.collection("Numery")
       const docReference = collectionReference.doc(Tel)
 
-      docReference.get().then(function (doc) {
-        if (doc.exists) {
-          if(route.path.indexOf('edytuj') <= 0) {
-              toast.removeAllGroups()
-              toast.add({severity:'error', summary: '', detail: 'Klient o podanym numerze jest już w bazie!', life: 4000})
-              return
-            }
-          docReference.update({
-              ...preparedData
-            }).then(() => {
-              toast.removeAllGroups()
-              toast.add({severity:'success', summary: 'Zaktualizowano pomyślnie', detail: `Zaaktualizowano klienta o podanym numerze telefonu: \n${Tel}`, life: 4000})
-            })
-            .catch(err => {
-              toast.removeAllGroups()
-              toast.add({severity:'error', summary: 'Błąd', detail: err.message, life: 6000})
-            })
-        } else {
-          docReference.set({
-              ...preparedData
-            }).then(() =>  {
-              toast.removeAllGroups()
-              toast.add({severity:'success', summary: 'Dodano pomyślnie', detail: `Dodano nowego klienta o numerze: ${Tel}`, life: 4000})
-            })
-            .catch(err =>  {
-              toast.removeAllGroups()
-              toast.add({severity:'error', summary: 'Błąd', detail: err.message, life: 6000})
-            })
+    try{
+      const getDoc = await docReference.get()
+      await addOrUpdateClient(getDoc)
+    } catch (err) {
+        if(err.code == 'permission-denied') toast.add({severity:'error', summary: 'Aktualizacja', detail: 'To konto nie posiada uprawnień do wykonywania zmian!', life: 6000})
+        else if(err.message.indexOf('offline') > 0) toast.add({severity:'warn', summary: 'Status offline', detail:'Klient jest offline.\n Bez połączenia z siecią dodawanie nowych klientów nie jest możliwe..', life: 0})
+        else toast.add({ severity: 'error', summary: 'Wystąpił Problem', detail: err.message, life: 5000})
+    }
+      
+      async function addOrUpdateClient(doc) {
+        try{
+          const ifNotExist = await X(doc)
+          if(ifNotExist) updateAndCleanup()
+        }
+        catch(err){
+         toast.add({ severity: 'error', summary: 'Wystąpił Problem', detail: err.message, life: 5000})
         }
 
-        if(route.path.indexOf('edytuj') <= 0) clients.update("Klienci", firebase.firestore.FieldValue.increment(1))
-        clearForm()
-        store.commit('setTargetClient', '')
-        router.go(-1)
-
-      }).catch(err =>{
+        async function X(doc){
+            if (doc.exists) {
+            if(route.path.indexOf('edytuj') <= 0) {
+              toast.add({severity:'error', summary: '', detail: 'Klient o podanym numerze jest już w bazie!', life: 5000})
+              return false
+              }
+            else{
+              await docReference.update({...preparedData})
               toast.removeAllGroups()
-              toast.add({severity:'error', summary: 'Błąd', detail: err.message, life: 6000})
-              return
-            })
+              toast.add({severity:'success', summary: 'Zaktualizowano pomyślnie', detail: `Zaaktualizowano klienta o podanym numerze telefonu: \n${Tel}`, life: 4000})
+            }
+          } else {
+            await docReference.set({...preparedData})
+            toast.removeAllGroups()
+            toast.add({severity:'success', summary: 'Dodano pomyślnie', detail: `Dodano nowego klienta o numerze: ${Tel}`, life: 4000})
+          }
+          return true
+          }
+
+        function updateAndCleanup(){
+          if(route.path.indexOf('edytuj') <= 0) clients.update("Klienci", firebase.firestore.FieldValue.increment(1))
+          clearForm()
+          store.commit('setTargetClient', '')
+          router.go(-1)  
+        }
+      }
     }
 
     function clearForm() {

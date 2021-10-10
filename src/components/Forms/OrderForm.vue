@@ -165,36 +165,43 @@ export default {
         sendDataToFirebase(preparedData, pick)
     }
 
-    function sendDataToFirebase(preparedData, picked) {
+    async function sendDataToFirebase(preparedData, picked) {
       let ID = preparedData.id
 
       const collectionReference = tickets.collection(picked)
       const docReference = collectionReference.doc(`zlecenie-${ID}`)
 
-      docReference.get().then(function (doc) {
+      try{
+        const getDoc = await docReference.get()
+        await addTicket(getDoc)
+        updateCounters()
+      } catch(err) {
+        if(err.code == 'permission-denied') toast.add({severity:'error', summary: 'Aktualizacja', detail: 'To konto nie posiada uprawnień do wykonywania zmian!', life: 6000})
+        else if(err.message.indexOf('offline') > 0) toast.add({severity:'warn', summary: 'Status offline', detail:'Klient jest offline.\n Bez połączenia z siecią dodawanie nowych zleceń nie jest możliwe..', life: 0})
+        else toast.add({ severity: 'error', summary: 'Wystąpił Problem', detail: err.message, life: 5000})
+      }
+      
+      async function addTicket(doc) {
         if (doc.exists) {
           toast.add({ severity: 'error', summary: 'Wystąpił Problem', detail: 'Wystąpił nieznany błąd, Wymagany DEBUG', life: 10000})
         } else {
-          docReference.set({
-              ...preparedData
-            }).then(() => {
-                toast.removeAllGroups()
-                toast.add({ severity: 'success', summary: 'Dodano zlecenie', detail: `Nowe zlecenie znajdziesz w zakładce "${picked == 'wolne' ? 'Oczekujące' : (picked == 'obecne' ? 'W trakcie realizacji' : 'Zakończone')}"`, life: 4000})
-            })
-            .catch(err => toast.add({ severity: 'error', summary: 'Wystąpił Problem', detail: err.message, life: 5000}))
+          docReference.set({...preparedData}).then(() => {
+              toast.removeAllGroups()
+              toast.add({ severity: 'success', summary: 'Dodano zlecenie', detail: `Nowe zlecenie znajdziesz w zakładce "${picked == 'wolne' ? 'Oczekujące' : (picked == 'obecne' ? 'W trakcie realizacji' : 'Zakończone')}"`, life: 4000})
+            }).catch(function (err) { toast.add({ severity: 'error', summary: 'Wystąpił Problem', detail: err.message, life: 5000})})
         }
-        // tutaj dodac sprawdzenie w przypadku edycji ticketu, aby nadmiernie nie podbijac licznika
-         tickets.update("IloscZlecen", firebase.firestore.FieldValue.increment(1))
-         if(picked == 'zakonczone') tickets.update("Zakonczone", firebase.firestore.FieldValue.increment(1))
-         if(picked == 'obecne') tickets.update("Obecne", firebase.firestore.FieldValue.increment(1))
-         if(picked == 'wolne') tickets.update("Wolne", firebase.firestore.FieldValue.increment(1))
-        
-        clearForm()
-        store.commit('setTargetCar', '')
+      }
 
-      }).catch(function (err) {
-        toast.add({ severity: 'error', summary: 'Wystąpił Problem', detail: err.message, life: 5000})
-      })
+       function updateCounters(){
+          // tutaj dodac sprawdzenie w przypadku edycji ticketu, aby nadmiernie nie podbijac licznika
+          tickets.update("IloscZlecen", firebase.firestore.FieldValue.increment(1))
+          if(picked == 'zakonczone') tickets.update("Zakonczone", firebase.firestore.FieldValue.increment(1))
+          if(picked == 'obecne') tickets.update("Obecne", firebase.firestore.FieldValue.increment(1))
+          if(picked == 'wolne') tickets.update("Wolne", firebase.firestore.FieldValue.increment(1))
+        
+          clearForm()
+          store.commit('setTargetCar', '')
+        }
     }
 
     function setWOItems(data){
@@ -202,7 +209,6 @@ export default {
     }
 
     function clearForm() {
-
       selectedCar.value = ''
       selectedClient.value = ''
       description.value = ''

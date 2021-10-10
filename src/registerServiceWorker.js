@@ -3,12 +3,11 @@
 import { register } from 'register-service-worker'
 
 if (process.env.NODE_ENV === 'production') {
+  if ('serviceWorker' in navigator){
+  
   register(`${process.env.BASE_URL}service-worker.js`, {
     ready () {
-      console.log(
-        'App is being served from cache by a service worker.\n' +
-        'For more details, visit https://goo.gl/AFskqB'
-      )
+      console.log('Service worker is ready')
     },
     registered () {
       console.log('Service worker has been registered.')
@@ -29,4 +28,8 @@ if (process.env.NODE_ENV === 'production') {
       console.error('Error during service worker registration:', error)
     }
   })
+}
+else{
+  console.log('Service workers are not supported.');
+}
 }
