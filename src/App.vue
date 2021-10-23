@@ -14,7 +14,7 @@
 
     </div>
   </div>
-    <sidebar-menu :menu="menu" width="255px" 
+    <sidebar-menu :menu="menu" width="245px" 
     :collapsed="menuCollapsed || false" v-if="userSignedIn"
     @item-click="onItemClick" />
 
@@ -31,6 +31,7 @@ import ContactInfo from '@/components/ContactInfo.vue'
 
 import { useToast } from "primevue/usetoast"
 import { useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 
 import { SidebarMenu } from 'vue-sidebar-menu'
 import 'vue-sidebar-menu/dist/vue-sidebar-menu.css'
@@ -63,6 +64,7 @@ export default {
     const provider = new firebase.auth.GoogleAuthProvider();
     const auth = firebase.auth()
     const router = useRouter()
+    const route = useRoute()
 
     const userSignedIn = ref(false)
     const items = ref(null)
@@ -80,7 +82,7 @@ export default {
             hiddenOnCollapse: true,
           },
           {
-            href: '/',
+            href: '/panel-glowny',
             title: 'Dashboard',
             icon: 'fa fa-desktop',
           },
@@ -139,7 +141,7 @@ export default {
             disabled: true
           },
           {
-            href: '/DaneWarsztatu',
+            href: '/dane-warsztatu',
             title: 'Dane warsztatu',
             icon: 'fas fa-file-invoice-dollar'
           },
@@ -234,6 +236,7 @@ export default {
         } else {
           userSignedIn.value = false
           showLogInButton.value = true
+          router.push('/')
         }
       })
     }
@@ -244,11 +247,11 @@ export default {
 
     onMounted(() => {
       checkAuthStatus()
-
       if(localStorage.getItem('menuCollapsed')) menuCollapsed.value = JSON.parse(localStorage.getItem('menuCollapsed'))
     })
 
     watch(() => userSignedIn.value, () => {
+      if( route.path == '/' && userSignedIn.value == true) router.push('/panel-glowny')
       showLogInButton.value = true
       showLoginForm.value = false
     })
@@ -322,12 +325,6 @@ i{
     width: min(98%, 1400px);
 }
 
-/* .signedIn{
-    height: 100vh;
-    justify-content: center;
-    align-content: center;
-} */
-
 a{
   color:var(--yellow-200);
   text-decoration: none;
@@ -351,7 +348,7 @@ a{
   .v-sidebar-menu.vsm_collapsed, .v-sidebar-menu.vsm_collapsed .vsm--link_active {width: 52px}
 }
 
-@media (max-width: 1200px){
+@media (max-width: 1550px){
   .container{
     padding-left: 60px;
 }

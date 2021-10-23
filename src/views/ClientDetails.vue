@@ -7,15 +7,15 @@
       </template>
       <template #content>
         <div class="p-text-bold p-my-2 p-pl-3">id: {{clientDetails?.id}}</div>
-        <div class="p-my-1 p-pl-3">Tel. kontaktowy: {{ `${clientDetails?.Tel} ${clientDetails?.Tel2 ? ' ; ' + clientDetails.Tel2 : ''}` }}</div>
+        <div class="p-my-1 p-pl-3">Tel. kontaktowy: {{ `${clientDetails?.Tel} ${clientDetails?.Tel2 ? ' ; ' + clientDetails?.Tel2 : ''}` }}</div>
         <div class="p-my-1 p-pl-3">Rodzaj klienta: {{ clientDetails?.Rodzaj == 'Firma' ? 'Firma / JDG' : 'Klient prywatny' }}</div>
         <div class="p-my-1 p-pl-3" v-if="clientDetails?.Rodzaj == 'Firma'">NIP: {{ clientDetails?.NIP }}</div>
         <div class="p-my-1 p-pl-3"
           v-if="clientDetails?.KodPocztowy && clientDetails?.Miejscowosc && clientDetails?.Ulica"> 
-          {{ `${clientDetails?.KodPocztowy} ${clientDetails.Miejscowosc} - ul. ${clientDetails.Ulica}` }}</div>
-        <div class="p-my-1 p-pl-3">Ilość pojazdów przypisanych do klienta: {{ onlyCars(clientDetails).length}}</div>
+          {{ `${clientDetails?.KodPocztowy} ${clientDetails?.Miejscowosc} - ul. ${clientDetails?.Ulica}` }}</div>
+        <div class="p-my-1 p-pl-3">Ilość pojazdów przypisanych do klienta: {{ clientDetails ? onlyCars(clientDetails).length : ''}}</div>
         <div class="p-my-1 p-pl-3" v-if="clientDetails?.Opis">Dodatkowe informacje:</div>
-        <div class="p-my-1 p-pl-5" v-if="clientDetails?.Opis" v-html="clientDetails.Opis"></div>
+        <div class="p-my-1 p-pl-5" v-if="clientDetails?.Opis" v-html="clientDetails?.Opis"></div>
       </template>
       <template #footer>
         <div class="p-d-flex p-flex-column p-flex-sm-row p-jc-center">
@@ -89,10 +89,11 @@ export default {
     onBeforeMount(() => {
       // w przypadku proby wejscia bezposrednio z linku odesle nas do ostatniej strony ze wzgledu na brak danych w pamieci
       if(!store.state?.targetClient){
-        router.go(-1)
+        router.push('/klienci')
       }else{
         clientDetails.value = store.state?.targetClient
-        clientCars.value = onlyCars(clientDetails.value)
+        console.log(store.state?.targetClient);
+        clientCars.value = onlyCars(clientDetails?.value)
       }
     })
 

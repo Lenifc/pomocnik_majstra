@@ -12,11 +12,11 @@
         </div>
         <div>
           <h5 class="p-py-1 p-pt-2">Ilość klientów na strone:</h5>
-          <InputNumber v-model="countClientPages" mode="decimal" :min="5" :max="100" />
+          <InputNumber v-model="countClientPages" mode="decimal" :min="5" :max="100" aria-label="Ilość klientów na strone"/>
           <h5 class="p-py-1 p-pt-2">Ilość zleceń na strone:</h5>
-          <InputNumber v-model="countTicketPages" mode="decimal" :min="5" :max="100" />
+          <InputNumber v-model="countTicketPages" mode="decimal" :min="5" :max="100" aria-label="Ilość zleceń na strone"/>
           <h5 class="p-py-1 p-pt-2">Ilość historii aktywności na strone:</h5>
-          <InputNumber v-model="countActivityPages" mode="decimal" :min="5" :max="100" />
+          <InputNumber v-model="countActivityPages" mode="decimal" :min="5" :max="100" aria-label="Ilość historii aktywności na strone"/>
         </div>
       </template>
       <template #footer><Button label="Zapisz" @click="saveChanges"/></template>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="p-d-flex p-jc-center p-ai-center p-pt-5">
-      <vehicleReport :key="$store.state.fillProtocol"/> <!-- podobno key robi rerender obiektu... -->
+      <vehicleReport /> 
        <!-- zamiast emitera zastosowano vuex, bo nie chcial sie emitowac przez 2 warswty, a szkoda mi czasu na diagnozy... -->
     </div>
     
@@ -101,7 +101,7 @@
 
 <script>
 
-import { ref, watch, reactive } from 'vue'
+import { ref, watch, reactive, onMounted } from 'vue'
 
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
@@ -196,7 +196,13 @@ export default {
               <div>Suma Netto: <span style="color: var(--primary-color)" >${totalNet.toFixed(2)} </span>PLN</div>`
     }
 
-    watch(() => props.passedWO, () => items.value = props.passedWO)
+    onMounted(() =>{
+      if(props?.passedWO?.length) items.value = props.passedWO
+    })
+
+    watch(() => props?.passedWO, () => {
+      items.value = props.passedWO
+    })
 
     watch(() => items.value, () => emit('WOItems', items.value))
     watch(() => WO.price_net, () => {

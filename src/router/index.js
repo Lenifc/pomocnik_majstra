@@ -1,9 +1,14 @@
 // /* eslint-disable */
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
   {
     path: '/',
+    name: 'Main',
+    component: () => import('@/App.vue')
+  },
+  {
+    path: '/panel-glowny',
     name: 'Dashboard',
     component: () => import('@/views/Dashboard.vue')
   },
@@ -33,22 +38,22 @@ const routes = [
     component: () => import('@/views/ShowTickets.vue'),
   },
   {
-    path: '/details/:VIN',
+    path: '/szczegoly/:VIN',
     name: 'CarDetails',
     component: () => import('@/views/CarDetails.vue'),
   },
   {
-    path: '/details/client/:phoneNum',
+    path: '/szczegoly/client/:phoneNum',
     name: 'ClientDetails',
     component: () => import('@/views/ClientDetails.vue'),
   },
   {
-    path: '/details/:collectionPath/:phoneNum/:ticketDetails',
+    path: '/szczegoly/:collectionPath/:phoneNum/:ticketDetails',
     name: 'TicketDetails',
     component: () => import('@/views/TicketDetails.vue'),
   },
   {
-    path: '/daneWarsztatu',
+    path: '/dane-warsztatu',
     name: 'daneWarsztatu',
     component: () => import('@/views/WorkshopDetails.vue'),
   },
@@ -88,7 +93,7 @@ const routes = [
     component: () => import('@/components/Forms/SearchForm.vue'),
   },
   {
-    path: '/generujFakture',
+    path: '/generuj-fakture',
     name: 'Faktura',
     component: () => import('@/components/Forms/InvoiceForm.vue'),
   },
@@ -99,12 +104,12 @@ const routes = [
   },
   {
     path: '/:pathMatch(.*)*',
-    redirect: '/'
+    redirect: '/panel-glowny'
   },
 ]
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   mode: 'history',
   routes
 })

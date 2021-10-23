@@ -4,1539 +4,6 @@
   "name": "Dodawanie klientow",
   "url": "http://192.168.0.19:8080",
   "tests": [{
-    "id": "6deda6e3-2090-4acd-9a02-73dd081bb610",
-    "name": "1_Dodawanie pojazdu",
-    "commands": [{
-      "id": "712e09c8-59ec-4c62-ac31-adf3d3c24d45",
-      "comment": "",
-      "command": "open",
-      "target": "/#/wolne",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "6206b7a2-4a3a-4ae7-8c18-936d875cce44",
-      "comment": "",
-      "command": "click",
-      "target": "css=.fa-user",
-      "targets": [
-        ["css=.fa-user", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div[2]/div/div/div/ul/li[15]/a/i", "xpath:idRelative"],
-        ["xpath=//li[15]/a/i", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "fa9746e8-c0df-4f9c-83f4-ab5686de8174",
-      "comment": "",
-      "command": "waitForElementPresent",
-      "target": "xpath=//tr/td/i[2]/i",
-      "targets": [],
-      "value": "2000"
-    }, {
-      "id": "35e61aa4-b3fb-491f-b8eb-b8910e7dfcb5",
-      "comment": "",
-      "command": "click",
-      "target": "xpath=//tr/td/i[2]/i",
-      "targets": [
-        ["css=#id000-000-000 .fas > .fas", "css:finder"],
-        ["xpath=//tr[@id='id000-000-000']/td/i[2]/i", "xpath:idRelative"],
-        ["xpath=//i[2]/i", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "45ca2b45-2601-4888-82df-3a8636c83909",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor((Math.random()*300)+50)",
-      "targets": [],
-      "value": "randomHP"
-    }, {
-      "id": "4e008fa2-8e44-4f77-8379-a2f936113156",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor((Math.random()*48)+1975)",
-      "targets": [],
-      "value": "randomYear"
-    }, {
-      "id": "03e02b5d-6288-41ea-9417-0356efdf0f43",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*135)",
-      "targets": [],
-      "value": "randomMakeIndex"
-    }, {
-      "id": "10ead670-e4be-4246-8d62-4d62dfe436b6",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*2)",
-      "targets": [],
-      "value": "randomTransmission"
-    }, {
-      "id": "af8ccd79-a50e-4dd6-b4cb-3201af7ac2cc",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*250000)",
-      "targets": [],
-      "value": "randomMilage"
-    }, {
-      "id": "11b0198c-d54e-4005-afc0-8800cb2ce905",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*3)",
-      "targets": [],
-      "value": "randomDrivetrain"
-    }, {
-      "id": "2057dd89-1eb7-4a3a-8a8c-21dd08cb6c71",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*5)",
-      "targets": [],
-      "value": "randomFuel"
-    }, {
-      "id": "6b856b16-34ad-45e3-8c92-088a42d4e0e8",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return (Math.random().toString().slice(2,11) +  Math.random().toString().slice(3,11))",
-      "targets": [],
-      "value": "randomVIN"
-    }, {
-      "id": "8847b1f8-6fed-4eba-8840-65eef137db0b",
-      "comment": "",
-      "command": "type",
-      "target": "id=VIN",
-      "targets": [
-        ["id=VIN", "id"],
-        ["css=#VIN", "css:finder"],
-        ["xpath=//input[@id='VIN']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div/input", "xpath:idRelative"],
-        ["xpath=//input", "xpath:position"]
-      ],
-      "value": "${randomVIN}"
-    }, {
-      "id": "34611b32-920b-46d4-b7a0-b761a3c70e38",
-      "comment": "",
-      "command": "select",
-      "target": "name=fuel",
-      "targets": [],
-      "value": "index=${randomFuel}"
-    }, {
-      "id": "077a6149-e624-4eb9-8947-29bec109206c",
-      "comment": "",
-      "command": "storeXpathCount",
-      "target": "xpath=//input[@name='brand']",
-      "targets": [],
-      "value": "noMakes"
-    }, {
-      "id": "577061ac-847c-41a0-94e3-28326a1a732d",
-      "comment": "",
-      "command": "verifyElementPresent",
-      "target": "xpath=//select[@name='brand']",
-      "targets": [],
-      "value": "!noMakes"
-    }, {
-      "id": "5078e30f-b116-45ef-8989-37b7dd572894",
-      "comment": "",
-      "command": "if",
-      "target": "${noMakes}==1",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "4ede994e-f1c5-42ba-b7ad-83d446361422",
-      "comment": "",
-      "command": "type",
-      "target": "name=brand",
-      "targets": [],
-      "value": "BLAD LADOWANIA MAREK"
-    }, {
-      "id": "84f67b8e-1e96-4790-9967-12cd71f9591f",
-      "comment": "",
-      "command": "type",
-      "target": "name=model",
-      "targets": [],
-      "value": "BLAD LADOWANIA MODELI"
-    }, {
-      "id": "e56ecd4c-d883-422f-90e9-5d700a1ec8f7",
-      "comment": "",
-      "command": "type",
-      "target": "name=prod_year",
-      "targets": [],
-      "value": "X"
-    }, {
-      "id": "13a0980a-47a0-4884-a052-0796a8fa61c2",
-      "comment": "",
-      "command": "else",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "2db562b2-5f99-49f2-b9b9-830dcfa72ac5",
-      "comment": "",
-      "command": "waitForElementPresent",
-      "target": "xpath=//option[@value='abarth']",
-      "targets": [],
-      "value": "2000"
-    }, {
-      "id": "c854a764-9fd0-40b1-a798-d0358f7f4191",
-      "comment": "",
-      "command": "select",
-      "target": "name=brand",
-      "targets": [],
-      "value": "index=${randomMakeIndex}"
-    }, {
-      "id": "7bff49b1-1860-4dec-ac6b-8b7178de6973",
-      "comment": "",
-      "command": "storeXpathCount",
-      "target": "xpath=//select[@name='model']",
-      "targets": [],
-      "value": "isModel"
-    }, {
-      "id": "168d1909-75fb-4def-b74e-a9c249648702",
-      "comment": "",
-      "command": "pause",
-      "target": "1000",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "980b3eac-6768-4d43-b8d0-c42cd3b697ca",
-      "comment": "",
-      "command": "verifyElementPresent",
-      "target": "xpath=//select[@name='model']",
-      "targets": [],
-      "value": "!isModel"
-    }, {
-      "id": "6019140d-822d-45dd-8f8a-da04eca41c5e",
-      "comment": "",
-      "command": "if",
-      "target": "${isModel}==1",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "e236460a-8fef-4634-a9bb-eebdabdc6300",
-      "comment": "",
-      "command": "click",
-      "target": "name=model",
-      "targets": [
-        ["name=model", "name"],
-        ["css=.required > select:nth-child(5)", "css:finder"],
-        ["xpath=//select[@name='model']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div/select[2]", "xpath:idRelative"],
-        ["xpath=//select[2]", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "8deb0ec1-8398-4a73-bf37-7e715a974e7f",
-      "comment": "",
-      "command": "select",
-      "target": "name=model",
-      "targets": [],
-      "value": "index=1"
-    }, {
-      "id": "e5a26a01-1f3f-4d45-8cdc-b5043a2c84c4",
-      "comment": "",
-      "command": "else",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "504e7e6c-48f3-42f2-a482-50d7d6a22f06",
-      "comment": "",
-      "command": "type",
-      "target": "name=model",
-      "targets": [],
-      "value": "BRAK MODELI DANEJ MARKI"
-    }, {
-      "id": "373db87d-74fb-4aff-a0eb-db71a9c310ae",
-      "comment": "",
-      "command": "end",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "96188c6c-d47a-4f91-b401-15c4e4bde77c",
-      "comment": "",
-      "command": "pause",
-      "target": "1000",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "c1b1c3ed-e80c-42e7-b847-81b0a6082a65",
-      "comment": "",
-      "command": "storeXpathCount",
-      "target": "xpath=//select[@name='prod_year']",
-      "targets": [],
-      "value": "isGeneration"
-    }, {
-      "id": "acb0df8f-61b7-46e5-b6c3-45d0fa2544a8",
-      "comment": "",
-      "command": "verifyElementPresent",
-      "target": "xpath=//select[@name='prod_year']",
-      "targets": [],
-      "value": "isGeneration"
-    }, {
-      "id": "4bfb4073-b3c6-4a5f-adac-dc0b79eeb3c0",
-      "comment": "",
-      "command": "if",
-      "target": "${isGeneration}==1",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "a7af5a14-30c0-4908-9934-a88219dd0229",
-      "comment": "",
-      "command": "click",
-      "target": "name=prod_year",
-      "targets": [
-        ["name=prod_year", "name"],
-        ["css=input:nth-child(7)", "css:finder"],
-        ["xpath=//input[@name='prod_year']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div/input", "xpath:idRelative"],
-        ["xpath=//input", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "38a78451-710b-4c7f-8ad4-588acd9ad369",
-      "comment": "",
-      "command": "select",
-      "target": "name=prod_year",
-      "targets": [],
-      "value": "index=1"
-    }, {
-      "id": "f60954b6-a29c-4500-b879-285a8a7971ba",
-      "comment": "",
-      "command": "else",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "24c96b88-f521-4180-935c-185a6815369b",
-      "comment": "",
-      "command": "type",
-      "target": "name=prod_year",
-      "targets": [],
-      "value": "${randomYear}"
-    }, {
-      "id": "54cc942f-3b4e-4e52-8dac-4b07c33728d6",
-      "comment": "",
-      "command": "end",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "d9bd8bdd-7d4b-4e21-8a79-3a7728b4a22f",
-      "comment": "",
-      "command": "end",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "ee00ce5c-96f0-4e13-a487-1e655e7c1be1",
-      "comment": "",
-      "command": "type",
-      "target": "name=engine",
-      "targets": [
-        ["name=engine", "name"],
-        ["css=input:nth-child(3)", "css:finder"],
-        ["xpath=//input[@name='engine']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input", "xpath:idRelative"],
-        ["xpath=//div[2]/input", "xpath:position"]
-      ],
-      "value": "${randomHP}"
-    }, {
-      "id": "00b4b822-f581-426b-9d0c-c1795b1b6693",
-      "comment": "",
-      "command": "select",
-      "target": "name=transmission",
-      "targets": [],
-      "value": "index=${randomTransmission}"
-    }, {
-      "id": "c177ef1c-9511-44ef-88e9-9ff4d59e6849",
-      "comment": "",
-      "command": "select",
-      "target": "name=drivetrain",
-      "targets": [],
-      "value": "index=${randomDrivetrain}"
-    }, {
-      "id": "4d52bd2d-a531-4d85-b9dd-d3f95f6af4f4",
-      "comment": "",
-      "command": "type",
-      "target": "id=numberPlates",
-      "targets": [
-        ["id=numberPlates", "id"],
-        ["css=#numberPlates", "css:finder"],
-        ["xpath=//input[@id='numberPlates']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input[2]", "xpath:idRelative"],
-        ["xpath=//div[2]/input[2]", "xpath:position"]
-      ],
-      "value": "XXXXXXXXX"
-    }, {
-      "id": "07d6ae46-9c84-4df9-aa66-d1fdd9907c61",
-      "comment": "",
-      "command": "type",
-      "target": "id=mileage",
-      "targets": [
-        ["id=mileage", "id"],
-        ["css=#mileage", "css:finder"],
-        ["xpath=//input[@id='mileage']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input[3]", "xpath:idRelative"],
-        ["xpath=//input[3]", "xpath:position"]
-      ],
-      "value": "${randomMilage}"
-    }, {
-      "id": "8ba76f5b-6d50-49f2-a86e-c7c05ce85e7e",
-      "comment": "",
-      "command": "type",
-      "target": "name=description",
-      "targets": [
-        ["name=description", "name"],
-        ["css=textarea", "css:finder"],
-        ["xpath=//textarea[@name='description']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/textarea", "xpath:idRelative"],
-        ["xpath=//textarea", "xpath:position"]
-      ],
-      "value": "INFO"
-    }, {
-      "id": "cce988e8-8607-464e-8d05-71acf1a6c1a0",
-      "comment": "",
-      "command": "click",
-      "target": "css=.addData",
-      "targets": [
-        ["css=.addData", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[3]/button", "xpath:idRelative"],
-        ["xpath=//button", "xpath:position"],
-        ["xpath=//button[contains(.,'Dodaj pojazd')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "80ca5598-1dcb-4c15-b85f-ad39ca423b06",
-      "comment": "",
-      "command": "click",
-      "target": "css=.fa-file-invoice-dollar",
-      "targets": [
-        ["css=.fa-file-invoice-dollar", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div[2]/div/div/div/ul/li[14]/a/i", "xpath:idRelative"],
-        ["xpath=//li[14]/a/i", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "7c2993b0-bb5a-4bfe-8f84-fae2c00188a4",
-      "comment": "",
-      "command": "pause",
-      "target": "500",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "2d478cc1-bb1a-4665-9e95-d59b9e544746",
-      "comment": "",
-      "command": "click",
-      "target": "css=.fa-user",
-      "targets": [
-        ["css=.fa-user", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div[2]/div/div/div/ul/li[15]/a/i", "xpath:idRelative"],
-        ["xpath=//li[15]/a/i", "xpath:position"]
-      ],
-      "value": ""
-    }]
-  }, {
-    "id": "dc87419d-d664-4e3d-b3ad-a408848dcd68",
-    "name": "2_Dodawanie klienta",
-    "commands": [{
-      "id": "23dcb271-01ff-4c87-84d5-f2a1ae1b3adb",
-      "comment": "",
-      "command": "open",
-      "target": "/#/",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "918f9436-bc4d-4914-a961-7c879d62ec6c",
-      "comment": "",
-      "command": "waitForElementPresent",
-      "target": "css=.fa-parking",
-      "targets": [],
-      "value": "2000"
-    }, {
-      "id": "7a90a5d5-43bd-41a3-927f-1123d6fd4af3",
-      "comment": "",
-      "command": "click",
-      "target": "css=.fa-user",
-      "targets": [
-        ["css=.fa-user", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div[2]/div/div/div/ul/li[15]/a/i", "xpath:idRelative"],
-        ["xpath=//li[15]/a/i", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "20d33b23-7af5-40ab-be85-bedeeb17fd82",
-      "comment": "",
-      "command": "click",
-      "target": "xpath=//button[contains(.,'Dodaj Klienta')]",
-      "targets": [
-        ["css=.btn", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/div/button", "xpath:idRelative"],
-        ["xpath=//button", "xpath:position"],
-        ["xpath=//button[contains(.,'Dodaj Klienta')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "691cb925-527e-43ef-a0e1-d86fb717777e",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.round(Math.random()*500)",
-      "targets": [],
-      "value": "randomClientID"
-    }, {
-      "id": "c93b28d7-bb0c-4485-8f4b-2fa3bbf5c6e7",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.random().toString().slice(2,11)",
-      "targets": [],
-      "value": "randomPhoneNum"
-    }, {
-      "id": "6fe906b6-c57b-4cf1-b274-7ab245daf1e3",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.round(Math.random()*1000)",
-      "targets": [],
-      "value": "randomAddressNum"
-    }, {
-      "id": "3192bb22-1b5c-45a7-bcd0-725ef6843d0b",
-      "comment": "",
-      "command": "type",
-      "target": "id=phoneNum",
-      "targets": [],
-      "value": "${randomPhoneNum}"
-    }, {
-      "id": "183ffe06-2a0c-41a9-86c1-b9a3c9c6b4ff",
-      "comment": "",
-      "command": "type",
-      "target": "id=clientName",
-      "targets": [
-        ["id=clientName", "id"],
-        ["css=#clientName", "css:finder"],
-        ["xpath=//input[@id='clientName']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div/input[2]", "xpath:idRelative"],
-        ["xpath=//input[2]", "xpath:position"]
-      ],
-      "value": "Klient_${randomClientID}"
-    }, {
-      "id": "99679ff6-7baa-431c-bfa4-8251d0257723",
-      "comment": "",
-      "command": "type",
-      "target": "name=address",
-      "targets": [
-        ["name=address", "name"],
-        ["css=.extraInformation > input:nth-child(5)", "css:finder"],
-        ["xpath=//input[@name='address']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input[2]", "xpath:idRelative"],
-        ["xpath=//div[2]/input[2]", "xpath:position"]
-      ],
-      "value": "Adres_${randomAddressNum}"
-    }, {
-      "id": "9d02492e-5d71-4bc2-855f-0baa72104e38",
-      "comment": "",
-      "command": "type",
-      "target": "name=client_description",
-      "targets": [
-        ["name=client_description", "name"],
-        ["css=textarea", "css:finder"],
-        ["xpath=//textarea[@name='client_description']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/textarea", "xpath:idRelative"],
-        ["xpath=//textarea", "xpath:position"]
-      ],
-      "value": "Info_X"
-    }, {
-      "id": "b9c82f5c-7aa9-43c8-a2e4-ef26b5562944",
-      "comment": "",
-      "command": "click",
-      "target": "css=.addData",
-      "targets": [
-        ["css=.addData", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[3]/button", "xpath:idRelative"],
-        ["xpath=//button", "xpath:position"],
-        ["xpath=//button[contains(.,'Dodaj klienta')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }]
-  }, {
-    "id": "4da6ce52-1e4f-40d6-be29-c18fc4ce3c01",
-    "name": "2_Dodawanie pojazdu",
-    "commands": [{
-      "id": "91d86e79-60df-4643-b1d8-83182e539d8b",
-      "comment": "",
-      "command": "open",
-      "target": "/#/wolne",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "caacb27c-5777-4959-aa82-066701bbd1bb",
-      "comment": "",
-      "command": "click",
-      "target": "css=.fa-user",
-      "targets": [
-        ["css=.fa-user", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div[2]/div/div/div/ul/li[15]/a/i", "xpath:idRelative"],
-        ["xpath=//li[15]/a/i", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "0fe537d1-05d5-412f-9653-5c58c50234a2",
-      "comment": "",
-      "command": "waitForElementPresent",
-      "target": "xpath=//tr/td/i[2]/i",
-      "targets": [],
-      "value": "2000"
-    }, {
-      "id": "1b5ae7fb-69a8-4e3a-8a0b-7bee9df97074",
-      "comment": "",
-      "command": "click",
-      "target": "xpath=//tr/td/i[2]/i",
-      "targets": [
-        ["css=#id000-000-000 .fas > .fas", "css:finder"],
-        ["xpath=//tr[@id='id000-000-000']/td/i[2]/i", "xpath:idRelative"],
-        ["xpath=//i[2]/i", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "09666972-1259-4712-a80f-a8c8255edeb8",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor((Math.random()*300)+50)",
-      "targets": [],
-      "value": "randomHP"
-    }, {
-      "id": "3def9e73-be0a-4374-aa89-dbee323721bc",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor((Math.random()*48)+1975)",
-      "targets": [],
-      "value": "randomYear"
-    }, {
-      "id": "74d0aca1-8b5c-4103-ad6b-0b4fef15233c",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*135)",
-      "targets": [],
-      "value": "randomMakeIndex"
-    }, {
-      "id": "2d5779ac-df68-4724-89b0-3294feee9d47",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*2)",
-      "targets": [],
-      "value": "randomTransmission"
-    }, {
-      "id": "e93a0a81-2b0c-4687-b144-48dba3871e13",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*250000)",
-      "targets": [],
-      "value": "randomMilage"
-    }, {
-      "id": "2b613fba-c6a1-4da2-b7bf-2a6a98d70d6f",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*3)",
-      "targets": [],
-      "value": "randomDrivetrain"
-    }, {
-      "id": "6768a1c5-deab-46f7-92fc-1590c51a53e6",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*5)",
-      "targets": [],
-      "value": "randomFuel"
-    }, {
-      "id": "7b71afd5-c220-4465-b682-53be1f7b32f9",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return (Math.random().toString().slice(2,11) +  Math.random().toString().slice(3,11))",
-      "targets": [],
-      "value": "randomVIN"
-    }, {
-      "id": "0a378741-4a9b-417b-8e1c-7fde28cf5fee",
-      "comment": "",
-      "command": "type",
-      "target": "id=VIN",
-      "targets": [
-        ["id=VIN", "id"],
-        ["css=#VIN", "css:finder"],
-        ["xpath=//input[@id='VIN']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div/input", "xpath:idRelative"],
-        ["xpath=//input", "xpath:position"]
-      ],
-      "value": "${randomVIN}"
-    }, {
-      "id": "7a771445-7b74-4a90-b3da-bd896f22b577",
-      "comment": "",
-      "command": "select",
-      "target": "name=fuel",
-      "targets": [],
-      "value": "index=${randomFuel}"
-    }, {
-      "id": "888832e5-2d1c-4043-9fea-bf0f3a511bc3",
-      "comment": "",
-      "command": "storeXpathCount",
-      "target": "xpath=//input[@name='brand']",
-      "targets": [],
-      "value": "noMakes"
-    }, {
-      "id": "02d154aa-c888-4c67-9b0a-34659c89faff",
-      "comment": "",
-      "command": "verifyElementPresent",
-      "target": "xpath=//select[@name='brand']",
-      "targets": [],
-      "value": "!noMakes"
-    }, {
-      "id": "333d39d1-26d6-4469-b6bc-8e94266a476b",
-      "comment": "",
-      "command": "if",
-      "target": "${noMakes}==1",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "41fe1111-0b6e-4cf0-b19b-9dde1fec5368",
-      "comment": "",
-      "command": "type",
-      "target": "name=brand",
-      "targets": [],
-      "value": "BLAD LADOWANIA MAREK"
-    }, {
-      "id": "b3129204-0ec9-4725-98cf-b4595f2ab807",
-      "comment": "",
-      "command": "type",
-      "target": "name=model",
-      "targets": [],
-      "value": "BLAD LADOWANIA MODELI"
-    }, {
-      "id": "8627bd82-a017-4dad-880c-65a5b7ec3e45",
-      "comment": "",
-      "command": "type",
-      "target": "name=prod_year",
-      "targets": [],
-      "value": "X"
-    }, {
-      "id": "3235de41-773b-4faa-b99c-95e8ebc03d91",
-      "comment": "",
-      "command": "else",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "4053e593-183c-44a7-b5fe-0a419843187a",
-      "comment": "",
-      "command": "waitForElementPresent",
-      "target": "xpath=//option[@value='abarth']",
-      "targets": [],
-      "value": "2000"
-    }, {
-      "id": "960d2487-949f-4a9e-adfa-355c4023b84b",
-      "comment": "",
-      "command": "select",
-      "target": "name=brand",
-      "targets": [],
-      "value": "index=${randomMakeIndex}"
-    }, {
-      "id": "b462e014-f934-4710-b068-90612df3f286",
-      "comment": "",
-      "command": "storeXpathCount",
-      "target": "xpath=//select[@name='model']",
-      "targets": [],
-      "value": "isModel"
-    }, {
-      "id": "989d290f-d0b4-4349-8017-557a8fbffec7",
-      "comment": "",
-      "command": "pause",
-      "target": "1000",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "76fe0caf-86d1-4a09-99d9-741f3d840117",
-      "comment": "",
-      "command": "verifyElementPresent",
-      "target": "xpath=//select[@name='model']",
-      "targets": [],
-      "value": "!isModel"
-    }, {
-      "id": "6b525ed8-0595-4962-b3e8-9f52226a468a",
-      "comment": "",
-      "command": "if",
-      "target": "${isModel}==1",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "1119ff8f-3fa6-4502-9d73-8a31be282825",
-      "comment": "",
-      "command": "click",
-      "target": "name=model",
-      "targets": [
-        ["name=model", "name"],
-        ["css=.required > select:nth-child(5)", "css:finder"],
-        ["xpath=//select[@name='model']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div/select[2]", "xpath:idRelative"],
-        ["xpath=//select[2]", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "1856324a-d021-4571-92c3-658c132030cb",
-      "comment": "",
-      "command": "select",
-      "target": "name=model",
-      "targets": [],
-      "value": "index=1"
-    }, {
-      "id": "4a9fee6d-49f7-46e5-b958-89de0532ef37",
-      "comment": "",
-      "command": "else",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "25130077-848c-4c0b-9282-46e3cfb6a207",
-      "comment": "",
-      "command": "type",
-      "target": "name=model",
-      "targets": [],
-      "value": "BRAK MODELI DANEJ MARKI"
-    }, {
-      "id": "7ee096cf-c244-4db3-9383-44192055a2fb",
-      "comment": "",
-      "command": "end",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "30eb3e88-a4f2-45e5-95ab-82d38777b39a",
-      "comment": "",
-      "command": "pause",
-      "target": "1000",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "fc685cba-2956-4045-a788-a77bd29ee3fd",
-      "comment": "",
-      "command": "storeXpathCount",
-      "target": "xpath=//select[@name='prod_year']",
-      "targets": [],
-      "value": "isGeneration"
-    }, {
-      "id": "02e4fc04-8b77-4ffe-8331-bfd59198594d",
-      "comment": "",
-      "command": "verifyElementPresent",
-      "target": "xpath=//select[@name='prod_year']",
-      "targets": [],
-      "value": "isGeneration"
-    }, {
-      "id": "3e27662c-1819-4d69-a118-b9dbbc2d5315",
-      "comment": "",
-      "command": "if",
-      "target": "${isGeneration}==1",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "7f0ee9e2-d67c-4237-92bc-fd29e9823b27",
-      "comment": "",
-      "command": "click",
-      "target": "name=prod_year",
-      "targets": [
-        ["name=prod_year", "name"],
-        ["css=input:nth-child(7)", "css:finder"],
-        ["xpath=//input[@name='prod_year']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div/input", "xpath:idRelative"],
-        ["xpath=//input", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "2ec95bfa-101c-4e13-b49f-bf1e58a573b1",
-      "comment": "",
-      "command": "select",
-      "target": "name=prod_year",
-      "targets": [],
-      "value": "index=1"
-    }, {
-      "id": "eaddadea-a2c7-4796-ba7e-552f4ea312dc",
-      "comment": "",
-      "command": "else",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "a6cb410c-255a-4920-b17d-563422e1a0d3",
-      "comment": "",
-      "command": "type",
-      "target": "name=prod_year",
-      "targets": [],
-      "value": "${randomYear}"
-    }, {
-      "id": "a4ed5b59-2681-4865-a67d-c596c148b67c",
-      "comment": "",
-      "command": "end",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "be2c8109-05d8-4ec3-9de4-eabbbafc514e",
-      "comment": "",
-      "command": "end",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "3a927bd3-2156-4bde-b63d-27a7cfccf276",
-      "comment": "",
-      "command": "type",
-      "target": "name=engine",
-      "targets": [
-        ["name=engine", "name"],
-        ["css=input:nth-child(3)", "css:finder"],
-        ["xpath=//input[@name='engine']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input", "xpath:idRelative"],
-        ["xpath=//div[2]/input", "xpath:position"]
-      ],
-      "value": "${randomHP}"
-    }, {
-      "id": "d869a054-79a6-4607-a8a3-d9b9e08a8fa1",
-      "comment": "",
-      "command": "select",
-      "target": "name=transmission",
-      "targets": [],
-      "value": "index=${randomTransmission}"
-    }, {
-      "id": "e818354e-e8c1-4cef-9878-86576662cef6",
-      "comment": "",
-      "command": "select",
-      "target": "name=drivetrain",
-      "targets": [],
-      "value": "index=${randomDrivetrain}"
-    }, {
-      "id": "b8ab5c8d-9b59-458f-b7aa-9833cc208a63",
-      "comment": "",
-      "command": "type",
-      "target": "id=numberPlates",
-      "targets": [
-        ["id=numberPlates", "id"],
-        ["css=#numberPlates", "css:finder"],
-        ["xpath=//input[@id='numberPlates']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input[2]", "xpath:idRelative"],
-        ["xpath=//div[2]/input[2]", "xpath:position"]
-      ],
-      "value": "XXXXXXXXX"
-    }, {
-      "id": "916aa0ca-f257-47d1-9d0b-8be8c852a8f2",
-      "comment": "",
-      "command": "type",
-      "target": "id=mileage",
-      "targets": [
-        ["id=mileage", "id"],
-        ["css=#mileage", "css:finder"],
-        ["xpath=//input[@id='mileage']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input[3]", "xpath:idRelative"],
-        ["xpath=//input[3]", "xpath:position"]
-      ],
-      "value": "${randomMilage}"
-    }, {
-      "id": "d04e3cdd-d570-4bb2-b631-774c9447595f",
-      "comment": "",
-      "command": "type",
-      "target": "name=description",
-      "targets": [
-        ["name=description", "name"],
-        ["css=textarea", "css:finder"],
-        ["xpath=//textarea[@name='description']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/textarea", "xpath:idRelative"],
-        ["xpath=//textarea", "xpath:position"]
-      ],
-      "value": "INFO"
-    }, {
-      "id": "3f4454a6-c376-4594-945c-547c868688f0",
-      "comment": "",
-      "command": "click",
-      "target": "css=.addData",
-      "targets": [
-        ["css=.addData", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[3]/button", "xpath:idRelative"],
-        ["xpath=//button", "xpath:position"],
-        ["xpath=//button[contains(.,'Dodaj pojazd')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "6785dd3c-7e2d-4a7b-818d-5b979492ec5d",
-      "comment": "",
-      "command": "click",
-      "target": "css=.fa-file-invoice-dollar",
-      "targets": [
-        ["css=.fa-file-invoice-dollar", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div[2]/div/div/div/ul/li[14]/a/i", "xpath:idRelative"],
-        ["xpath=//li[14]/a/i", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "6c3cf8d1-8077-44ea-b057-bc40e48526eb",
-      "comment": "",
-      "command": "pause",
-      "target": "500",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "12f01e38-113e-4278-bde9-edb4bf61e49c",
-      "comment": "",
-      "command": "click",
-      "target": "css=.fa-user",
-      "targets": [
-        ["css=.fa-user", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div[2]/div/div/div/ul/li[15]/a/i", "xpath:idRelative"],
-        ["xpath=//li[15]/a/i", "xpath:position"]
-      ],
-      "value": ""
-    }]
-  }, {
-    "id": "9c470a3d-fa68-4f52-bdfe-9b1ef883069c",
-    "name": "3_Dodawanie klienta",
-    "commands": [{
-      "id": "1f63f741-b1f0-4e39-a3db-86ea4cef1fb6",
-      "comment": "",
-      "command": "open",
-      "target": "/#/",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "aeb5473c-63ad-44e4-95eb-1b4befd1b79a",
-      "comment": "",
-      "command": "waitForElementPresent",
-      "target": "css=.fa-parking",
-      "targets": [],
-      "value": "2000"
-    }, {
-      "id": "9e29996b-a03e-4edb-9890-645a17c94f52",
-      "comment": "",
-      "command": "click",
-      "target": "css=.fa-user",
-      "targets": [
-        ["css=.fa-user", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div[2]/div/div/div/ul/li[15]/a/i", "xpath:idRelative"],
-        ["xpath=//li[15]/a/i", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "cb887453-a4d3-4e17-82c1-12dff6de2b30",
-      "comment": "",
-      "command": "click",
-      "target": "xpath=//button[contains(.,'Dodaj Klienta')]",
-      "targets": [
-        ["css=.btn", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/div/button", "xpath:idRelative"],
-        ["xpath=//button", "xpath:position"],
-        ["xpath=//button[contains(.,'Dodaj Klienta')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "fdc5c04e-8607-4005-bec8-1eb148777f96",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.round(Math.random()*500)",
-      "targets": [],
-      "value": "randomClientID"
-    }, {
-      "id": "e40fffad-7256-4f8c-8656-c5c760a3ed6c",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.random().toString().slice(2,11)",
-      "targets": [],
-      "value": "randomPhoneNum"
-    }, {
-      "id": "ca59fb55-5204-4999-9b48-9a6f19d19ef8",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.round(Math.random()*1000)",
-      "targets": [],
-      "value": "randomAddressNum"
-    }, {
-      "id": "e8c6be89-a9bc-4af3-abca-7dc8e15f6687",
-      "comment": "",
-      "command": "type",
-      "target": "id=phoneNum",
-      "targets": [],
-      "value": "${randomPhoneNum}"
-    }, {
-      "id": "8ebe8d61-00b7-4ddf-a540-346a1d31d1b6",
-      "comment": "",
-      "command": "type",
-      "target": "id=clientName",
-      "targets": [
-        ["id=clientName", "id"],
-        ["css=#clientName", "css:finder"],
-        ["xpath=//input[@id='clientName']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div/input[2]", "xpath:idRelative"],
-        ["xpath=//input[2]", "xpath:position"]
-      ],
-      "value": "Klient_${randomClientID}"
-    }, {
-      "id": "b8583fab-1201-4641-8340-7f92973fb7ce",
-      "comment": "",
-      "command": "type",
-      "target": "name=address",
-      "targets": [
-        ["name=address", "name"],
-        ["css=.extraInformation > input:nth-child(5)", "css:finder"],
-        ["xpath=//input[@name='address']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input[2]", "xpath:idRelative"],
-        ["xpath=//div[2]/input[2]", "xpath:position"]
-      ],
-      "value": "Adres_${randomAddressNum}"
-    }, {
-      "id": "fb3df3c4-7f98-4e76-a246-6343447ae400",
-      "comment": "",
-      "command": "type",
-      "target": "name=client_description",
-      "targets": [
-        ["name=client_description", "name"],
-        ["css=textarea", "css:finder"],
-        ["xpath=//textarea[@name='client_description']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/textarea", "xpath:idRelative"],
-        ["xpath=//textarea", "xpath:position"]
-      ],
-      "value": "Info_X"
-    }, {
-      "id": "99f8b33c-e19d-42ce-8f75-d4f3df11fd96",
-      "comment": "",
-      "command": "click",
-      "target": "css=.addData",
-      "targets": [
-        ["css=.addData", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[3]/button", "xpath:idRelative"],
-        ["xpath=//button", "xpath:position"],
-        ["xpath=//button[contains(.,'Dodaj klienta')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }]
-  }, {
-    "id": "ae68673c-adf0-4221-96df-b0eef08f9442",
-    "name": "3_Dodawanie pojazdu",
-    "commands": [{
-      "id": "3806544c-6f7b-47be-becd-b2d21c0b9839",
-      "comment": "",
-      "command": "open",
-      "target": "/#/wolne",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "e3595ff3-169c-4e1f-bb40-a84ec1e916ce",
-      "comment": "",
-      "command": "click",
-      "target": "css=.fa-user",
-      "targets": [
-        ["css=.fa-user", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div[2]/div/div/div/ul/li[15]/a/i", "xpath:idRelative"],
-        ["xpath=//li[15]/a/i", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "5372b5ed-117b-45fa-9d20-6421876cb46e",
-      "comment": "",
-      "command": "waitForElementPresent",
-      "target": "xpath=//tr/td/i[2]/i",
-      "targets": [],
-      "value": "2000"
-    }, {
-      "id": "9942b246-6610-450a-b140-455950ec4ca3",
-      "comment": "",
-      "command": "click",
-      "target": "xpath=//tr/td/i[2]/i",
-      "targets": [
-        ["css=#id000-000-000 .fas > .fas", "css:finder"],
-        ["xpath=//tr[@id='id000-000-000']/td/i[2]/i", "xpath:idRelative"],
-        ["xpath=//i[2]/i", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "82ad5130-fb26-4c6d-8dc7-077286d06d7d",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor((Math.random()*300)+50)",
-      "targets": [],
-      "value": "randomHP"
-    }, {
-      "id": "9d28a4a6-08ac-4eca-8ca7-2c25206e261d",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor((Math.random()*48)+1975)",
-      "targets": [],
-      "value": "randomYear"
-    }, {
-      "id": "103ea4b0-1660-437b-b4e2-341b0770f904",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*135)",
-      "targets": [],
-      "value": "randomMakeIndex"
-    }, {
-      "id": "784481f0-2725-450f-a2a0-fa2a8b532e7e",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*2)",
-      "targets": [],
-      "value": "randomTransmission"
-    }, {
-      "id": "a2c8d4d8-51a9-4b7b-9043-1835cb1b0e77",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*250000)",
-      "targets": [],
-      "value": "randomMilage"
-    }, {
-      "id": "7319b054-0c56-4ae0-9880-47d15de64bd8",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*3)",
-      "targets": [],
-      "value": "randomDrivetrain"
-    }, {
-      "id": "a61fd649-722c-4c0d-b832-de9f04264e81",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*5)",
-      "targets": [],
-      "value": "randomFuel"
-    }, {
-      "id": "90ec566f-7bac-4a2b-9d70-d863d961c779",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return (Math.random().toString().slice(2,11) +  Math.random().toString().slice(3,11))",
-      "targets": [],
-      "value": "randomVIN"
-    }, {
-      "id": "935f4cf5-582f-4bf6-89af-d134d7bd8b3e",
-      "comment": "",
-      "command": "type",
-      "target": "id=VIN",
-      "targets": [
-        ["id=VIN", "id"],
-        ["css=#VIN", "css:finder"],
-        ["xpath=//input[@id='VIN']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div/input", "xpath:idRelative"],
-        ["xpath=//input", "xpath:position"]
-      ],
-      "value": "${randomVIN}"
-    }, {
-      "id": "263142f2-64f1-469a-b788-2ab5c6eebc78",
-      "comment": "",
-      "command": "select",
-      "target": "name=fuel",
-      "targets": [],
-      "value": "index=${randomFuel}"
-    }, {
-      "id": "54ecb111-3abc-4a3f-a9e3-7abd1cbcb129",
-      "comment": "",
-      "command": "storeXpathCount",
-      "target": "xpath=//input[@name='brand']",
-      "targets": [],
-      "value": "noMakes"
-    }, {
-      "id": "da2eed20-d452-4240-b1f2-fa5a768d8184",
-      "comment": "",
-      "command": "verifyElementPresent",
-      "target": "xpath=//select[@name='brand']",
-      "targets": [],
-      "value": "!noMakes"
-    }, {
-      "id": "4579bda8-b7e5-486e-b81d-84be9e898bdc",
-      "comment": "",
-      "command": "if",
-      "target": "${noMakes}==1",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "deb2000e-164e-4765-bae1-df2962fb1a93",
-      "comment": "",
-      "command": "type",
-      "target": "name=brand",
-      "targets": [],
-      "value": "BLAD LADOWANIA MAREK"
-    }, {
-      "id": "5e787240-e87c-44a1-a621-2fdce0383fd0",
-      "comment": "",
-      "command": "type",
-      "target": "name=model",
-      "targets": [],
-      "value": "BLAD LADOWANIA MODELI"
-    }, {
-      "id": "10a54261-ac02-446a-ace0-7e51cb9b7bca",
-      "comment": "",
-      "command": "type",
-      "target": "name=prod_year",
-      "targets": [],
-      "value": "X"
-    }, {
-      "id": "525e688f-4fe3-42e9-82df-ecfe978fb425",
-      "comment": "",
-      "command": "else",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "25e1091c-0653-4f7d-8d59-73a8908b6c2b",
-      "comment": "",
-      "command": "waitForElementPresent",
-      "target": "xpath=//option[@value='abarth']",
-      "targets": [],
-      "value": "2000"
-    }, {
-      "id": "e05fcaae-4b69-4639-9042-e1a844095a61",
-      "comment": "",
-      "command": "select",
-      "target": "name=brand",
-      "targets": [],
-      "value": "index=${randomMakeIndex}"
-    }, {
-      "id": "c8efb01c-b217-450e-a2e6-8b88a703f816",
-      "comment": "",
-      "command": "storeXpathCount",
-      "target": "xpath=//select[@name='model']",
-      "targets": [],
-      "value": "isModel"
-    }, {
-      "id": "38f903b1-a2b5-4cd8-ae36-701a82a645ce",
-      "comment": "",
-      "command": "pause",
-      "target": "1000",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "938443e8-5cfa-49cf-a08d-520abc063473",
-      "comment": "",
-      "command": "verifyElementPresent",
-      "target": "xpath=//select[@name='model']",
-      "targets": [],
-      "value": "!isModel"
-    }, {
-      "id": "f0a651f8-3596-40aa-a9f5-479dc5c00a8d",
-      "comment": "",
-      "command": "if",
-      "target": "${isModel}==1",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "8e6b3708-d70e-48c1-82d6-2a2b11a35335",
-      "comment": "",
-      "command": "click",
-      "target": "name=model",
-      "targets": [
-        ["name=model", "name"],
-        ["css=.required > select:nth-child(5)", "css:finder"],
-        ["xpath=//select[@name='model']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div/select[2]", "xpath:idRelative"],
-        ["xpath=//select[2]", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "8abc689c-165b-499d-8449-7392b5427ebd",
-      "comment": "",
-      "command": "select",
-      "target": "name=model",
-      "targets": [],
-      "value": "index=1"
-    }, {
-      "id": "f0e12210-933a-451b-a102-ce3267c378da",
-      "comment": "",
-      "command": "else",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "7e4912dd-d201-4eb7-9748-5700bb1ba785",
-      "comment": "",
-      "command": "type",
-      "target": "name=model",
-      "targets": [],
-      "value": "BRAK MODELI DANEJ MARKI"
-    }, {
-      "id": "3956661b-1b8a-48ec-9d40-16669a26f67e",
-      "comment": "",
-      "command": "end",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "1b32780c-40b1-425e-aa29-ebc25cbc0afe",
-      "comment": "",
-      "command": "pause",
-      "target": "1000",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "af32e496-1abe-4e7a-85d1-545027b1c1ff",
-      "comment": "",
-      "command": "storeXpathCount",
-      "target": "xpath=//select[@name='prod_year']",
-      "targets": [],
-      "value": "isGeneration"
-    }, {
-      "id": "35b72786-ab50-4b07-82d7-11fac874a5e1",
-      "comment": "",
-      "command": "verifyElementPresent",
-      "target": "xpath=//select[@name='prod_year']",
-      "targets": [],
-      "value": "isGeneration"
-    }, {
-      "id": "ab1006bf-7c9b-4ee9-a06f-16811711b477",
-      "comment": "",
-      "command": "if",
-      "target": "${isGeneration}==1",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "b35e7056-5ec1-4a5d-9e08-072445914f42",
-      "comment": "",
-      "command": "click",
-      "target": "name=prod_year",
-      "targets": [
-        ["name=prod_year", "name"],
-        ["css=input:nth-child(7)", "css:finder"],
-        ["xpath=//input[@name='prod_year']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div/input", "xpath:idRelative"],
-        ["xpath=//input", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "3b458e75-0e15-40df-bf18-11df23826342",
-      "comment": "",
-      "command": "select",
-      "target": "name=prod_year",
-      "targets": [],
-      "value": "index=1"
-    }, {
-      "id": "8d19b3d1-1ca4-4116-b71c-76be48a517e9",
-      "comment": "",
-      "command": "else",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "9115caa3-7b6c-4c09-bf11-493dbb583de2",
-      "comment": "",
-      "command": "type",
-      "target": "name=prod_year",
-      "targets": [],
-      "value": "${randomYear}"
-    }, {
-      "id": "a2061e7e-a4fe-4774-954d-34b3c41dfdba",
-      "comment": "",
-      "command": "end",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "8bb3e71f-9344-4b96-95d0-269ada5eb89b",
-      "comment": "",
-      "command": "end",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "ed9eecf2-8dd0-414e-bf56-b5bb7885e1c5",
-      "comment": "",
-      "command": "type",
-      "target": "name=engine",
-      "targets": [
-        ["name=engine", "name"],
-        ["css=input:nth-child(3)", "css:finder"],
-        ["xpath=//input[@name='engine']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input", "xpath:idRelative"],
-        ["xpath=//div[2]/input", "xpath:position"]
-      ],
-      "value": "${randomHP}"
-    }, {
-      "id": "581093b3-e7b2-4e86-bb69-79164e72c001",
-      "comment": "",
-      "command": "select",
-      "target": "name=transmission",
-      "targets": [],
-      "value": "index=${randomTransmission}"
-    }, {
-      "id": "8d254bbb-6791-4595-b58a-b372d6bed698",
-      "comment": "",
-      "command": "select",
-      "target": "name=drivetrain",
-      "targets": [],
-      "value": "index=${randomDrivetrain}"
-    }, {
-      "id": "652213b5-6f87-440c-a8ca-1f1207029aed",
-      "comment": "",
-      "command": "type",
-      "target": "id=numberPlates",
-      "targets": [
-        ["id=numberPlates", "id"],
-        ["css=#numberPlates", "css:finder"],
-        ["xpath=//input[@id='numberPlates']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input[2]", "xpath:idRelative"],
-        ["xpath=//div[2]/input[2]", "xpath:position"]
-      ],
-      "value": "XXXXXXXXX"
-    }, {
-      "id": "58904f98-17f2-4625-97e9-61166287763a",
-      "comment": "",
-      "command": "type",
-      "target": "id=mileage",
-      "targets": [
-        ["id=mileage", "id"],
-        ["css=#mileage", "css:finder"],
-        ["xpath=//input[@id='mileage']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input[3]", "xpath:idRelative"],
-        ["xpath=//input[3]", "xpath:position"]
-      ],
-      "value": "${randomMilage}"
-    }, {
-      "id": "43e74a8d-9ad8-4a97-8f26-ca1bebbf4a4d",
-      "comment": "",
-      "command": "type",
-      "target": "name=description",
-      "targets": [
-        ["name=description", "name"],
-        ["css=textarea", "css:finder"],
-        ["xpath=//textarea[@name='description']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/textarea", "xpath:idRelative"],
-        ["xpath=//textarea", "xpath:position"]
-      ],
-      "value": "INFO"
-    }, {
-      "id": "317f34f5-101a-4f3c-b22e-f71e60ea3cff",
-      "comment": "",
-      "command": "click",
-      "target": "css=.addData",
-      "targets": [
-        ["css=.addData", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[3]/button", "xpath:idRelative"],
-        ["xpath=//button", "xpath:position"],
-        ["xpath=//button[contains(.,'Dodaj pojazd')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "601b2d9c-61d3-4669-8a2d-0e4d97f3037e",
-      "comment": "",
-      "command": "click",
-      "target": "css=.fa-file-invoice-dollar",
-      "targets": [
-        ["css=.fa-file-invoice-dollar", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div[2]/div/div/div/ul/li[14]/a/i", "xpath:idRelative"],
-        ["xpath=//li[14]/a/i", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "6013c272-8929-4213-bce9-db5c56791fdf",
-      "comment": "",
-      "command": "pause",
-      "target": "500",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "ff02b78c-dd2b-42e2-8b2b-ffa5e2791c96",
-      "comment": "",
-      "command": "click",
-      "target": "css=.fa-user",
-      "targets": [
-        ["css=.fa-user", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div[2]/div/div/div/ul/li[15]/a/i", "xpath:idRelative"],
-        ["xpath=//li[15]/a/i", "xpath:position"]
-      ],
-      "value": ""
-    }]
-  }, {
     "id": "6c0f9dd3-bfa4-498f-be6e-b81e6ff15845",
     "name": "Dodawanie_zlecenia",
     "commands": [{
@@ -1550,7 +17,7 @@
       "id": "9bc31927-3ccd-4b64-8779-d56f41dcb857",
       "comment": "",
       "command": "times",
-      "target": "50",
+      "target": "222",
       "targets": [],
       "value": ""
     }, {
@@ -1577,18 +44,6 @@
       ],
       "value": ""
     }, {
-      "id": "474a4503-abde-4caf-9ec4-528d978cedf6",
-      "comment": "",
-      "command": "click",
-      "target": "xpath=//button[contains(.,'Załaduj więcej klientów')]",
-      "targets": [
-        ["css=.btn", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/div/div/button", "xpath:idRelative"],
-        ["xpath=//button", "xpath:position"],
-        ["xpath=//button[contains(.,'Załaduj więcej klientów')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
       "id": "b33755f1-c3a6-496c-9b93-a5e7a2b987be",
       "comment": "",
       "command": "pause",
@@ -1596,29 +51,17 @@
       "targets": [],
       "value": ""
     }, {
-      "id": "9a1e79a5-7ea3-42fa-91b5-262489ddd0b2",
-      "comment": "",
-      "command": "click",
-      "target": "xpath=//button[contains(.,'Załaduj więcej klientów')]",
-      "targets": [
-        ["css=.btn", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/div/div/button", "xpath:idRelative"],
-        ["xpath=//button", "xpath:position"],
-        ["xpath=//button[contains(.,'Załaduj więcej klientów')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
       "id": "05c7fa75-641d-4098-8a56-3f34e42dfbfc",
       "comment": "",
       "command": "executeScript",
-      "target": "return Math.floor((Math.random()*300))",
+      "target": "return Math.floor((Math.random()*50))",
       "targets": [],
       "value": "randomIndex"
     }, {
       "id": "709bf513-d4aa-4879-91dd-86efd81c5ce3",
       "comment": "",
       "command": "click",
-      "target": "xpath=(//input[@name='select'])[${randomIndex}]",
+      "target": "xpath=(//div[@role='radio'])[${randomIndex}]",
       "targets": [
         ["css=#id00000000000000000 input", "css:finder"],
         ["xpath=(//input[@name='select'])[3]", "xpath:attributes"],
@@ -1630,7 +73,7 @@
       "id": "a7b62829-72b5-43d4-8b38-d9c29ea2dc56",
       "comment": "",
       "command": "click",
-      "target": "xpath=//button[contains(.,'Zatwierdź')]",
+      "target": "xpath=//button[contains(.,'Dodaj')]",
       "targets": [
         ["css=.submit", "css:finder"],
         ["xpath=//div[@id='id00000000000000000']/div/div[2]/button", "xpath:idRelative"],
@@ -1639,55 +82,92 @@
       ],
       "value": ""
     }, {
-      "id": "0adb48b8-6c81-4b4e-a425-a2f051e1bd29",
-      "comment": "",
-      "command": "type",
-      "target": "name=quantity",
-      "targets": [
-        ["name=quantity", "name"],
-        ["css=.column:nth-child(2) > input", "css:finder"],
-        ["xpath=//input[@name='quantity']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/div/form/div/ul/li/div[2]/input", "xpath:idRelative"],
-        ["xpath=//div[2]/input", "xpath:position"]
-      ],
-      "value": "1"
-    }, {
       "id": "5cee6af0-d2b9-4781-b34b-2b84a91def3b",
       "comment": "",
       "command": "click",
-      "target": "name=quantity",
+      "target": "id=quantityWO",
       "targets": [
-        ["name=quantity", "name"],
-        ["css=.column:nth-child(2) > input", "css:finder"],
-        ["xpath=//input[@name='quantity']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/div/form/div/ul/li/div[2]/input", "xpath:idRelative"],
-        ["xpath=//div[2]/input", "xpath:position"]
+        ["id=quantityWO", "id"],
+        ["css=#quantityWO", "css:finder"],
+        ["xpath=//input[@id='quantityWO']", "xpath:attributes"],
+        ["xpath=//div[@id='app']/div/div/div/div/div/div/div/form/div[2]/div[3]/div/div[3]/div/div[2]/span/input", "xpath:idRelative"],
+        ["xpath=//div[2]/span/input", "xpath:position"]
       ],
       "value": ""
     }, {
       "id": "a9854194-f2a7-4081-bde5-21a752cc4a0f",
       "comment": "",
       "command": "type",
-      "target": "name=priceNet",
+      "target": "xpath=//input[@id='quantityWO']",
       "targets": [
-        ["name=priceNet", "name"],
-        ["css=.column:nth-child(3) > input", "css:finder"],
-        ["xpath=//input[@name='priceNet']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/div/form/div/ul/li/div[3]/input", "xpath:idRelative"],
-        ["xpath=//div[3]/input", "xpath:position"]
+        ["id=priceNetWO", "id"],
+        ["css=#priceNetWO", "css:finder"],
+        ["xpath=//input[@id='priceNetWO']", "xpath:attributes"],
+        ["xpath=//div[@id='app']/div/div/div/div/div/div/div/form/div[2]/div[3]/div/div[3]/div/div[3]/div/span/input", "xpath:idRelative"],
+        ["xpath=//div[3]/div/span/input", "xpath:position"]
       ],
       "value": "1"
     }, {
-      "id": "c53e33c2-b8cf-4ca9-aa71-cbce9380a5ea",
+      "id": "f7f1678f-c8c0-4a12-b88b-cb83b2be51c2",
       "comment": "",
       "command": "click",
-      "target": "name=priceNet",
+      "target": "id=priceNetWO",
       "targets": [
-        ["name=priceNet", "name"],
-        ["css=.column:nth-child(3) > input", "css:finder"],
-        ["xpath=//input[@name='priceNet']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/div/form/div/ul/li/div[3]/input", "xpath:idRelative"],
-        ["xpath=//div[3]/input", "xpath:position"]
+        ["id=priceNetWO", "id"],
+        ["css=#priceNetWO", "css:finder"],
+        ["xpath=//input[@id='priceNetWO']", "xpath:attributes"],
+        ["xpath=//div[@id='app']/div/div/div/div/div/div/div/form/div[2]/div[3]/div/div[3]/div/div[3]/div/span/input", "xpath:idRelative"],
+        ["xpath=//div[3]/div/span/input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "15eca5b8-fa01-44e6-81c2-6b17762c793f",
+      "comment": "",
+      "command": "type",
+      "target": "xpath=//input[@id='priceNetWO']",
+      "targets": [
+        ["id=priceNetWO", "id"],
+        ["css=#priceNetWO", "css:finder"],
+        ["xpath=//input[@id='priceNetWO']", "xpath:attributes"],
+        ["xpath=//div[@id='app']/div/div/div/div/div/div/div/form/div[2]/div[3]/div/div[3]/div/div[3]/div/span/input", "xpath:idRelative"],
+        ["xpath=//div[3]/div/span/input", "xpath:position"]
+      ],
+      "value": "1"
+    }, {
+      "id": "f3aad403-9cc7-492b-8c0a-beb1502336b1",
+      "comment": "",
+      "command": "click",
+      "target": "id=serviceWO",
+      "targets": [
+        ["id=serviceWO", "id"],
+        ["css=#serviceWO", "css:finder"],
+        ["xpath=//input[@id='serviceWO']", "xpath:attributes"],
+        ["xpath=//div[@id='app']/div/div/div/div/div/div/div/form/div[2]/div[3]/div/div[3]/div/div/input", "xpath:idRelative"],
+        ["xpath=//div[3]/div/div[3]/div/div/input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "0015bfe0-7df3-47fd-b7bb-08e54b9b72dd",
+      "comment": "",
+      "command": "type",
+      "target": "xpath=//input[@id='serviceWO']",
+      "targets": [
+        ["id=serviceWO", "id"],
+        ["css=#serviceWO", "css:finder"],
+        ["xpath=//input[@id='serviceWO']", "xpath:attributes"],
+        ["xpath=//div[@id='app']/div/div/div/div/div/div/div/form/div[2]/div[3]/div/div[3]/div/div/input", "xpath:idRelative"],
+        ["xpath=//div[3]/div/div[3]/div/div/input", "xpath:position"]
+      ],
+      "value": "1"
+    }, {
+      "id": "20aa90e4-5ba8-4bac-b13d-06a3752d32b2",
+      "comment": "",
+      "command": "click",
+      "target": "css=.workOrder",
+      "targets": [
+        ["css=.workOrder", "css:finder"],
+        ["xpath=//div[@id='app']/div/div/div/div/div/div/div/form/div[2]/div[3]/div/div[3]", "xpath:idRelative"],
+        ["xpath=//div[3]/div/div[3]", "xpath:position"]
       ],
       "value": ""
     }, {
@@ -1715,31 +195,31 @@
       "id": "35808318-52ea-40a7-9651-772773ec0eed",
       "comment": "",
       "command": "click",
-      "target": "css=div > .fa-plus",
+      "target": "css=.pi-plus-circle",
       "targets": [
-        ["css=div > .fa", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/div/form/div/ul/li[2]/div[8]/i", "xpath:idRelative"],
-        ["xpath=//li[2]/div[8]/i", "xpath:position"]
+        ["css=.pi-plus-circle", "css:finder"],
+        ["xpath=//div[@id='app']/div/div/div/div/div/div/div/form/div[2]/div[3]/div/div[3]/div/div[5]/div[3]/i", "xpath:idRelative"],
+        ["xpath=//i", "xpath:position"]
       ],
       "value": ""
     }, {
       "id": "3669d64c-0f00-4e89-aa0d-c4cb504bb84f",
       "comment": "",
       "command": "click",
-      "target": "name=tax",
+      "target": "id=taxWO",
       "targets": [
-        ["name=tax", "name"],
-        ["css=.workOrderItem:nth-child(3) > .column:nth-child(5) > input", "css:finder"],
-        ["xpath=//input[@name='tax']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/div/form/div/ul/li[3]/div[5]/input", "xpath:idRelative"],
-        ["xpath=//li[3]/div[5]/input", "xpath:position"]
+        ["id=taxWO", "id"],
+        ["css=#taxWO", "css:finder"],
+        ["xpath=//input[@id='taxWO']", "xpath:attributes"],
+        ["xpath=//div[@id='app']/div/div/div/div/div/div/div/form/div[2]/div[3]/div/div[3]/div/div[4]/span/input", "xpath:idRelative"],
+        ["xpath=//div[4]/span/input", "xpath:position"]
       ],
       "value": ""
     }, {
       "id": "ebf20b74-cccd-47fe-b63d-b615c1b7e155",
       "comment": "",
       "command": "type",
-      "target": "name=tax",
+      "target": "xpath=//input[@id='taxWO']",
       "targets": [
         ["name=tax", "name"],
         ["css=.workOrderItem:nth-child(3) > .column:nth-child(5) > input", "css:finder"],
@@ -1752,20 +232,7 @@
       "id": "68dd85d5-2b7d-4c96-93c5-31f1edb20103",
       "comment": "",
       "command": "click",
-      "target": "name=priceNet",
-      "targets": [
-        ["name=priceNet", "name"],
-        ["css=.workOrderItem:nth-child(3) > .column:nth-child(3) > input", "css:finder"],
-        ["xpath=//input[@name='priceNet']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/div/form/div/ul/li[3]/div[3]/input", "xpath:idRelative"],
-        ["xpath=//li[3]/div[3]/input", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "9e0f1faf-4a9a-4ca5-b93a-9fd286972afb",
-      "comment": "",
-      "command": "click",
-      "target": "name=priceNet",
+      "target": "id=priceNetWO",
       "targets": [
         ["name=priceNet", "name"],
         ["css=.workOrderItem:nth-child(3) > .column:nth-child(3) > input", "css:finder"],
@@ -1778,7 +245,7 @@
       "id": "01c64ba7-643c-4715-99fe-7a5c949de69a",
       "comment": "",
       "command": "type",
-      "target": "name=priceNet",
+      "target": "xpath=//input[@id='priceNetWO']",
       "targets": [
         ["name=priceNet", "name"],
         ["css=.workOrderItem:nth-child(3) > .column:nth-child(3) > input", "css:finder"],
@@ -1791,20 +258,7 @@
       "id": "25253f34-963e-40e0-a70b-b41d205ac69f",
       "comment": "",
       "command": "click",
-      "target": "name=quantity",
-      "targets": [
-        ["name=quantity", "name"],
-        ["css=.workOrderItem:nth-child(3) > .column:nth-child(2) > input", "css:finder"],
-        ["xpath=//input[@name='quantity']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/div/form/div/ul/li[3]/div[2]/input", "xpath:idRelative"],
-        ["xpath=//li[3]/div[2]/input", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "e7598dac-ed97-4274-b01a-7bce1d0cb919",
-      "comment": "",
-      "command": "click",
-      "target": "name=quantity",
+      "target": "id=quantityWO",
       "targets": [
         ["name=quantity", "name"],
         ["css=.workOrderItem:nth-child(3) > .column:nth-child(2) > input", "css:finder"],
@@ -1817,7 +271,7 @@
       "id": "3afa4a57-888f-42f4-8255-3044e4fde7ce",
       "comment": "",
       "command": "type",
-      "target": "name=quantity",
+      "target": "xpath=//input[@id='quantityWO']",
       "targets": [
         ["name=quantity", "name"],
         ["css=.workOrderItem:nth-child(3) > .column:nth-child(2) > input", "css:finder"],
@@ -1830,41 +284,49 @@
       "id": "547ad64b-de3a-47f6-b02f-4b172e7c066b",
       "comment": "",
       "command": "click",
-      "target": "id=inprogress",
+      "target": "css=span:nth-child(2) .p-radiobutton-box",
       "targets": [
-        ["id=inprogress", "id"],
-        ["css=#inprogress", "css:finder"],
-        ["xpath=//input[@id='inprogress']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/div/form/div/div[3]/input", "xpath:idRelative"],
-        ["xpath=//div/div[3]/input", "xpath:position"]
+        ["css=span:nth-child(2) .p-radiobutton-box", "css:finder"],
+        ["xpath=//div[@id='app']/div/div/div/div/div/div/div/form/div[2]/div[4]/span[2]/div/div[2]", "xpath:idRelative"],
+        ["xpath=//span[2]/div/div[2]", "xpath:position"]
       ],
       "value": ""
     }, {
       "id": "ec8ecc14-0314-468a-97ab-1ecfc552d4fd",
       "comment": "",
       "command": "click",
-      "target": "name=description",
+      "target": "css=.ql-editor > p",
       "targets": [
-        ["name=description", "name"],
-        ["css=textarea", "css:finder"],
-        ["xpath=//textarea[@name='description']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/div/form/div/textarea", "xpath:idRelative"],
-        ["xpath=//textarea", "xpath:position"]
+        ["css=.ql-editor > p", "css:finder"],
+        ["xpath=//div[@id='Textarea']/div[2]/div/p", "xpath:idRelative"],
+        ["xpath=//div[2]/div[2]/div/p", "xpath:position"]
       ],
       "value": ""
     }, {
       "id": "e13b1ac4-1367-425c-b9e1-3bb9a9155f1d",
       "comment": "",
       "command": "type",
-      "target": "name=description",
+      "target": "css=.ql-editor > p",
       "targets": [
-        ["name=description", "name"],
-        ["css=textarea", "css:finder"],
-        ["xpath=//textarea[@name='description']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/div/form/div/textarea", "xpath:idRelative"],
-        ["xpath=//textarea", "xpath:position"]
+        ["css=.ql-editor > p", "css:finder"],
+        ["xpath=//div[@id='Textarea']/div[2]/div/p", "xpath:idRelative"],
+        ["xpath=//div[2]/div[2]/div/p", "xpath:position"]
       ],
       "value": "AUTO_DODAWANKO"
+    }, {
+      "id": "89ea9d74-8ce9-4f31-aba9-2840cd44c951",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=//input[@id='serviceWO']",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "0baef70f-fbfe-4632-8170-1caa7e2803b7",
+      "comment": "",
+      "command": "type",
+      "target": "xpath=//input[@id='serviceWO']",
+      "targets": [],
+      "value": "RANDOM_2"
     }, {
       "id": "090c16ba-64ad-4e4b-a1d5-f9c48f458d8c",
       "comment": "",
@@ -1890,7 +352,7 @@
       "id": "0ef4ecf7-8d8d-4f82-85c8-1da8cb5c01c0",
       "comment": "",
       "command": "click",
-      "target": "css=div > .fa-plus",
+      "target": "css=.pi-plus-circle",
       "targets": [
         ["css=div > .fa", "css:finder"],
         ["xpath=//div[@id='app']/div/div/div/div/form/div/ul/li[3]/div[8]/i", "xpath:idRelative"],
@@ -1898,31 +360,72 @@
       ],
       "value": ""
     }, {
+      "id": "7196f2e4-61b9-4ee7-b2d6-99eee025f3fd",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=//input[@id='quantityWO']",
+      "targets": [],
+      "value": ""
+    }, {
       "id": "cf3c3140-78e5-47d2-aba9-cf2fd8c7613b",
       "comment": "",
       "command": "type",
-      "target": "name=quantity",
+      "target": "xpath=//input[@id='quantityWO']",
       "targets": [],
       "value": "${randomQuantity}"
+    }, {
+      "id": "90270045-a58e-4061-a209-8a1c6b391a1b",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=//input[@id='priceNetWO']",
+      "targets": [],
+      "value": ""
     }, {
       "id": "29669bd7-c47f-412f-aa1d-20d94ea0a782",
       "comment": "",
       "command": "type",
-      "target": "name=priceNet",
+      "target": "xpath=//input[@id='priceNetWO']",
       "targets": [],
       "value": "${randomNetPrice}"
+    }, {
+      "id": "c8d2c881-37a7-41b0-ab70-096850e83da4",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=//input[@id='taxWO']",
+      "targets": [],
+      "value": ""
     }, {
       "id": "d2c795d9-4cc9-4b24-b195-6cb497a6504d",
       "comment": "",
       "command": "type",
-      "target": "name=tax",
+      "target": "xpath=//input[@id='taxWO']",
       "targets": [],
       "value": "${randomTax}"
+    }, {
+      "id": "447f27b2-23b5-4de2-a625-c4fc0e1571fd",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=//input[@id='serviceWO']",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "3f97f776-e111-480e-bbc4-cce094a7577c",
+      "comment": "",
+      "command": "type",
+      "target": "xpath=//input[@id='serviceWO']",
+      "targets": [
+        ["id=serviceWO", "id"],
+        ["css=#serviceWO", "css:finder"],
+        ["xpath=//input[@id='serviceWO']", "xpath:attributes"],
+        ["xpath=//div[@id='app']/div/div/div/div/div/div/div/form/div[2]/div[3]/div/div[3]/div/div/input", "xpath:idRelative"],
+        ["xpath=//div[3]/div/div[3]/div/div/input", "xpath:position"]
+      ],
+      "value": "AUTOMACIK_3"
     }, {
       "id": "e95c4a03-557f-4113-a3ad-29d5d6149706",
       "comment": "",
       "command": "click",
-      "target": "css=div > .fa-plus",
+      "target": "css=.pi-plus-circle",
       "targets": [
         ["css=div > .fa", "css:finder"],
         ["xpath=//div[@id='app']/div/div/div/div/form/div/ul/li[3]/div[8]/i", "xpath:idRelative"],
@@ -1940,12 +443,12 @@
       "id": "e0589e39-74f1-481f-ae59-7253baa7af58",
       "comment": "",
       "command": "click",
-      "target": "css=.addData",
+      "target": "css=.p-button-success > .p-button-label",
       "targets": [
-        ["css=.addData", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/div/form/div/div[4]/button", "xpath:idRelative"],
-        ["xpath=//div[4]/button", "xpath:position"],
-        ["xpath=//button[contains(.,'Dodaj')]", "xpath:innerText"]
+        ["css=.p-button-success > .p-button-label", "css:finder"],
+        ["xpath=//div[@id='app']/div/div/div/div/div/div/div[2]/div/button/span[2]", "xpath:idRelative"],
+        ["xpath=//div[2]/div/button/span[2]", "xpath:position"],
+        ["xpath=//span[contains(.,'Dodaj zlecenie')]", "xpath:innerText"]
       ],
       "value": ""
     }, {
@@ -1963,43 +466,46 @@
       "id": "4cf6c190-6ffc-47b7-afae-bb21fed3fd62",
       "comment": "",
       "command": "waitForElementPresent",
-      "target": "xpath=//tr[3]/td[9]/div/i[2]",
-      "targets": [],
+      "target": "xpath=//div[@id='app']/div/div/div/div/div/div[2]/table/tbody/tr[2]/td[2]/div/button[2]/span[3]",
+      "targets": [
+        ["css=.p-ink-active", "css:finder"],
+        ["xpath=//div[@id='app']/div/div/div/div/div/div[2]/table/tbody/tr[2]/td[2]/div/button[2]/span[3]", "xpath:idRelative"],
+        ["xpath=//tr[2]/td[2]/div/button[2]/span[3]", "xpath:position"]
+      ],
       "value": "2000"
     }, {
       "id": "cfe2a6a8-478c-4aec-bf8b-aad34bad6a69",
       "comment": "Przenoszenie drugiego pojazdu od góry listy",
       "command": "click",
-      "target": "xpath=//tr[3]/td[9]/div/i[2]",
+      "target": "xpath=(//button[@type='button'])[6]",
       "targets": [
-        ["css=#\\31 621504702314 .fa-arrows-alt", "css:finder"],
-        ["xpath=//tr[@id='1621504702314']/td[9]/div/i[2]", "xpath:idRelative"],
-        ["xpath=//tr[3]/td[9]/div/i[2]", "xpath:position"]
+        ["css=tr:nth-child(2) .p-button-warning", "css:finder"],
+        ["xpath=(//button[@type='button'])[6]", "xpath:attributes"],
+        ["xpath=//div[@id='app']/div/div/div/div/div/div[2]/table/tbody/tr[2]/td[2]/div/button[2]", "xpath:idRelative"],
+        ["xpath=//tr[2]/td[2]/div/button[2]", "xpath:position"]
       ],
       "value": ""
     }, {
       "id": "c58116b9-2e92-40dc-b369-8017e11d7f43",
       "comment": "",
       "command": "click",
-      "target": "id=done",
+      "target": "css=.p-mt-2:nth-child(3) .p-radiobutton-box",
       "targets": [
-        ["id=done", "id"],
-        ["css=#done", "css:finder"],
-        ["xpath=//input[@id='done']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/div/div/div/div/div[2]/input[3]", "xpath:idRelative"],
-        ["xpath=//input[3]", "xpath:position"]
+        ["css=.p-mt-2:nth-child(3) .p-radiobutton-box", "css:finder"],
+        ["xpath=//div[@id='app']/div/div/div/div/div[2]/div/div/div[2]/span[3]/div/div[2]", "xpath:idRelative"],
+        ["xpath=//span[3]/div/div[2]", "xpath:position"]
       ],
       "value": ""
     }, {
       "id": "67cdd3aa-6524-4ef3-a8c6-71745ad01749",
       "comment": "",
       "command": "click",
-      "target": "css=.success",
+      "target": "css=.p-button-success > .p-button-label",
       "targets": [
-        ["css=.success", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/div/div/div/div/div[3]/button", "xpath:idRelative"],
-        ["xpath=//button", "xpath:position"],
-        ["xpath=//button[contains(.,'Przenoszonko')]", "xpath:innerText"]
+        ["css=.p-button-success > .p-button-label", "css:finder"],
+        ["xpath=//div[@id='app']/div/div/div/div/div[2]/div/div/div[4]/button/span", "xpath:idRelative"],
+        ["xpath=//div[4]/button/span", "xpath:position"],
+        ["xpath=//span[contains(.,'Przenieś')]", "xpath:innerText"]
       ],
       "value": ""
     }, {
@@ -2019,1108 +525,6 @@
       "command": "end",
       "target": "",
       "targets": [],
-      "value": ""
-    }]
-  }, {
-    "id": "3a3dd0f3-88d7-4003-ac86-6e59e9db93b3",
-    "name": "3_Dodawanie pojazdu (1)",
-    "commands": [{
-      "id": "4133e540-bcb4-42cd-9262-2820b90f55a9",
-      "comment": "",
-      "command": "open",
-      "target": "/#/wolne",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "d3f9a77b-2712-40a8-8949-a94a313a9c21",
-      "comment": "",
-      "command": "click",
-      "target": "css=.fa-user",
-      "targets": [
-        ["css=.fa-user", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div[2]/div/div/div/ul/li[15]/a/i", "xpath:idRelative"],
-        ["xpath=//li[15]/a/i", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "88167392-b81b-4edb-8447-74e9b9c6ea66",
-      "comment": "",
-      "command": "waitForElementPresent",
-      "target": "xpath=//tr/td/i[2]/i",
-      "targets": [],
-      "value": "2000"
-    }, {
-      "id": "c4ca3a63-6bed-45b7-8642-7d8ee24c3e69",
-      "comment": "",
-      "command": "click",
-      "target": "xpath=//tr/td/i[2]/i",
-      "targets": [
-        ["css=#id000-000-000 .fas > .fas", "css:finder"],
-        ["xpath=//tr[@id='id000-000-000']/td/i[2]/i", "xpath:idRelative"],
-        ["xpath=//i[2]/i", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "c3cb6c16-e4c7-4d3e-9656-602020fa31e8",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor((Math.random()*300)+50)",
-      "targets": [],
-      "value": "randomHP"
-    }, {
-      "id": "0c13fc1d-2852-46e4-b6b4-58883f9efc1c",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor((Math.random()*48)+1975)",
-      "targets": [],
-      "value": "randomYear"
-    }, {
-      "id": "767028c5-8d9d-4307-81de-b831606ed726",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*135)",
-      "targets": [],
-      "value": "randomMakeIndex"
-    }, {
-      "id": "a7c6959d-d8f3-4254-8d3b-ba972b8725c4",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*2)",
-      "targets": [],
-      "value": "randomTransmission"
-    }, {
-      "id": "f4b6dcdc-b931-4f0e-95df-2d104b556095",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*250000)",
-      "targets": [],
-      "value": "randomMilage"
-    }, {
-      "id": "8d2a9a2d-fc92-4afe-b45e-9d1fa958276e",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*3)",
-      "targets": [],
-      "value": "randomDrivetrain"
-    }, {
-      "id": "aa6469f7-e116-41ee-99e0-568aa2b9ea7c",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*5)",
-      "targets": [],
-      "value": "randomFuel"
-    }, {
-      "id": "ae710353-ea24-42da-988a-54e95de09907",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return (Math.random().toString().slice(2,11) +  Math.random().toString().slice(3,11))",
-      "targets": [],
-      "value": "randomVIN"
-    }, {
-      "id": "f7eadbb3-2485-4d79-a886-dd6a1fe0618f",
-      "comment": "",
-      "command": "type",
-      "target": "id=VIN",
-      "targets": [
-        ["id=VIN", "id"],
-        ["css=#VIN", "css:finder"],
-        ["xpath=//input[@id='VIN']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div/input", "xpath:idRelative"],
-        ["xpath=//input", "xpath:position"]
-      ],
-      "value": "${randomVIN}"
-    }, {
-      "id": "2c2174ec-9cfa-4284-b8f8-44c8134e17b4",
-      "comment": "",
-      "command": "select",
-      "target": "name=fuel",
-      "targets": [],
-      "value": "index=${randomFuel}"
-    }, {
-      "id": "ba7d92ea-ebba-4128-a84a-fed8ceec80ca",
-      "comment": "",
-      "command": "storeXpathCount",
-      "target": "xpath=//input[@name='brand']",
-      "targets": [],
-      "value": "noMakes"
-    }, {
-      "id": "3d65a563-0d39-4fd0-acc0-8af772fa3299",
-      "comment": "",
-      "command": "verifyElementPresent",
-      "target": "xpath=//select[@name='brand']",
-      "targets": [],
-      "value": "!noMakes"
-    }, {
-      "id": "14528604-7243-45db-ae8a-8be9da7e8979",
-      "comment": "",
-      "command": "if",
-      "target": "${noMakes}==1",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "d83f96b8-02bc-4250-af15-4495e6781f47",
-      "comment": "",
-      "command": "type",
-      "target": "name=brand",
-      "targets": [],
-      "value": "BLAD LADOWANIA MAREK"
-    }, {
-      "id": "fb1f60bd-058b-4aa0-965e-bae67c0bb6f2",
-      "comment": "",
-      "command": "type",
-      "target": "name=model",
-      "targets": [],
-      "value": "BLAD LADOWANIA MODELI"
-    }, {
-      "id": "d84a5f75-ead3-45a8-8e6f-00734a9e2c6c",
-      "comment": "",
-      "command": "type",
-      "target": "name=prod_year",
-      "targets": [],
-      "value": "X"
-    }, {
-      "id": "132bb5f0-a71b-486a-98b0-942d7de2d21c",
-      "comment": "",
-      "command": "else",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "151234d2-680a-4be1-b80c-7b3c50d8d9c2",
-      "comment": "",
-      "command": "waitForElementPresent",
-      "target": "xpath=//option[@value='abarth']",
-      "targets": [],
-      "value": "2000"
-    }, {
-      "id": "29020da0-187b-4074-9c43-bbb2eae4bc94",
-      "comment": "",
-      "command": "select",
-      "target": "name=brand",
-      "targets": [],
-      "value": "index=${randomMakeIndex}"
-    }, {
-      "id": "f487dd55-8ec2-413e-8444-1494f5b9d4fa",
-      "comment": "",
-      "command": "storeXpathCount",
-      "target": "xpath=//select[@name='model']",
-      "targets": [],
-      "value": "isModel"
-    }, {
-      "id": "8d8d7c44-7ec7-4400-8f25-6b3414073c9f",
-      "comment": "",
-      "command": "pause",
-      "target": "1000",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "4b9c68d5-7141-492f-914a-d027db20edc3",
-      "comment": "",
-      "command": "verifyElementPresent",
-      "target": "xpath=//select[@name='model']",
-      "targets": [],
-      "value": "!isModel"
-    }, {
-      "id": "191153dc-4d37-4e5b-9949-4c69f21b88df",
-      "comment": "",
-      "command": "if",
-      "target": "${isModel}==1",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "2d3e5e25-5cfe-4b1b-8918-3c65a3b04fc7",
-      "comment": "",
-      "command": "click",
-      "target": "name=model",
-      "targets": [
-        ["name=model", "name"],
-        ["css=.required > select:nth-child(5)", "css:finder"],
-        ["xpath=//select[@name='model']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div/select[2]", "xpath:idRelative"],
-        ["xpath=//select[2]", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "af7b9ddb-9b08-432f-8a64-074b103942dd",
-      "comment": "",
-      "command": "select",
-      "target": "name=model",
-      "targets": [],
-      "value": "index=1"
-    }, {
-      "id": "1e24226c-2227-41ef-9175-f87376b61f0b",
-      "comment": "",
-      "command": "else",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "5d8e474c-a26f-4848-b217-71ff044a704a",
-      "comment": "",
-      "command": "type",
-      "target": "name=model",
-      "targets": [],
-      "value": "BRAK MODELI DANEJ MARKI"
-    }, {
-      "id": "e44fbded-12a8-41a6-8efd-6753bafbc862",
-      "comment": "",
-      "command": "end",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "b65e500b-21b0-43c7-9999-5cd97427acda",
-      "comment": "",
-      "command": "pause",
-      "target": "1000",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "13a60d7e-32c4-41da-8b95-8a91199d557f",
-      "comment": "",
-      "command": "storeXpathCount",
-      "target": "xpath=//select[@name='prod_year']",
-      "targets": [],
-      "value": "isGeneration"
-    }, {
-      "id": "7de60798-3085-4b15-84dd-4f5af48e4a7f",
-      "comment": "",
-      "command": "verifyElementPresent",
-      "target": "xpath=//select[@name='prod_year']",
-      "targets": [],
-      "value": "isGeneration"
-    }, {
-      "id": "e06dcc0d-4fb6-47a3-a8c3-628df3688586",
-      "comment": "",
-      "command": "if",
-      "target": "${isGeneration}==1",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "6ffd806d-5fbd-494d-ba98-366e5a1421f6",
-      "comment": "",
-      "command": "click",
-      "target": "name=prod_year",
-      "targets": [
-        ["name=prod_year", "name"],
-        ["css=input:nth-child(7)", "css:finder"],
-        ["xpath=//input[@name='prod_year']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div/input", "xpath:idRelative"],
-        ["xpath=//input", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "8373fd35-ec2f-4352-9710-33827d195d7f",
-      "comment": "",
-      "command": "select",
-      "target": "name=prod_year",
-      "targets": [],
-      "value": "index=1"
-    }, {
-      "id": "38084b47-a145-4607-833b-12fb67a94c43",
-      "comment": "",
-      "command": "else",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "0954398a-bcb6-4498-b2bc-0d429b8ae275",
-      "comment": "",
-      "command": "type",
-      "target": "name=prod_year",
-      "targets": [],
-      "value": "${randomYear}"
-    }, {
-      "id": "aa26e117-3464-4c18-8cbc-a11f9028c4ad",
-      "comment": "",
-      "command": "end",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "b9a2c5aa-ef6b-4476-91dc-1c61345634d4",
-      "comment": "",
-      "command": "end",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "05f81999-dc65-4608-87f8-367fe7201b04",
-      "comment": "",
-      "command": "type",
-      "target": "name=engine",
-      "targets": [
-        ["name=engine", "name"],
-        ["css=input:nth-child(3)", "css:finder"],
-        ["xpath=//input[@name='engine']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input", "xpath:idRelative"],
-        ["xpath=//div[2]/input", "xpath:position"]
-      ],
-      "value": "${randomHP}"
-    }, {
-      "id": "e93390f3-ab5a-4051-84e3-776af8858322",
-      "comment": "",
-      "command": "select",
-      "target": "name=transmission",
-      "targets": [],
-      "value": "index=${randomTransmission}"
-    }, {
-      "id": "fe1ee26b-cec9-425a-b46c-a972d4282749",
-      "comment": "",
-      "command": "select",
-      "target": "name=drivetrain",
-      "targets": [],
-      "value": "index=${randomDrivetrain}"
-    }, {
-      "id": "0c9df6ef-c8eb-4127-bdca-0032716f0eec",
-      "comment": "",
-      "command": "type",
-      "target": "id=numberPlates",
-      "targets": [
-        ["id=numberPlates", "id"],
-        ["css=#numberPlates", "css:finder"],
-        ["xpath=//input[@id='numberPlates']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input[2]", "xpath:idRelative"],
-        ["xpath=//div[2]/input[2]", "xpath:position"]
-      ],
-      "value": "XXXXXXXXX"
-    }, {
-      "id": "e4f9b20b-7112-45f7-b634-4328fc4691c8",
-      "comment": "",
-      "command": "type",
-      "target": "id=mileage",
-      "targets": [
-        ["id=mileage", "id"],
-        ["css=#mileage", "css:finder"],
-        ["xpath=//input[@id='mileage']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input[3]", "xpath:idRelative"],
-        ["xpath=//input[3]", "xpath:position"]
-      ],
-      "value": "${randomMilage}"
-    }, {
-      "id": "462970c5-4e33-4b18-ac97-1b6c202cae1e",
-      "comment": "",
-      "command": "type",
-      "target": "name=description",
-      "targets": [
-        ["name=description", "name"],
-        ["css=textarea", "css:finder"],
-        ["xpath=//textarea[@name='description']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/textarea", "xpath:idRelative"],
-        ["xpath=//textarea", "xpath:position"]
-      ],
-      "value": "INFO"
-    }, {
-      "id": "cf50adbd-6ebb-4d67-b4f4-a32cce40ae84",
-      "comment": "",
-      "command": "click",
-      "target": "css=.addData",
-      "targets": [
-        ["css=.addData", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[3]/button", "xpath:idRelative"],
-        ["xpath=//button", "xpath:position"],
-        ["xpath=//button[contains(.,'Dodaj pojazd')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "6c87b589-4cf0-4103-91fd-864f701c4dd3",
-      "comment": "",
-      "command": "click",
-      "target": "css=.fa-file-invoice-dollar",
-      "targets": [
-        ["css=.fa-file-invoice-dollar", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div[2]/div/div/div/ul/li[14]/a/i", "xpath:idRelative"],
-        ["xpath=//li[14]/a/i", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "fa8a9b42-c640-4d81-a500-e3aaa6c1f1c2",
-      "comment": "",
-      "command": "pause",
-      "target": "500",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "8dad7827-3bb7-419c-a102-fe0c57fe59bb",
-      "comment": "",
-      "command": "click",
-      "target": "css=.fa-user",
-      "targets": [
-        ["css=.fa-user", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div[2]/div/div/div/ul/li[15]/a/i", "xpath:idRelative"],
-        ["xpath=//li[15]/a/i", "xpath:position"]
-      ],
-      "value": ""
-    }]
-  }, {
-    "id": "dd83c26d-0d1c-4078-9934-d4e1d3b72f84",
-    "name": "1_Dodawanie klienta (1)",
-    "commands": [{
-      "id": "0ab4ce65-0037-4c42-b69a-289992614d39",
-      "comment": "",
-      "command": "open",
-      "target": "/#/",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "10e258fd-bcee-4a88-ae24-4b6d4a7e1203",
-      "comment": "",
-      "command": "waitForElementPresent",
-      "target": "css=.fa-parking",
-      "targets": [],
-      "value": "2000"
-    }, {
-      "id": "1b4a3b2c-f159-48ad-8d9e-16b3ef609206",
-      "comment": "",
-      "command": "click",
-      "target": "css=.fa-user",
-      "targets": [
-        ["css=.fa-user", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div[2]/div/div/div/ul/li[15]/a/i", "xpath:idRelative"],
-        ["xpath=//li[15]/a/i", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "8cbbf3d3-18ee-4343-8776-5faf8f3a71d1",
-      "comment": "",
-      "command": "click",
-      "target": "xpath=//button[contains(.,'Dodaj Klienta')]",
-      "targets": [
-        ["css=.btn", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/div/button", "xpath:idRelative"],
-        ["xpath=//button", "xpath:position"],
-        ["xpath=//button[contains(.,'Dodaj Klienta')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "8fe0e551-1e85-4eb6-a6ce-7c7beff0a77e",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.round(Math.random()*500)",
-      "targets": [],
-      "value": "randomClientID"
-    }, {
-      "id": "161cc772-fd14-467a-ab0b-1c67284cb029",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.random().toString().slice(2,11)",
-      "targets": [],
-      "value": "randomPhoneNum"
-    }, {
-      "id": "d5a7599a-d188-483c-9dff-c81a60268cd4",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.round(Math.random()*1000)",
-      "targets": [],
-      "value": "randomAddressNum"
-    }, {
-      "id": "01af1610-0dad-454e-aa20-684cdf3b79b6",
-      "comment": "",
-      "command": "type",
-      "target": "id=phoneNum",
-      "targets": [],
-      "value": "${randomPhoneNum}"
-    }, {
-      "id": "6903a872-6845-47c2-a38e-67c9e35a9e6f",
-      "comment": "",
-      "command": "type",
-      "target": "id=clientName",
-      "targets": [
-        ["id=clientName", "id"],
-        ["css=#clientName", "css:finder"],
-        ["xpath=//input[@id='clientName']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div/input[2]", "xpath:idRelative"],
-        ["xpath=//input[2]", "xpath:position"]
-      ],
-      "value": "Klient_${randomClientID}"
-    }, {
-      "id": "fd41c582-2fbf-4c5f-9cd8-7b35542b9ebf",
-      "comment": "",
-      "command": "type",
-      "target": "name=address",
-      "targets": [
-        ["name=address", "name"],
-        ["css=.extraInformation > input:nth-child(5)", "css:finder"],
-        ["xpath=//input[@name='address']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input[2]", "xpath:idRelative"],
-        ["xpath=//div[2]/input[2]", "xpath:position"]
-      ],
-      "value": "Adres_${randomAddressNum}"
-    }, {
-      "id": "c924a6a2-bf0b-4bc0-b012-0e0a4ea5e772",
-      "comment": "",
-      "command": "type",
-      "target": "name=client_description",
-      "targets": [
-        ["name=client_description", "name"],
-        ["css=textarea", "css:finder"],
-        ["xpath=//textarea[@name='client_description']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/textarea", "xpath:idRelative"],
-        ["xpath=//textarea", "xpath:position"]
-      ],
-      "value": "Info_X"
-    }, {
-      "id": "df2e1ad0-9c85-421d-8917-ed56e46af18c",
-      "comment": "",
-      "command": "click",
-      "target": "css=.addData",
-      "targets": [
-        ["css=.addData", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[3]/button", "xpath:idRelative"],
-        ["xpath=//button", "xpath:position"],
-        ["xpath=//button[contains(.,'Dodaj klienta')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }]
-  }, {
-    "id": "66db1302-bda6-470f-8999-af6d0d5a56c0",
-    "name": "4_Dodawanie klienta",
-    "commands": [{
-      "id": "a5761bbc-f07f-43b5-9ab4-61fa2c85b379",
-      "comment": "",
-      "command": "open",
-      "target": "/#/",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "a74600cf-c816-4294-96d1-b624024d590d",
-      "comment": "",
-      "command": "waitForElementPresent",
-      "target": "css=.fa-parking",
-      "targets": [],
-      "value": "2000"
-    }, {
-      "id": "83615ba0-93f4-41c8-83e9-c20b8791e08e",
-      "comment": "",
-      "command": "click",
-      "target": "css=.fa-user",
-      "targets": [
-        ["css=.fa-user", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div[2]/div/div/div/ul/li[15]/a/i", "xpath:idRelative"],
-        ["xpath=//li[15]/a/i", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "2663a465-d881-4983-839b-33311502dde7",
-      "comment": "",
-      "command": "click",
-      "target": "xpath=//button[contains(.,'Dodaj Klienta')]",
-      "targets": [
-        ["css=.btn", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/div/button", "xpath:idRelative"],
-        ["xpath=//button", "xpath:position"],
-        ["xpath=//button[contains(.,'Dodaj Klienta')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "61b3310e-864a-4c75-8f39-1e1b8b4ed6cf",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.round(Math.random()*500)",
-      "targets": [],
-      "value": "randomClientID"
-    }, {
-      "id": "d6456e7d-42b3-48a3-bb31-7456e9ea2d1a",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.random().toString().slice(2,11)",
-      "targets": [],
-      "value": "randomPhoneNum"
-    }, {
-      "id": "e879bccd-2c74-47d4-83bc-b5825caecb3d",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.round(Math.random()*1000)",
-      "targets": [],
-      "value": "randomAddressNum"
-    }, {
-      "id": "3ce8e798-9523-45f2-bea5-0c2cac1bc8ea",
-      "comment": "",
-      "command": "type",
-      "target": "id=phoneNum",
-      "targets": [],
-      "value": "${randomPhoneNum}"
-    }, {
-      "id": "61ef773f-681a-4318-9b9a-c32aa0723254",
-      "comment": "",
-      "command": "type",
-      "target": "id=clientName",
-      "targets": [
-        ["id=clientName", "id"],
-        ["css=#clientName", "css:finder"],
-        ["xpath=//input[@id='clientName']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div/input[2]", "xpath:idRelative"],
-        ["xpath=//input[2]", "xpath:position"]
-      ],
-      "value": "Klient_${randomClientID}"
-    }, {
-      "id": "ebd6382f-1c55-4365-8014-c8f37281c874",
-      "comment": "",
-      "command": "type",
-      "target": "name=address",
-      "targets": [
-        ["name=address", "name"],
-        ["css=.extraInformation > input:nth-child(5)", "css:finder"],
-        ["xpath=//input[@name='address']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input[2]", "xpath:idRelative"],
-        ["xpath=//div[2]/input[2]", "xpath:position"]
-      ],
-      "value": "Adres_${randomAddressNum}"
-    }, {
-      "id": "38eec5be-e8ac-4280-b0c4-2f67b2a68d74",
-      "comment": "",
-      "command": "type",
-      "target": "name=client_description",
-      "targets": [
-        ["name=client_description", "name"],
-        ["css=textarea", "css:finder"],
-        ["xpath=//textarea[@name='client_description']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/textarea", "xpath:idRelative"],
-        ["xpath=//textarea", "xpath:position"]
-      ],
-      "value": "Info_X"
-    }, {
-      "id": "1396afdd-43cf-42af-8cc4-044162fd9a93",
-      "comment": "",
-      "command": "click",
-      "target": "css=.addData",
-      "targets": [
-        ["css=.addData", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[3]/button", "xpath:idRelative"],
-        ["xpath=//button", "xpath:position"],
-        ["xpath=//button[contains(.,'Dodaj klienta')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }]
-  }, {
-    "id": "a25d3035-ca8e-4cbb-bc10-11ec959efde2",
-    "name": "4_Dodawanie pojazdu",
-    "commands": [{
-      "id": "03ff932c-a879-4a3c-affd-cb733080e0d7",
-      "comment": "",
-      "command": "open",
-      "target": "/#/wolne",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "6e21ee6f-63ab-4635-a1ab-c730bd7c5387",
-      "comment": "",
-      "command": "click",
-      "target": "css=.fa-user",
-      "targets": [
-        ["css=.fa-user", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div[2]/div/div/div/ul/li[15]/a/i", "xpath:idRelative"],
-        ["xpath=//li[15]/a/i", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "dd60e640-917f-41a6-abe0-886a86e4b53d",
-      "comment": "",
-      "command": "waitForElementPresent",
-      "target": "xpath=//tr/td/i[2]/i",
-      "targets": [],
-      "value": "2000"
-    }, {
-      "id": "892aec11-d06b-47ff-996e-41ed16fa3ad1",
-      "comment": "",
-      "command": "click",
-      "target": "xpath=//tr/td/i[2]/i",
-      "targets": [
-        ["css=#id000-000-000 .fas > .fas", "css:finder"],
-        ["xpath=//tr[@id='id000-000-000']/td/i[2]/i", "xpath:idRelative"],
-        ["xpath=//i[2]/i", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "0fa0cd4a-16fe-4b5d-9cde-48d501d9bc84",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor((Math.random()*300)+50)",
-      "targets": [],
-      "value": "randomHP"
-    }, {
-      "id": "e220eb48-84cc-4f31-9a65-024ce2a44521",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor((Math.random()*48)+1975)",
-      "targets": [],
-      "value": "randomYear"
-    }, {
-      "id": "092eb721-4922-4529-89cd-a51389eaffef",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*135)",
-      "targets": [],
-      "value": "randomMakeIndex"
-    }, {
-      "id": "d4a4cc61-5e16-42e0-84e0-427fa50599d4",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*2)",
-      "targets": [],
-      "value": "randomTransmission"
-    }, {
-      "id": "30f0e999-b9b2-4719-b9c7-aa18c4d30d0d",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*250000)",
-      "targets": [],
-      "value": "randomMilage"
-    }, {
-      "id": "b128ac0e-6db4-4f5f-aa8d-e2a0564d88bb",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*3)",
-      "targets": [],
-      "value": "randomDrivetrain"
-    }, {
-      "id": "a5f4efc3-ce10-49af-a030-ef17ff389445",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*5)",
-      "targets": [],
-      "value": "randomFuel"
-    }, {
-      "id": "12fed03d-8fd4-4c17-85e0-10d9c8f8c838",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return (Math.random().toString().slice(2,11) +  Math.random().toString().slice(3,11))",
-      "targets": [],
-      "value": "randomVIN"
-    }, {
-      "id": "06e10178-350b-48d3-a4c7-3eb969f91191",
-      "comment": "",
-      "command": "type",
-      "target": "id=VIN",
-      "targets": [
-        ["id=VIN", "id"],
-        ["css=#VIN", "css:finder"],
-        ["xpath=//input[@id='VIN']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div/input", "xpath:idRelative"],
-        ["xpath=//input", "xpath:position"]
-      ],
-      "value": "${randomVIN}"
-    }, {
-      "id": "6c436973-256e-48ed-a9d0-9d391ec9bd40",
-      "comment": "",
-      "command": "select",
-      "target": "name=fuel",
-      "targets": [],
-      "value": "index=${randomFuel}"
-    }, {
-      "id": "7e61cd3b-e58a-42bd-9157-2144a0f521b7",
-      "comment": "",
-      "command": "storeXpathCount",
-      "target": "xpath=//input[@name='brand']",
-      "targets": [],
-      "value": "noMakes"
-    }, {
-      "id": "7616b6c4-4440-453b-aac6-9f2195394ca1",
-      "comment": "",
-      "command": "verifyElementPresent",
-      "target": "xpath=//select[@name='brand']",
-      "targets": [],
-      "value": "!noMakes"
-    }, {
-      "id": "c8d65b1e-da95-4d2e-9672-edbf8251f28d",
-      "comment": "",
-      "command": "if",
-      "target": "${noMakes}==1",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "bbf0a45c-1806-475e-8915-9f3e13236305",
-      "comment": "",
-      "command": "type",
-      "target": "name=brand",
-      "targets": [],
-      "value": "BLAD LADOWANIA MAREK"
-    }, {
-      "id": "7ddc5294-f405-4969-8aba-0fff242e05a3",
-      "comment": "",
-      "command": "type",
-      "target": "name=model",
-      "targets": [],
-      "value": "BLAD LADOWANIA MODELI"
-    }, {
-      "id": "d165e8dd-f706-46f0-b30e-e1a7dbcdeaef",
-      "comment": "",
-      "command": "type",
-      "target": "name=prod_year",
-      "targets": [],
-      "value": "X"
-    }, {
-      "id": "88fbb401-a8e8-450f-b86e-8d1b72367640",
-      "comment": "",
-      "command": "else",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "93fc857d-cb14-4d3d-a8af-95d855ea67a1",
-      "comment": "",
-      "command": "waitForElementPresent",
-      "target": "xpath=//option[@value='abarth']",
-      "targets": [],
-      "value": "2000"
-    }, {
-      "id": "750c7a01-c6ed-41fa-98b4-79090ae2c436",
-      "comment": "",
-      "command": "select",
-      "target": "name=brand",
-      "targets": [],
-      "value": "index=${randomMakeIndex}"
-    }, {
-      "id": "1fdd6869-f542-4014-b690-e9939f68d93a",
-      "comment": "",
-      "command": "storeXpathCount",
-      "target": "xpath=//select[@name='model']",
-      "targets": [],
-      "value": "isModel"
-    }, {
-      "id": "a9fe322c-2405-4b43-9d81-7c904443c2c2",
-      "comment": "",
-      "command": "pause",
-      "target": "1000",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "328ed9f1-3992-49bc-90e8-8b14c8c5de1b",
-      "comment": "",
-      "command": "verifyElementPresent",
-      "target": "xpath=//select[@name='model']",
-      "targets": [],
-      "value": "!isModel"
-    }, {
-      "id": "b3fdd60c-915a-496f-9507-edb848ab9c8a",
-      "comment": "",
-      "command": "if",
-      "target": "${isModel}==1",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "f8a5a29d-1038-43a6-ac86-cb52b2553702",
-      "comment": "",
-      "command": "click",
-      "target": "name=model",
-      "targets": [
-        ["name=model", "name"],
-        ["css=.required > select:nth-child(5)", "css:finder"],
-        ["xpath=//select[@name='model']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div/select[2]", "xpath:idRelative"],
-        ["xpath=//select[2]", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "4210214f-a020-42cc-9c0a-95d2ffb4ed95",
-      "comment": "",
-      "command": "select",
-      "target": "name=model",
-      "targets": [],
-      "value": "index=1"
-    }, {
-      "id": "7c8d2c08-cdea-4fc7-a745-ca27f35f1179",
-      "comment": "",
-      "command": "else",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "a692c742-57d2-439d-b4ae-9bfda8e32faa",
-      "comment": "",
-      "command": "type",
-      "target": "name=model",
-      "targets": [],
-      "value": "BRAK MODELI DANEJ MARKI"
-    }, {
-      "id": "1e623fad-cf0b-4eda-94ea-c89322569f7c",
-      "comment": "",
-      "command": "end",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "9781ddc0-52f4-473e-8971-05149ac2e544",
-      "comment": "",
-      "command": "pause",
-      "target": "1000",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "800e9cf0-3a23-4ad9-916a-40abeb6e93fb",
-      "comment": "",
-      "command": "storeXpathCount",
-      "target": "xpath=//select[@name='prod_year']",
-      "targets": [],
-      "value": "isGeneration"
-    }, {
-      "id": "d78f36b6-8d02-47c0-b8d0-0fad4f364f71",
-      "comment": "",
-      "command": "verifyElementPresent",
-      "target": "xpath=//select[@name='prod_year']",
-      "targets": [],
-      "value": "isGeneration"
-    }, {
-      "id": "f27f1135-071c-4799-898c-32fcc33b8b99",
-      "comment": "",
-      "command": "if",
-      "target": "${isGeneration}==1",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "6caad8de-6ad8-4103-adf2-5a9831e67616",
-      "comment": "",
-      "command": "click",
-      "target": "name=prod_year",
-      "targets": [
-        ["name=prod_year", "name"],
-        ["css=input:nth-child(7)", "css:finder"],
-        ["xpath=//input[@name='prod_year']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div/input", "xpath:idRelative"],
-        ["xpath=//input", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "b882e33a-46c0-40b2-a80e-19a4b0d42b34",
-      "comment": "",
-      "command": "select",
-      "target": "name=prod_year",
-      "targets": [],
-      "value": "index=1"
-    }, {
-      "id": "743b1567-f6fa-4ad9-8386-88ad640c8ea4",
-      "comment": "",
-      "command": "else",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "8cfec12e-0124-4be0-9123-3a39de56fa62",
-      "comment": "",
-      "command": "type",
-      "target": "name=prod_year",
-      "targets": [],
-      "value": "${randomYear}"
-    }, {
-      "id": "4a169ae7-a83b-4236-9a12-afa043d26f5c",
-      "comment": "",
-      "command": "end",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "4a4c6ed1-3391-40ea-a9f5-82ed341fa12e",
-      "comment": "",
-      "command": "end",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "885ea3a4-4db2-44c2-b828-9fa59d0dd174",
-      "comment": "",
-      "command": "type",
-      "target": "name=engine",
-      "targets": [
-        ["name=engine", "name"],
-        ["css=input:nth-child(3)", "css:finder"],
-        ["xpath=//input[@name='engine']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input", "xpath:idRelative"],
-        ["xpath=//div[2]/input", "xpath:position"]
-      ],
-      "value": "${randomHP}"
-    }, {
-      "id": "860428f4-ad26-467b-9cb9-28a41a754bcd",
-      "comment": "",
-      "command": "select",
-      "target": "name=transmission",
-      "targets": [],
-      "value": "index=${randomTransmission}"
-    }, {
-      "id": "64d83c2d-2298-4ab0-b9b1-9561e11335b7",
-      "comment": "",
-      "command": "select",
-      "target": "name=drivetrain",
-      "targets": [],
-      "value": "index=${randomDrivetrain}"
-    }, {
-      "id": "1ea9c26e-5383-4b06-8376-69acced6d0a6",
-      "comment": "",
-      "command": "type",
-      "target": "id=numberPlates",
-      "targets": [
-        ["id=numberPlates", "id"],
-        ["css=#numberPlates", "css:finder"],
-        ["xpath=//input[@id='numberPlates']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input[2]", "xpath:idRelative"],
-        ["xpath=//div[2]/input[2]", "xpath:position"]
-      ],
-      "value": "XXXXXXXXX"
-    }, {
-      "id": "5794ae72-c336-4695-b890-ebda7f1cad07",
-      "comment": "",
-      "command": "type",
-      "target": "id=mileage",
-      "targets": [
-        ["id=mileage", "id"],
-        ["css=#mileage", "css:finder"],
-        ["xpath=//input[@id='mileage']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input[3]", "xpath:idRelative"],
-        ["xpath=//input[3]", "xpath:position"]
-      ],
-      "value": "${randomMilage}"
-    }, {
-      "id": "4bf314d1-6692-46f8-b962-5ce9d581ca77",
-      "comment": "",
-      "command": "type",
-      "target": "name=description",
-      "targets": [
-        ["name=description", "name"],
-        ["css=textarea", "css:finder"],
-        ["xpath=//textarea[@name='description']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/textarea", "xpath:idRelative"],
-        ["xpath=//textarea", "xpath:position"]
-      ],
-      "value": "INFO"
-    }, {
-      "id": "2f9c6bca-f519-49e3-a393-41c9ecc47307",
-      "comment": "",
-      "command": "click",
-      "target": "css=.addData",
-      "targets": [
-        ["css=.addData", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[3]/button", "xpath:idRelative"],
-        ["xpath=//button", "xpath:position"],
-        ["xpath=//button[contains(.,'Dodaj pojazd')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "1c477392-21ee-469e-9c52-764a9d8e6411",
-      "comment": "",
-      "command": "click",
-      "target": "css=.fa-file-invoice-dollar",
-      "targets": [
-        ["css=.fa-file-invoice-dollar", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div[2]/div/div/div/ul/li[14]/a/i", "xpath:idRelative"],
-        ["xpath=//li[14]/a/i", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "c2603126-5eff-4727-b7e2-8552671c99cd",
-      "comment": "",
-      "command": "pause",
-      "target": "500",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "f5eb6065-31fd-46fe-ae76-b35d5c1e77a6",
-      "comment": "",
-      "command": "click",
-      "target": "css=.fa-user",
-      "targets": [
-        ["css=.fa-user", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div[2]/div/div/div/ul/li[15]/a/i", "xpath:idRelative"],
-        ["xpath=//li[15]/a/i", "xpath:position"]
-      ],
       "value": ""
     }]
   }, {
@@ -4106,437 +1510,6 @@
       "value": ""
     }]
   }, {
-    "id": "e3eab943-c305-4627-b803-ea43bd509c0c",
-    "name": "8_Dodawanie pojazdu (2)",
-    "commands": [{
-      "id": "31a26b36-5fee-4e0c-850b-2924ef668119",
-      "comment": "",
-      "command": "open",
-      "target": "/#/wolne",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "fe8839aa-cd2d-44b1-b1c2-93eb36492d3b",
-      "comment": "",
-      "command": "click",
-      "target": "css=.fa-user",
-      "targets": [
-        ["css=.fa-user", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div[2]/div/div/div/ul/li[15]/a/i", "xpath:idRelative"],
-        ["xpath=//li[15]/a/i", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "da2f7396-c03e-4e9f-a712-c53a7ea6bf2b",
-      "comment": "",
-      "command": "waitForElementPresent",
-      "target": "xpath=//tr/td/i[2]/i",
-      "targets": [],
-      "value": "2000"
-    }, {
-      "id": "f581467a-868b-4afc-9208-223984f68235",
-      "comment": "",
-      "command": "click",
-      "target": "xpath=//tr/td/i[2]/i",
-      "targets": [
-        ["css=#id000-000-000 .fas > .fas", "css:finder"],
-        ["xpath=//tr[@id='id000-000-000']/td/i[2]/i", "xpath:idRelative"],
-        ["xpath=//i[2]/i", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "c85b82c5-a966-4587-a5da-f2f970676e42",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor((Math.random()*300)+50)",
-      "targets": [],
-      "value": "randomHP"
-    }, {
-      "id": "27b39c7a-4489-4922-81a8-7ca3559ab592",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor((Math.random()*48)+1975)",
-      "targets": [],
-      "value": "randomYear"
-    }, {
-      "id": "d9b1ebc2-db81-450e-8826-c0e23ab36484",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*135)",
-      "targets": [],
-      "value": "randomMakeIndex"
-    }, {
-      "id": "d4707746-2fea-4e25-a92c-b084378fe3fc",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*2)",
-      "targets": [],
-      "value": "randomTransmission"
-    }, {
-      "id": "3ea4228e-14cf-4e36-b18f-636a9af2752f",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*250000)",
-      "targets": [],
-      "value": "randomMilage"
-    }, {
-      "id": "290539a1-0640-40e2-9ae6-d523a6c086bb",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*3)",
-      "targets": [],
-      "value": "randomDrivetrain"
-    }, {
-      "id": "b69ef5e0-cd83-4860-977f-c5f80b387e8c",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*5)",
-      "targets": [],
-      "value": "randomFuel"
-    }, {
-      "id": "9b83362f-dcf2-4343-9cb3-0b7bfb99ca7f",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return (Math.random().toString().slice(2,11) +  Math.random().toString().slice(3,11))",
-      "targets": [],
-      "value": "randomVIN"
-    }, {
-      "id": "c6bbd289-f206-488e-b647-de879c918028",
-      "comment": "",
-      "command": "type",
-      "target": "id=VIN",
-      "targets": [
-        ["id=VIN", "id"],
-        ["css=#VIN", "css:finder"],
-        ["xpath=//input[@id='VIN']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div/input", "xpath:idRelative"],
-        ["xpath=//input", "xpath:position"]
-      ],
-      "value": "${randomVIN}"
-    }, {
-      "id": "ec65881f-830b-44af-9d10-55f8fc9fedae",
-      "comment": "",
-      "command": "select",
-      "target": "name=fuel",
-      "targets": [],
-      "value": "index=${randomFuel}"
-    }, {
-      "id": "0c8268de-da0c-4e7b-9e66-490a300f580c",
-      "comment": "",
-      "command": "storeXpathCount",
-      "target": "xpath=//input[@name='brand']",
-      "targets": [],
-      "value": "noMakes"
-    }, {
-      "id": "67770912-1f2c-4f86-bee1-6a623af5b4f6",
-      "comment": "",
-      "command": "verifyElementPresent",
-      "target": "xpath=//select[@name='brand']",
-      "targets": [],
-      "value": "!noMakes"
-    }, {
-      "id": "8e50f77f-7551-4946-a796-dc25efaefc91",
-      "comment": "",
-      "command": "if",
-      "target": "${noMakes}==1",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "0df74bd6-aaf4-4c20-a80e-b4c1f6b5d550",
-      "comment": "",
-      "command": "type",
-      "target": "name=brand",
-      "targets": [],
-      "value": "BLAD LADOWANIA MAREK"
-    }, {
-      "id": "2f1bbcbb-39f6-4f31-a600-37c5366b041b",
-      "comment": "",
-      "command": "type",
-      "target": "name=model",
-      "targets": [],
-      "value": "BLAD LADOWANIA MODELI"
-    }, {
-      "id": "62af102e-851b-4d8a-a316-202da145505f",
-      "comment": "",
-      "command": "type",
-      "target": "name=prod_year",
-      "targets": [],
-      "value": "X"
-    }, {
-      "id": "c3e3668c-4aff-43d9-9028-102fa63113ac",
-      "comment": "",
-      "command": "else",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "91412a1f-e153-4503-9fa7-b125eaa0acee",
-      "comment": "",
-      "command": "waitForElementPresent",
-      "target": "xpath=//option[@value='abarth']",
-      "targets": [],
-      "value": "2000"
-    }, {
-      "id": "8869de72-5416-4283-b88b-44bff2a0ae86",
-      "comment": "",
-      "command": "select",
-      "target": "name=brand",
-      "targets": [],
-      "value": "index=${randomMakeIndex}"
-    }, {
-      "id": "325b3610-ad7d-491a-93ac-b34b36cd3b73",
-      "comment": "",
-      "command": "storeXpathCount",
-      "target": "xpath=//select[@name='model']",
-      "targets": [],
-      "value": "isModel"
-    }, {
-      "id": "a7923be7-9a2d-42d5-8534-d9feee26e0bb",
-      "comment": "",
-      "command": "pause",
-      "target": "1000",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "4155b069-c958-4728-893a-72b487ec0b46",
-      "comment": "",
-      "command": "verifyElementPresent",
-      "target": "xpath=//select[@name='model']",
-      "targets": [],
-      "value": "!isModel"
-    }, {
-      "id": "93dcb434-2de7-493c-beed-8f9bc91de281",
-      "comment": "",
-      "command": "if",
-      "target": "${isModel}==1",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "6be58669-dc1f-4139-833f-73f830fbe8ea",
-      "comment": "",
-      "command": "click",
-      "target": "name=model",
-      "targets": [
-        ["name=model", "name"],
-        ["css=.required > select:nth-child(5)", "css:finder"],
-        ["xpath=//select[@name='model']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div/select[2]", "xpath:idRelative"],
-        ["xpath=//select[2]", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "97010bf4-12f6-41bd-a5ae-3081606223b4",
-      "comment": "",
-      "command": "select",
-      "target": "name=model",
-      "targets": [],
-      "value": "index=1"
-    }, {
-      "id": "e1ae1142-000d-4b9f-ac3f-79b0af7dd605",
-      "comment": "",
-      "command": "else",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "81d9d4a6-2a2c-44f9-a55d-c8d996e725bc",
-      "comment": "",
-      "command": "type",
-      "target": "name=model",
-      "targets": [],
-      "value": "BRAK MODELI DANEJ MARKI"
-    }, {
-      "id": "3629f4a9-02ad-4a69-b873-002980a2a359",
-      "comment": "",
-      "command": "end",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "ff0999c4-2638-4b49-9769-d17ed70c92e7",
-      "comment": "",
-      "command": "pause",
-      "target": "1000",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "462ed26f-1dcf-427c-bc0d-9f4a5fd0485c",
-      "comment": "",
-      "command": "storeXpathCount",
-      "target": "xpath=//select[@name='prod_year']",
-      "targets": [],
-      "value": "isGeneration"
-    }, {
-      "id": "31be8a32-373e-4243-9c39-eed027ba251b",
-      "comment": "",
-      "command": "verifyElementPresent",
-      "target": "xpath=//select[@name='prod_year']",
-      "targets": [],
-      "value": "isGeneration"
-    }, {
-      "id": "804dd41f-1102-4b62-9ce3-4c62590b61c7",
-      "comment": "",
-      "command": "if",
-      "target": "${isGeneration}==1",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "b477f155-7cb8-489b-bf86-014a6d874f99",
-      "comment": "",
-      "command": "click",
-      "target": "name=prod_year",
-      "targets": [
-        ["name=prod_year", "name"],
-        ["css=input:nth-child(7)", "css:finder"],
-        ["xpath=//input[@name='prod_year']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div/input", "xpath:idRelative"],
-        ["xpath=//input", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "32d8e7ba-809d-4d82-929b-3ff57bd1cae0",
-      "comment": "",
-      "command": "select",
-      "target": "name=prod_year",
-      "targets": [],
-      "value": "index=1"
-    }, {
-      "id": "916d59be-bf9c-4202-974d-1bcd8ed99179",
-      "comment": "",
-      "command": "else",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "10f5ccd2-d9c9-444c-a625-154d9783d766",
-      "comment": "",
-      "command": "type",
-      "target": "name=prod_year",
-      "targets": [],
-      "value": "${randomYear}"
-    }, {
-      "id": "b88d890d-c08b-4d35-9814-2c7011cb3202",
-      "comment": "",
-      "command": "end",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "8a7df34a-0cb6-457b-9490-ef837b710bd3",
-      "comment": "",
-      "command": "end",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "bd8f3114-eddf-4055-beda-ae3c0923d7d7",
-      "comment": "",
-      "command": "type",
-      "target": "name=engine",
-      "targets": [
-        ["name=engine", "name"],
-        ["css=input:nth-child(3)", "css:finder"],
-        ["xpath=//input[@name='engine']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input", "xpath:idRelative"],
-        ["xpath=//div[2]/input", "xpath:position"]
-      ],
-      "value": "${randomHP}"
-    }, {
-      "id": "fc5a1b07-496e-4354-8ad7-b6a83d402677",
-      "comment": "",
-      "command": "select",
-      "target": "name=transmission",
-      "targets": [],
-      "value": "index=${randomTransmission}"
-    }, {
-      "id": "5b308efa-ffe3-41bb-adfe-0f93bce15ab0",
-      "comment": "",
-      "command": "select",
-      "target": "name=drivetrain",
-      "targets": [],
-      "value": "index=${randomDrivetrain}"
-    }, {
-      "id": "f5ec9559-e738-429e-9a4f-e4d0a5f2b150",
-      "comment": "",
-      "command": "type",
-      "target": "id=numberPlates",
-      "targets": [
-        ["id=numberPlates", "id"],
-        ["css=#numberPlates", "css:finder"],
-        ["xpath=//input[@id='numberPlates']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input[2]", "xpath:idRelative"],
-        ["xpath=//div[2]/input[2]", "xpath:position"]
-      ],
-      "value": "XXXXXXXXX"
-    }, {
-      "id": "27d12158-ef6a-40f9-b851-68764ff30464",
-      "comment": "",
-      "command": "type",
-      "target": "id=mileage",
-      "targets": [
-        ["id=mileage", "id"],
-        ["css=#mileage", "css:finder"],
-        ["xpath=//input[@id='mileage']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input[3]", "xpath:idRelative"],
-        ["xpath=//input[3]", "xpath:position"]
-      ],
-      "value": "${randomMilage}"
-    }, {
-      "id": "a0523753-4462-4753-9451-ae80a70c44a3",
-      "comment": "",
-      "command": "type",
-      "target": "name=description",
-      "targets": [
-        ["name=description", "name"],
-        ["css=textarea", "css:finder"],
-        ["xpath=//textarea[@name='description']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/textarea", "xpath:idRelative"],
-        ["xpath=//textarea", "xpath:position"]
-      ],
-      "value": "INFO"
-    }, {
-      "id": "9a3565d5-8101-4773-a784-d116ba8c2864",
-      "comment": "",
-      "command": "click",
-      "target": "css=.addData",
-      "targets": [
-        ["css=.addData", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[3]/button", "xpath:idRelative"],
-        ["xpath=//button", "xpath:position"],
-        ["xpath=//button[contains(.,'Dodaj pojazd')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "7220d9d1-daed-4476-a84e-510bcd1e6468",
-      "comment": "",
-      "command": "click",
-      "target": "css=.fa-file-invoice-dollar",
-      "targets": [
-        ["css=.fa-file-invoice-dollar", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div[2]/div/div/div/ul/li[14]/a/i", "xpath:idRelative"],
-        ["xpath=//li[14]/a/i", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "a4ba881a-c812-4d5c-a19e-ed543f4cd1e3",
-      "comment": "",
-      "command": "pause",
-      "target": "500",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "c6d05444-7798-49c9-8a46-ffe070dcfc38",
-      "comment": "",
-      "command": "click",
-      "target": "css=.fa-user",
-      "targets": [
-        ["css=.fa-user", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div[2]/div/div/div/ul/li[15]/a/i", "xpath:idRelative"],
-        ["xpath=//li[15]/a/i", "xpath:position"]
-      ],
-      "value": ""
-    }]
-  }, {
     "id": "4e5677d4-7f1c-41fa-ab88-ac79f36968a7",
     "name": "7_Dodawanie pojazdu (3)",
     "commands": [{
@@ -4968,380 +1941,20 @@
       "value": ""
     }]
   }, {
-    "id": "03eca0d5-9ea0-4598-a4af-fad5a8754904",
-    "name": "8_Dodawanie klienta (1)",
-    "commands": [{
-      "id": "b51748c7-1fb1-4adf-9950-28ad3f78e307",
-      "comment": "",
-      "command": "open",
-      "target": "/#/",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "36217864-7383-4e5c-8268-e589cdbf6e4b",
-      "comment": "",
-      "command": "waitForElementPresent",
-      "target": "css=.fa-parking",
-      "targets": [],
-      "value": "2000"
-    }, {
-      "id": "45b69ea6-3802-414b-9189-15d828b1c706",
-      "comment": "",
-      "command": "click",
-      "target": "css=.fa-user",
-      "targets": [
-        ["css=.fa-user", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div[2]/div/div/div/ul/li[15]/a/i", "xpath:idRelative"],
-        ["xpath=//li[15]/a/i", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "9971534c-dc85-4993-97c4-5ca2f39acd3b",
-      "comment": "",
-      "command": "click",
-      "target": "xpath=//button[contains(.,'Dodaj Klienta')]",
-      "targets": [
-        ["css=.btn", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/div/button", "xpath:idRelative"],
-        ["xpath=//button", "xpath:position"],
-        ["xpath=//button[contains(.,'Dodaj Klienta')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "dd52b03b-f6dd-4757-9794-d60439ede998",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.round(Math.random()*500)",
-      "targets": [],
-      "value": "randomClientID"
-    }, {
-      "id": "04c27d76-abe4-43c8-a794-c6f7730333e7",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.random().toString().slice(2,11)",
-      "targets": [],
-      "value": "randomPhoneNum"
-    }, {
-      "id": "f5687e44-0f86-4c1e-9ff0-98a3e5bd7768",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.round(Math.random()*1000)",
-      "targets": [],
-      "value": "randomAddressNum"
-    }, {
-      "id": "415b6289-4c73-45ea-b887-aa1fd80571fb",
-      "comment": "",
-      "command": "type",
-      "target": "id=phoneNum",
-      "targets": [],
-      "value": "${randomPhoneNum}"
-    }, {
-      "id": "362db938-df17-4b9d-85cb-cd7990ff8177",
-      "comment": "",
-      "command": "type",
-      "target": "id=clientName",
-      "targets": [
-        ["id=clientName", "id"],
-        ["css=#clientName", "css:finder"],
-        ["xpath=//input[@id='clientName']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div/input[2]", "xpath:idRelative"],
-        ["xpath=//input[2]", "xpath:position"]
-      ],
-      "value": "Klient_${randomClientID}"
-    }, {
-      "id": "70245db3-fb11-4b30-ab9c-74c7edfa413e",
-      "comment": "",
-      "command": "type",
-      "target": "name=address",
-      "targets": [
-        ["name=address", "name"],
-        ["css=.extraInformation > input:nth-child(5)", "css:finder"],
-        ["xpath=//input[@name='address']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input[2]", "xpath:idRelative"],
-        ["xpath=//div[2]/input[2]", "xpath:position"]
-      ],
-      "value": "Adres_${randomAddressNum}"
-    }, {
-      "id": "65f818ab-3628-4c82-ac24-f9271149741d",
-      "comment": "",
-      "command": "type",
-      "target": "name=client_description",
-      "targets": [
-        ["name=client_description", "name"],
-        ["css=textarea", "css:finder"],
-        ["xpath=//textarea[@name='client_description']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/textarea", "xpath:idRelative"],
-        ["xpath=//textarea", "xpath:position"]
-      ],
-      "value": "Info_X"
-    }, {
-      "id": "3f725c06-4f24-424c-ac4c-caf555cfd382",
-      "comment": "",
-      "command": "click",
-      "target": "css=.addData",
-      "targets": [
-        ["css=.addData", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[3]/button", "xpath:idRelative"],
-        ["xpath=//button", "xpath:position"],
-        ["xpath=//button[contains(.,'Dodaj klienta')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }]
-  }, {
-    "id": "94066d83-7690-452c-9a5f-2fa03d21cc79",
-    "name": "6_Dodawanie klienta (2)",
-    "commands": [{
-      "id": "17428cca-a996-4ecc-b751-0f6cd4c56c29",
-      "comment": "",
-      "command": "open",
-      "target": "/#/",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "543264d3-1578-4282-a965-f164b4211bf1",
-      "comment": "",
-      "command": "waitForElementPresent",
-      "target": "css=.fa-parking",
-      "targets": [],
-      "value": "2000"
-    }, {
-      "id": "ab7cad7c-db0a-42a1-a6a1-ec27e6f89aaa",
-      "comment": "",
-      "command": "click",
-      "target": "css=.fa-user",
-      "targets": [
-        ["css=.fa-user", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div[2]/div/div/div/ul/li[15]/a/i", "xpath:idRelative"],
-        ["xpath=//li[15]/a/i", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "2c4df2a5-4b2c-4403-a4de-6f90b2d4920d",
-      "comment": "",
-      "command": "click",
-      "target": "xpath=//button[contains(.,'Dodaj Klienta')]",
-      "targets": [
-        ["css=.btn", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/div/button", "xpath:idRelative"],
-        ["xpath=//button", "xpath:position"],
-        ["xpath=//button[contains(.,'Dodaj Klienta')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "082ff6f2-4b6a-45d6-a1f0-847d767dfba6",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.round(Math.random()*500)",
-      "targets": [],
-      "value": "randomClientID"
-    }, {
-      "id": "f5f10a91-a25c-4163-aef4-18d342d3144e",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.random().toString().slice(2,11)",
-      "targets": [],
-      "value": "randomPhoneNum"
-    }, {
-      "id": "91cb91ae-910e-4163-a645-cba5f239e0fc",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.round(Math.random()*1000)",
-      "targets": [],
-      "value": "randomAddressNum"
-    }, {
-      "id": "0638332a-d0d9-4bf7-88da-3a0964948d87",
-      "comment": "",
-      "command": "type",
-      "target": "id=phoneNum",
-      "targets": [],
-      "value": "${randomPhoneNum}"
-    }, {
-      "id": "54587652-f461-4922-8020-78861c13dac4",
-      "comment": "",
-      "command": "type",
-      "target": "id=clientName",
-      "targets": [
-        ["id=clientName", "id"],
-        ["css=#clientName", "css:finder"],
-        ["xpath=//input[@id='clientName']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div/input[2]", "xpath:idRelative"],
-        ["xpath=//input[2]", "xpath:position"]
-      ],
-      "value": "Klient_${randomClientID}"
-    }, {
-      "id": "c50eea22-6447-43a4-a682-828ae6e05c64",
-      "comment": "",
-      "command": "type",
-      "target": "name=address",
-      "targets": [
-        ["name=address", "name"],
-        ["css=.extraInformation > input:nth-child(5)", "css:finder"],
-        ["xpath=//input[@name='address']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input[2]", "xpath:idRelative"],
-        ["xpath=//div[2]/input[2]", "xpath:position"]
-      ],
-      "value": "Adres_${randomAddressNum}"
-    }, {
-      "id": "aac22e19-4967-4cf9-9c1f-393316834a09",
-      "comment": "",
-      "command": "type",
-      "target": "name=client_description",
-      "targets": [
-        ["name=client_description", "name"],
-        ["css=textarea", "css:finder"],
-        ["xpath=//textarea[@name='client_description']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/textarea", "xpath:idRelative"],
-        ["xpath=//textarea", "xpath:position"]
-      ],
-      "value": "Info_X"
-    }, {
-      "id": "446d87f0-e29b-483a-975a-c8bff2a4165b",
-      "comment": "",
-      "command": "click",
-      "target": "css=.addData",
-      "targets": [
-        ["css=.addData", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[3]/button", "xpath:idRelative"],
-        ["xpath=//button", "xpath:position"],
-        ["xpath=//button[contains(.,'Dodaj klienta')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }]
-  }, {
-    "id": "cd5f01ed-c530-4fda-86bd-256d67b49255",
-    "name": "7_Dodawanie klienta (3)",
-    "commands": [{
-      "id": "a1b0af45-924d-426f-b0b6-bf892714e903",
-      "comment": "",
-      "command": "open",
-      "target": "/#/",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "ce625ebb-2dda-416e-ae5c-cb4d83c26884",
-      "comment": "",
-      "command": "waitForElementPresent",
-      "target": "css=.fa-parking",
-      "targets": [],
-      "value": "2000"
-    }, {
-      "id": "edfc9040-d64b-4df1-8d51-748ae659bbdb",
-      "comment": "",
-      "command": "click",
-      "target": "css=.fa-user",
-      "targets": [
-        ["css=.fa-user", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div[2]/div/div/div/ul/li[15]/a/i", "xpath:idRelative"],
-        ["xpath=//li[15]/a/i", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "f53cae8f-5582-48d2-82dc-f945fa930dc3",
-      "comment": "",
-      "command": "click",
-      "target": "xpath=//button[contains(.,'Dodaj Klienta')]",
-      "targets": [
-        ["css=.btn", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/div/button", "xpath:idRelative"],
-        ["xpath=//button", "xpath:position"],
-        ["xpath=//button[contains(.,'Dodaj Klienta')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "53a657fe-e999-413f-a544-2310b2068728",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.round(Math.random()*500)",
-      "targets": [],
-      "value": "randomClientID"
-    }, {
-      "id": "12582312-2319-413f-b648-d72b928a51e7",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.random().toString().slice(2,11)",
-      "targets": [],
-      "value": "randomPhoneNum"
-    }, {
-      "id": "b5291f5a-1566-4a4c-9e32-144f262fd6ba",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.round(Math.random()*1000)",
-      "targets": [],
-      "value": "randomAddressNum"
-    }, {
-      "id": "03b25adf-c782-4b96-888c-cba1c1952bb8",
-      "comment": "",
-      "command": "type",
-      "target": "id=phoneNum",
-      "targets": [],
-      "value": "${randomPhoneNum}"
-    }, {
-      "id": "73bf92b3-a72e-40cf-a16e-126973383a3b",
-      "comment": "",
-      "command": "type",
-      "target": "id=clientName",
-      "targets": [
-        ["id=clientName", "id"],
-        ["css=#clientName", "css:finder"],
-        ["xpath=//input[@id='clientName']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div/input[2]", "xpath:idRelative"],
-        ["xpath=//input[2]", "xpath:position"]
-      ],
-      "value": "Klient_${randomClientID}"
-    }, {
-      "id": "a6fefaa8-787c-4821-90f0-e4eea5ed9c22",
-      "comment": "",
-      "command": "type",
-      "target": "name=address",
-      "targets": [
-        ["name=address", "name"],
-        ["css=.extraInformation > input:nth-child(5)", "css:finder"],
-        ["xpath=//input[@name='address']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input[2]", "xpath:idRelative"],
-        ["xpath=//div[2]/input[2]", "xpath:position"]
-      ],
-      "value": "Adres_${randomAddressNum}"
-    }, {
-      "id": "3c9bed6b-1afa-430b-9476-36d96fa9bb60",
-      "comment": "",
-      "command": "type",
-      "target": "name=client_description",
-      "targets": [
-        ["name=client_description", "name"],
-        ["css=textarea", "css:finder"],
-        ["xpath=//textarea[@name='client_description']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/textarea", "xpath:idRelative"],
-        ["xpath=//textarea", "xpath:position"]
-      ],
-      "value": "Info_X"
-    }, {
-      "id": "3b576685-4c7a-432f-b59d-a3af167289b3",
-      "comment": "",
-      "command": "click",
-      "target": "css=.addData",
-      "targets": [
-        ["css=.addData", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[3]/button", "xpath:idRelative"],
-        ["xpath=//button", "xpath:position"],
-        ["xpath=//button[contains(.,'Dodaj klienta')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }]
-  }, {
     "id": "24f60e12-7816-4cdb-9c34-a80f5f2dc2f8",
     "name": "0_Dodawanie KLIENTA Z POJAZDEM",
     "commands": [{
       "id": "4e276e6b-3ef0-4df5-8c73-58a8220de42c",
       "comment": "",
       "command": "times",
-      "target": "50",
+      "target": "150",
       "targets": [],
       "value": ""
     }, {
       "id": "9a210eed-749d-4945-9c9e-8b17d5b6babb",
       "comment": "",
       "command": "open",
-      "target": "/#/",
+      "target": "/",
       "targets": [],
       "value": ""
     }, {
@@ -5382,13 +1995,6 @@
       "targets": [],
       "value": "randomPhoneNum"
     }, {
-      "id": "8d52608e-9ee9-4f3a-b4f4-b0daf2254b36",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.round(Math.random()*1000)",
-      "targets": [],
-      "value": "randomAddressNum"
-    }, {
       "id": "48790a57-c1fc-4ea8-a1d3-d32bba85d77d",
       "comment": "",
       "command": "type",
@@ -5409,42 +2015,34 @@
       ],
       "value": "Klient_${randomClientID}"
     }, {
-      "id": "b1e1b006-0a17-4b50-ba64-06399743b783",
-      "comment": "",
-      "command": "type",
-      "target": "name=address",
-      "targets": [
-        ["name=address", "name"],
-        ["css=.extraInformation > input:nth-child(5)", "css:finder"],
-        ["xpath=//input[@name='address']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input[2]", "xpath:idRelative"],
-        ["xpath=//div[2]/input[2]", "xpath:position"]
-      ],
-      "value": "Adres_${randomAddressNum}"
-    }, {
       "id": "d5f0a4f9-9ed5-42da-9ef5-51516799e4fa",
       "comment": "",
       "command": "type",
-      "target": "name=client_description",
+      "target": "xpath=//div[@id='Textarea']/div[2]/div/p",
       "targets": [
-        ["name=client_description", "name"],
-        ["css=textarea", "css:finder"],
-        ["xpath=//textarea[@name='client_description']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/textarea", "xpath:idRelative"],
-        ["xpath=//textarea", "xpath:position"]
+        ["css=p", "css:finder"],
+        ["xpath=//div[@id='Textarea']/div[2]/div/p", "xpath:idRelative"],
+        ["xpath=//p", "xpath:position"]
       ],
       "value": "Info_X"
     }, {
       "id": "c18b4944-f48b-4776-a940-9797c555ac0d",
       "comment": "",
       "command": "click",
-      "target": "css=.addData",
+      "target": "css=.p-button-success > .p-button-label",
       "targets": [
-        ["css=.addData", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[3]/button", "xpath:idRelative"],
-        ["xpath=//button", "xpath:position"],
-        ["xpath=//button[contains(.,'Dodaj klienta')]", "xpath:innerText"]
+        ["css=.p-button-success > .p-button-label", "css:finder"],
+        ["xpath=//div[@id='app']/div/div/div/div/div/div/div[3]/div/button/span[2]", "xpath:idRelative"],
+        ["xpath=//button/span[2]", "xpath:position"],
+        ["xpath=//span[contains(.,'Dodaj klienta')]", "xpath:innerText"]
       ],
+      "value": ""
+    }, {
+      "id": "39b0218b-e991-4601-a247-8d63068d16d9",
+      "comment": "",
+      "command": "pause",
+      "target": "750",
+      "targets": [],
       "value": ""
     }, {
       "id": "972441aa-50ba-4f3d-9831-d884beeff2b4",
@@ -5461,27 +2059,24 @@
       "id": "f94f88a2-bea2-4d71-bbfd-67f31937b90b",
       "comment": "",
       "command": "waitForElementPresent",
-      "target": "xpath=//tr/td/i[2]/i",
-      "targets": [],
+      "target": "css=tr:nth-child(1) .fa-plus",
+      "targets": [
+        ["css=tr:nth-child(1) .fa-plus", "css:finder"],
+        ["xpath=//div[@id='app']/div/div/div/div/div[2]/div[2]/table/tbody/tr/td[2]/div/div[2]/i[2]", "xpath:idRelative"],
+        ["xpath=//div[2]/i[2]", "xpath:position"]
+      ],
       "value": "2000"
     }, {
       "id": "c4484be1-17fb-43bd-b8ef-1e9705843187",
       "comment": "",
       "command": "click",
-      "target": "xpath=//tr/td/i[2]/i",
+      "target": "css=tr:nth-child(1) .fa-plus",
       "targets": [
-        ["css=#id000-000-000 .fas > .fas", "css:finder"],
-        ["xpath=//tr[@id='id000-000-000']/td/i[2]/i", "xpath:idRelative"],
-        ["xpath=//i[2]/i", "xpath:position"]
+        ["css=tr:nth-child(1) .fa-plus", "css:finder"],
+        ["xpath=//div[@id='app']/div/div/div/div/div[2]/div[2]/table/tbody/tr/td[2]/div/div[2]/i[2]", "xpath:idRelative"],
+        ["xpath=//div[2]/i[2]", "xpath:position"]
       ],
       "value": ""
-    }, {
-      "id": "b311d2cc-fe1f-45b2-a53c-00f3368b5fdc",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor((Math.random()*300)+50)",
-      "targets": [],
-      "value": "randomHP"
     }, {
       "id": "80e7b0e3-3132-412b-bee9-600df77696c7",
       "comment": "",
@@ -5497,33 +2092,12 @@
       "targets": [],
       "value": "randomMakeIndex"
     }, {
-      "id": "4c293f67-8f51-4a7b-bf69-52257b999ab4",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*2)",
-      "targets": [],
-      "value": "randomTransmission"
-    }, {
       "id": "a8f72c0c-c13d-4561-bed7-599ef2e53263",
       "comment": "",
       "command": "executeScript",
       "target": "return Math.floor(Math.random()*250000)",
       "targets": [],
       "value": "randomMilage"
-    }, {
-      "id": "91064758-5b20-417b-9f71-56c6c03b7e98",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*3)",
-      "targets": [],
-      "value": "randomDrivetrain"
-    }, {
-      "id": "0bb843fb-9dd9-4ae7-a67e-f163944ab19c",
-      "comment": "",
-      "command": "executeScript",
-      "target": "return Math.floor(Math.random()*5)",
-      "targets": [],
-      "value": "randomFuel"
     }, {
       "id": "9662d6fe-2a28-4769-8d37-ace764e214b5",
       "comment": "",
@@ -5544,13 +2118,6 @@
         ["xpath=//input", "xpath:position"]
       ],
       "value": "${randomVIN}"
-    }, {
-      "id": "fb6c9424-37ef-4d62-8e57-715e8d325740",
-      "comment": "",
-      "command": "select",
-      "target": "name=fuel",
-      "targets": [],
-      "value": "index=${randomFuel}"
     }, {
       "id": "7a6f9404-e736-4831-8585-0b5ffcf9e580",
       "comment": "",
@@ -5742,8 +2309,14 @@
       "id": "57d07693-be2e-48cb-8d18-7c0211881f56",
       "comment": "",
       "command": "type",
-      "target": "name=prod_year",
-      "targets": [],
+      "target": "id=prod_year",
+      "targets": [
+        ["id=prod_year", "id"],
+        ["css=#prod_year", "css:finder"],
+        ["xpath=//input[@id='prod_year']", "xpath:attributes"],
+        ["xpath=//div[@id='app']/div/div/div/div/div/div/div[2]/form/div/div/span/input", "xpath:idRelative"],
+        ["xpath=//input", "xpath:position"]
+      ],
       "value": "${randomYear}"
     }, {
       "id": "ffed23b8-796c-454a-843e-baa2d950c4b8",
@@ -5760,33 +2333,6 @@
       "targets": [],
       "value": ""
     }, {
-      "id": "2bd2a92a-2b03-4d95-a769-a7a5c0343862",
-      "comment": "",
-      "command": "type",
-      "target": "name=engine",
-      "targets": [
-        ["name=engine", "name"],
-        ["css=input:nth-child(3)", "css:finder"],
-        ["xpath=//input[@name='engine']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input", "xpath:idRelative"],
-        ["xpath=//div[2]/input", "xpath:position"]
-      ],
-      "value": "${randomHP}"
-    }, {
-      "id": "ecd5ebb9-89ac-42cb-9183-7699f331975a",
-      "comment": "",
-      "command": "select",
-      "target": "name=transmission",
-      "targets": [],
-      "value": "index=${randomTransmission}"
-    }, {
-      "id": "5e161972-e6c2-43f8-b769-ce414e7dbb7d",
-      "comment": "",
-      "command": "select",
-      "target": "name=drivetrain",
-      "targets": [],
-      "value": "index=${randomDrivetrain}"
-    }, {
       "id": "602bd087-6795-40da-9643-cf0212efa099",
       "comment": "",
       "command": "type",
@@ -5795,8 +2341,8 @@
         ["id=numberPlates", "id"],
         ["css=#numberPlates", "css:finder"],
         ["xpath=//input[@id='numberPlates']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input[2]", "xpath:idRelative"],
-        ["xpath=//div[2]/input[2]", "xpath:position"]
+        ["xpath=//div[@id='app']/div/div/div/div/div/div/div[2]/form/div/div[2]/span/input", "xpath:idRelative"],
+        ["xpath=//div[2]/span/input", "xpath:position"]
       ],
       "value": "XXXXXXXXX"
     }, {
@@ -5808,33 +2354,31 @@
         ["id=mileage", "id"],
         ["css=#mileage", "css:finder"],
         ["xpath=//input[@id='mileage']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/input[3]", "xpath:idRelative"],
-        ["xpath=//input[3]", "xpath:position"]
+        ["xpath=//div[@id='app']/div/div/div/div/div/div/div[2]/form/div/div[2]/span[2]/input", "xpath:idRelative"],
+        ["xpath=//div[2]/span[2]/input", "xpath:position"]
       ],
       "value": "${randomMilage}"
     }, {
       "id": "88c1b649-012d-4c8a-99a9-d68683968d28",
       "comment": "",
       "command": "type",
-      "target": "name=description",
+      "target": "css=p",
       "targets": [
-        ["name=description", "name"],
-        ["css=textarea", "css:finder"],
-        ["xpath=//textarea[@name='description']", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[2]/div[2]/textarea", "xpath:idRelative"],
-        ["xpath=//textarea", "xpath:position"]
+        ["css=p", "css:finder"],
+        ["xpath=//div[@id='Textarea']/div[2]/div/p", "xpath:idRelative"],
+        ["xpath=//p", "xpath:position"]
       ],
       "value": "INFO"
     }, {
       "id": "21177696-0d59-4f94-90ad-593d9b3e975e",
       "comment": "",
       "command": "click",
-      "target": "css=.addData",
+      "target": "css=.p-button-success > .p-button-label",
       "targets": [
-        ["css=.addData", "css:finder"],
-        ["xpath=//div[@id='app']/div/div/div/form/div[3]/button", "xpath:idRelative"],
-        ["xpath=//button", "xpath:position"],
-        ["xpath=//button[contains(.,'Dodaj pojazd')]", "xpath:innerText"]
+        ["css=.p-button-success > .p-button-label", "css:finder"],
+        ["xpath=//div[@id='app']/div/div/div/div/div/div/div[3]/div/button/span[2]", "xpath:idRelative"],
+        ["xpath=//button/span[2]", "xpath:position"],
+        ["xpath=//span[contains(.,'Dodaj pojazd')]", "xpath:innerText"]
       ],
       "value": ""
     }, {
@@ -5881,7 +2425,7 @@
     "persistSession": false,
     "parallel": false,
     "timeout": 300,
-    "tests": ["dd83c26d-0d1c-4078-9934-d4e1d3b72f84", "6deda6e3-2090-4acd-9a02-73dd081bb610", "dc87419d-d664-4e3d-b3ad-a408848dcd68", "4da6ce52-1e4f-40d6-be29-c18fc4ce3c01", "ae68673c-adf0-4221-96df-b0eef08f9442", "9c470a3d-fa68-4f52-bdfe-9b1ef883069c", "3a3dd0f3-88d7-4003-ac86-6e59e9db93b3", "66db1302-bda6-470f-8999-af6d0d5a56c0", "a25d3035-ca8e-4cbb-bc10-11ec959efde2", "21564b44-4888-4089-a3d4-401118bc9c2d", "59e0aba0-f306-4443-9f73-f500d5e4c872", "94066d83-7690-452c-9a5f-2fa03d21cc79", "b47a8563-694b-440a-bce6-cd8cb724b6f8", "cd5f01ed-c530-4fda-86bd-256d67b49255", "4e5677d4-7f1c-41fa-ab88-ac79f36968a7", "03eca0d5-9ea0-4598-a4af-fad5a8754904", "e3eab943-c305-4627-b803-ea43bd509c0c"]
+    "tests": ["21564b44-4888-4089-a3d4-401118bc9c2d", "59e0aba0-f306-4443-9f73-f500d5e4c872", "b47a8563-694b-440a-bce6-cd8cb724b6f8", "4e5677d4-7f1c-41fa-ab88-ac79f36968a7"]
   }, {
     "id": "4b2bbf05-67ee-4b86-8fff-293fbf30fb04",
     "name": "Wypełnianie zleceń",

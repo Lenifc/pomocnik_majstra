@@ -24,7 +24,7 @@
                 <div>Rok_prod: {{ ticketDetails?.['Wersja_Rocznik'] || "Brak wprowadzonych danych"}}</div>
                 <div>VIN: {{ ticketDetails?.['VIN'] }}</div>
                 <div>Tablice: {{ ticketDetails?.['Numer_rejestracyjny'] }}</div>
-                <div>Paliwo: {{ ticketDetails?.['Paliwo'] || "Brak wprowadzonych danych"}}</div>
+                <div>Paliwo: {{ ticketDetails?.['Paliwo']?.name || "Brak wprowadzonych danych"}}</div>
                 <div
                   v-if="ticketDetails?.['Silnik_Pojemnosc'] && ticketDetails?.['Silnik_Moc'] && ticketDetails?.['Silnik_Kod']">
                   Silnik:
@@ -131,6 +131,7 @@ export default {
       tickets.collection(route?.params?.collectionPath || 'EMPTY').doc(`zlecenie-${ticketID}`)
         .get().then(recived => {
           ticketDetails.value = recived.data()
+          store.commit('setFillProtocol', ticketDetails.value['ProtokolPrzyjecia'])
           isLoading.value = false
 
           if(ticketDetails.value['Wykonane_uslugi_czesci']){
@@ -192,6 +193,10 @@ export default {
       }
       
       async function updateTicket(doc) {
+        checkOffline.value = setTimeout(() => {
+          toast.add({severity:'warn', summary: 'Status offline', detail:'Klient jest offline.\n Dane zostaną zaktualizowane po przywróceniu połączenia.', life: 0})
+        }, 2500)
+
         if (doc.exists) {
           try {
             await collectionReference.update({...updatedTicket})
@@ -202,6 +207,7 @@ export default {
             toast.add({ severity: 'error', summary: 'Wystąpił Problem', detail: err.message, life: 5000})
           }
         } else {
+          clearTimeout(checkOffline.value)
           toast.add({ severity: 'error', summary: 'Wystąpił Problem', detail: `Zlecenie musiało zostać wczesniej usunięte, więc nie można go było zaktualizować`, life: 6000})
           router.go(-1)
         }
@@ -211,16 +217,11 @@ export default {
           toast.add({ severity: 'success', summary: 'Aktualizacja', detail: 'Poprawnie zaktualizowano dane zlecenia', life: 4000})
         }
 
-        checkOffline.value = setTimeout(() => {
-          toast.add({severity:'warn', summary: 'Status offline', detail:'Klient jest offline.\n Dane zostaną zaktualizowane po przywróceniu połączenia.', life: 0})
-        }, 2500)
       }
   }
 
     function setWOItems(data){
       ticketDetails.value['Wykonane_uslugi_czesci'] = data
-
-      store.commit('setFillProtocol', ticketDetails.value['ProtokolPrzyjecia'])
     }
 
       function calcTotalCosts(order) {
@@ -242,7 +243,7 @@ export default {
           ticketID: route.params.ticketDetails
         }
         store.commit('setInvoiceData', invoiceData)
-        router.push('/generujFakture')
+        router.push('/generuj-fakture')
       }
 
       function showStatus(path){
@@ -288,9 +289,10 @@ export default {
     })
 
     // ponizej fix na przejscie z details/... to zlecen
-    watch(() => route.params.ticketDetails, () => {
-      if (route.path.includes('details')) fetchData()
-    })
+    // watch(() => route.params.ticketDetails, () => {
+    //   console.log(route.path);
+    //   if (route.path.includes('details')) fetchData()
+    // })
     watch(() => route.params.collectionPath, () => route.path.includes('details') ? fetchData() : '')
 
     return {

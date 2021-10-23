@@ -1,6 +1,6 @@
 <template>
-  <div class="p-d-flex p-flex-column p-ai-center">
-    <h1 class="p-my-3">Zlecenia {{collectionPath == 'wolne' ? 'Oczekujące na realizację' : (collectionPath == 'obecne' ? 'W trakcie realizacji' : (collectionPath == 'zakonczone' ? 'Zakończone' : 'Coś poszło nie tak...'))}}</h1>
+  <div class="p-d-flex p-flex-column p-ai-streach">
+    <h1 class="p-my-3 p-mx-auto">Zlecenia {{collectionPath == 'wolne' ? 'Oczekujące na realizację' : (collectionPath == 'obecne' ? 'W trakcie realizacji' : (collectionPath == 'zakonczone' ? 'Zakończone' : 'Coś poszło nie tak...'))}}</h1>
     <Button class="p-button-secondary p-my-4" label="Załaduj kolejne zlecenia" @click="getDataFromFirebase('more')"
       v-if="!disableNextButton" icon="pi pi-download" />
 
@@ -46,14 +46,14 @@
         </template>
       </Column>
       <Column field="Dodane_Czas" header="Dodanie zlecenia" :class="'p-text-center ' + ($route.path == '/zakonczone' ? 'p-d-none' : '')" 
-              style="width:150px"/>
+              style="width:140px"/>
       <Column field="Imie" header="Imie" class="p-text-center">
         <template #body="{data}">
           <div @dblclick="copyValue($event)">{{ data['Imie'] }}</div>
         </template>
       </Column>
       <Column field="Tel2" class="p-d-none" />
-      <Column field="Tel" header="Numer Telefonu" class="p-text-center" style="width:126px">
+      <Column field="Tel" header="Numer Telefonu" class="p-text-center" style="width:130px">
         <template #body="{data}" >
           <div @dblclick="copyValue($event)">{{ data['Tel'] }}</div>
         </template>
@@ -209,7 +209,7 @@ export default ({
     function redirectToDetails(ticketData) {
 
       store.commit('setCarDetails', ticketData)
-      router.push(`/details/${collectionPath.value}/${ticketData['Tel']}/${ticketData['id']}`)
+      router.push(`/szczegoly/${collectionPath.value}/${ticketData['Tel']}/${ticketData['id']}`)
     }
 
     async function copyValue(e) {

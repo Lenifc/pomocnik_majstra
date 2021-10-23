@@ -36,6 +36,7 @@
         </div>
 
           <!-- display="chip" -->
+          
         <MultiSelect v-model="vehicleProtocol.selectedServiceReasons" :options="serviceReasons" optionLabel="value" placeholder="Powód oddania pojazdu" class="p-mt-2" scrollHeight="50vh"/>
 
       </div>
@@ -140,7 +141,8 @@ export default {
     onMounted( () => {
       if(store.state.fillProtocol && route.path.indexOf('dodaj') <= 0) vehicleProtocol.value = Object.assign({}, vehicleProtocol.value, JSON.parse(JSON.stringify(store.state.fillProtocol)))
     })
-    watch(store.state.fillProtocol, () => {
+    // dodanie pustej tablicy pozwolilo pozbyc sie Vue warning przy odpalaniu zlecen, ktore nie posiadaja protokolu
+    watch(store.state.fillProtocol || [], () => {
       if(store.state.fillProtocol) vehicleProtocol.value = store.state.fillProtocol
     })
 
@@ -159,5 +161,10 @@ export default {
 </script>
 
 <style>
-
+.p-multiselect,
+.p-multiselect-label,
+.p-multiselect-label-container{
+max-width: 75vw!important; 
+overflow: hidden!important;
+}
 </style>

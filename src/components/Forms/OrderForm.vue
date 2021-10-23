@@ -8,7 +8,7 @@
     <template #content>
       <form class="newDataForm">
         <div class="p-d-flex p-flex-column p-jc-center p-flex-sm-row p-ml-4 p-ml-sm-0">
-          <div class="p-mr-0 p-mb-5 p-mb-sm-0 p-mr-sm-4" style="max-width:280px">
+          <div class="p-mr-0 p-mb-5 p-mb-sm-0 p-mr-sm-6" style="max-width:280px">
             <p>Klient i pojazd już istnieje w bazie:</p>
             <Button class="p-button-primary p-mt-2" :label="`${!selectedCar ? 'Wybierz klienta' : 'Wybierz innego klienta'}`" @click="() => {openClientsModal = true }" />
           </div>

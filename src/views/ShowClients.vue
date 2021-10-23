@@ -1,10 +1,10 @@
 <template>
-  <div class="p-d-flex p-flex-column p-ai-center">
+  <div class="p-d-flex p-flex-column">
 
+    <div class="p-d-flex p-flex-column p-ai-center p-jc-center">
     <Button label="Dodaj Klienta" icon="pi pi-user-plus" @click="openClientAddForm()"
-      class="p-button-outlined p-button-success p-mt-5 removeMarginLeft" />
-      <div class="p-d-flex p-flex-row p-ai-center">
-        <Button class="p-button-secondary  p-mt-3 removeMarginLeft" @click="getClientsFromFirebase('all')" label="Załaduj wszystkich klientów" 
+      class="p-button-outlined p-button-success p-d-flex p-ai-center p-mt-5" />
+        <Button class="p-button-secondary p-flex column p-mt-3" @click="getClientsFromFirebase('all')" label="Załaduj wszystkich klientów" 
                 v-if="!disableNextButton" :icon="(!recivedClients || isLoading) ? 'pi pi-spin pi-spinner' : 'pi pi-download'" 
                 v-tooltip.bottom="`W przypadku dużej ilości klientów ładowanie może chwile potrwać`" />
       </div>
@@ -273,12 +273,12 @@ import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDelete
      function redirectToCarDetails(car, data) {
        store.commit('setTargetCar', car)
        store.commit('setTargetClient', data)
-       Router.push(`/details/${car.VIN}`)
+       Router.push(`/szczegoly/${car.VIN}`)
      }
 
      function redirectToClientDetails(client) {
        store.commit('setTargetClient', client)
-       Router.push(`/details/client/${client.Tel}`)
+       Router.push(`/szczegoly/client/${client.Tel}`)
      }
 
      function onlyCars(client) {
@@ -362,9 +362,6 @@ import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDelete
 .Cars:last-child > .p-divider{
   display: none;
 }
-.removeMarginLeft{
-  margin-left: -120px;
-}
 
 @media(max-width:1370px){
   .lowerMargin{
@@ -377,15 +374,6 @@ import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDelete
   }
   .DescriptionDisplayNone{
     display: none;
-  }
-}
-
-@media(max-width:1000px){
-  .removeMarginLeft{
-    margin-left:0px
-  } 
-  .DescriptionDisplayNone{
-    display: flexbox;
   }
 }
 

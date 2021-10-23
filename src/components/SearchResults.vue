@@ -45,7 +45,7 @@
                     @click="openCarDetails(car)">{{car['VIN']}}</a>
             </div>
             <div class="p-my-1"><span class="p-text-bold">Numer rejestracyjny:</span> {{car['Numer_rejestracyjny']}}</div>
-            <div class="p-my-1"><span class="p-text-bold">Paliwo:</span> {{car['Paliwo']}}</div>
+            <div class="p-my-1"><span class="p-text-bold">Paliwo:</span> {{car['Paliwo'].name || car['Paliwo']}}</div>
             <div class="p-my-1" v-if="car['Przebieg']"><span class="p-text-bold">Przebieg:</span> {{car['Przebieg']}} km</div>
             <div class="p-my-1" v-if="car['Silnik_Pojemnosc']"><span class="p-text-bold">Pojemność silnika:</span> {{car['Silnik_Pojemnosc']}} cm<sup>3</sup></div>
             <div class="p-my-1" v-if="car['Silnik_Moc']"><span class="p-text-bold">Moc:</span> {{car['Silnik_Moc']}} KM</div>
@@ -107,12 +107,12 @@ export default {
 
     function openCarDetails(car){
       store.commit('setTargetCar', car)
-      router.push(`/details/${car['VIN']}`)
+      router.push(`/szczegoly/${car['VIN']}`)
     }
 
     function openClientDetails(client){
       store.commit('setTargetClient', client)
-      router.push(`/details/client/${client['Tel']}`)
+      router.push(`/szczegoly/client/${client['Tel']}`)
     }
 
             const confirmDeleteModal = (clientData, operation, target) => {

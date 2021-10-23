@@ -90,37 +90,40 @@
       <!-- tutaj dac porownanie co sie zmienilo -->
       <Column header="Zmiany" class="p-text-center" style="width:330px">
         <template #body="{data}">
-          <div @click="() => { $toast.removeAllGroups()
-                $toast.add({ severity: 'warn', detail: 'Szczegóły aktywności wyświetlane są w surowym formacie. Lepszy widok jest z konsoli (F12)', life: 6000 })}">
+          <div @click.once="() => { $toast.removeAllGroups()
+                $toast.add({ severity: 'warn', detail: 'Szczegóły aktywności wyświetlane są w surowym formacie!', life: 6000 })}">
 
             <Fieldset v-if="data.task==='Modyfikacja danych'" legend="Szczegóły zmian" :toggleable="true" :collapsed="true" 
                       @click="console.log(JSON.parse(JSON.stringify(lookForChanges(data.previousData, data.newData, data.task))))">
-              <div v-for="item in Object.entries(lookForChanges(data.previousData, data.newData, data.task))" :key="item">
+              <pre v-html="prettyPrintJson.toHtml(lookForChanges(data.previousData, data.newData, data.task))"></pre>
+              <!-- <div v-for="item in Object.entries(lookForChanges(data.previousData, data.newData, data.task))" :key="item">
                 <div v-html="prettierOutput(item)"></div>
                 <div v-for="test in item" :key="test">
                   <div v-html="typeof test == 'object' ? convertObject(test) : ''"></div>
                 </div>
-              </div>
+              </div> -->
             </Fieldset>
 
             <Fieldset v-if="data.task==='Utworzenie danych'" legend="Szczegóły zmian" :toggleable="true" :collapsed="true" 
                       @click="console.log(JSON.parse(JSON.stringify(data.newData)))">
-              <div v-for="item in Object.entries(data.newData)" :key="item">
+              <pre v-html="prettyPrintJson.toHtml(data.newData)"></pre>
+              <!-- <div v-for="item in Object.entries(data.newData)" :key="item">
                 <div v-html="prettierOutput(item)"></div>
                 <div v-for="test in item" :key="test">
                   <div v-html="typeof test == 'object' ? convertObject(test) : ''"></div>
                 </div>
-              </div>
+              </div> -->
             </Fieldset>
 
             <Fieldset v-if="data.task==='Usuwanie danych'" legend="Szczegóły zmian" :toggleable="true" :collapsed="true" 
                       @click="console.log(JSON.parse(JSON.stringify(data.previousData)))">
-              <div v-for="item in Object.entries(data.previousData)" :key="item">
+                <pre v-html="prettyPrintJson.toHtml(data.previousData)"></pre>
+              <!-- <div v-for="item in Object.entries(data.previousData)" :key="item">
                 <div v-html="prettierOutput(item)"></div>
                 <div v-for="test in item" :key="test">
                   <div v-html="typeof test == 'object' ? convertObject(test) : ''"></div>
                 </div>
-              </div>
+              </div> -->
             </Fieldset>
 
           </div>
@@ -134,6 +137,7 @@
 <script>
 import firebase from 'firebase/app'
 import { onMounted, reactive, ref } from '@vue/runtime-core'
+import { prettyPrintJson } from 'pretty-print-json';
 
 import { FilterMatchMode } from "primevue/api";
 import copyToClipboard from '@/components/copyToClipboard.js'
@@ -186,14 +190,9 @@ export default {
      }
 
      function convertObject(obj){
-      //  console.log('a', obj)
-      //  console.log('x', JSON.parse(JSON.stringify(obj)))
-      //  console.log('keys', Object.keys(x));
-      //  console.log('values', Object.values(x));
-
       let html = ``
       let proxyToObject = JSON.parse(JSON.stringify(obj)) // zamiana Proxy na Object
-      // console.log(x);
+
       for(let singleItem in proxyToObject){
         html += `
           <div class="p-py-1">
@@ -290,6 +289,8 @@ export default {
       convertObject,
       prettierOutput,
       countActivityPages,
+
+      prettyPrintJson,
     }
   }
 }

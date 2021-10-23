@@ -12,7 +12,7 @@
               class="p-my-2">
               <div class="fieldset-data p-my-2">
                 <div>ID zlecenia: <a class="p-text-bold"
-                    :href="`/#/details/${ticket[0]}/${unique?.['Tel']}/${unique?.['id']}`">{{unique.id}}</a></div>
+                    :href="`/szczegoly/${ticket[0]}/${unique?.['Tel']}/${unique?.['id']}`">{{unique.id}}</a></div>
                 <div>Imie klienta/Nazwa firmy: {{unique?.['Imie']}}</div>
                 <div>Numer telefonu klienta: {{unique?.['Tel']}}</div>
                 <div>Status zlecenia: <span class="p-text-bold">{{showName(ticket[0])}}</span></div>

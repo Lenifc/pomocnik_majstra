@@ -7,7 +7,7 @@ import store from './store'
 import PrimeVue from 'primevue/config'
 
 import 'primevue/resources/themes/bootstrap4-dark-blue/theme.css'      // dark theme
-// import 'primevue/resources/themes/vela-blue/theme.css'      // alt dark theme
+// import 'primevue/resources/themes/bootstrap4-light-blue/theme.css'      // alt light theme
 import 'primevue/resources/primevue.min.css'                //core css
 import 'primeicons/primeicons.css'          //icons
 import 'primeflex/primeflex.css'
@@ -46,6 +46,3 @@ app.component('Column', Column)
 
 
 app.use(store).use(router).use(PrimeVue, {ripple: true}).use(ToastService).use(ConfirmationService).mount('#app')
-
-
-// primevue/resources/themes/bootstrap4-light-blue/theme.css // light theme

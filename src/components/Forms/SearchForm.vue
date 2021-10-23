@@ -6,7 +6,8 @@
         Wyszukaj pojazd po numerze VIN
       </template>
       <template #content>
-        <InputText name="searchClient" v-model="searchVIN" maxlength="17" style="width: min(100%, 200px)"
+        <label for="searchByVIN"></label>
+        <InputText name="searchClient" id="searchByVIN" v-model="searchVIN" maxlength="17" style="width: min(100%, 200px)"
           v-tooltip.top.focus="'Poprawny format to 17 znaków'" />
       </template>
       <template #footer>
@@ -19,8 +20,9 @@
         Wyszukaj klienta po numerze telefonu
       </template>
       <template #content>
-        <InputText name="searchClient" v-model="searchNumber" style="width: min(100%, 200px)"
-          v-tooltip.top.focus="'- 7 cyrf dla numeru stacjonarnego \n- 9 cyfr dla numeru komórkowego'" />
+        <label for="searchByPhoneNum"></label>
+        <InputText name="searchClient" id="searchByPhoneNum" v-model="searchNumber" style="width: min(100%, 200px)"
+          v-tooltip.top.focus="'- 7 cyrf dla numeru stacjonarnego \n- 9 cyfr dla numeru komórkowego'" label="Szukaj klienta po numerze telefonu"/>
       </template>
       <template #footer>
         <Button @click="validSearchData" icon="pi pi-search" class="p-button-primary searchBtn phoneBtn" label="Szukaj" />
