@@ -62,6 +62,7 @@ export default {
   },
   setup() {
     const provider = new firebase.auth.GoogleAuthProvider();
+    const callLogs = firebase.functions().httpsCallable('userSignedIn')
     const auth = firebase.auth()
     const router = useRouter()
     const route = useRoute()
@@ -174,6 +175,8 @@ export default {
     function loginWithGoogle(){
       auth.signInWithPopup(provider).then(() => {
         checkAuthStatus()
+          const provideData = auth.currentUser.providerData
+          callLogs({provideData})
         }).catch((error) => {
         toast.add({severity:'error', detail: error.message, life: 8000})
       })
@@ -185,6 +188,8 @@ export default {
           firebase.auth().signInWithEmailAndPassword(username, pwd).then(() => {
             toast.removeAllGroups()
             toast.add({severity:'success', summary: 'Logowanie', detail:'Zalogowano do panelu!', life: 2500})
+              const provideData = auth.currentUser.providerData
+              callLogs({provideData})
             })
             .catch(error =>{
               toast.removeAllGroups()

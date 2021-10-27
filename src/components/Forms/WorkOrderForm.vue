@@ -106,6 +106,7 @@ import { ref, watch, reactive, onMounted } from 'vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import vehicleReport from '@/components/vehicleReport.vue'
+import { useToast } from "primevue/usetoast"
 
 export default {
   props:['passedWO'],
@@ -117,6 +118,7 @@ export default {
   setup(props, {emit}) {
 
     const items = ref([])
+    const toast = useToast()
 
     const originalRows = ref({})
     const editingRows = ref([])
@@ -149,7 +151,14 @@ export default {
     }
 
     function addNewWO() {
-      if (WO.quantity && WO.price_net) {
+      document.querySelectorAll('.p-invalid').forEach(input => input.classList.remove('p-invalid'))
+
+      if(!WO.quantity || WO.quantity < 0) document.querySelector('#quantityWO').classList.add('p-invalid')
+      if(!WO.part_service_Name) document.querySelector('#serviceWO').classList.add('p-invalid')
+      if(!WO.price_net || WO.price_net < 0) document.querySelector('#priceNetWO').classList.add('p-invalid')
+      let checkForInvalids = document.querySelectorAll('.p-invalid')
+
+      if (checkForInvalids.length == 0) {
 
         items.value.push({
           id: Date.now(),
@@ -157,14 +166,14 @@ export default {
           quantity: WO.quantity,
           price_net: WO.price_net,
           price_gross: WO.price_gross,
-          tax: WO.tax,
+          tax: WO.tax || 0,
           totalCost_net: WO.totalCost_net.toFixed(2),
           totalCost_gross: WO.totalCost_gross.toFixed(2)
         })
 
         clearInputs()
         emit('WOItems', items.value)
-      }
+      } else toast.add({severity:'warn', summary: 'Błędne dane', detail:'Popraw wszystkie zaznaczone pola!', life: 4000})
     }
 
     function deleteWO(data) {

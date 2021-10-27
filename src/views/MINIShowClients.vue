@@ -28,8 +28,10 @@
       <Column field="Tel2" class="p-d-none" />
       <Column field="Tel" header="Numer kontaktowy:" class="p-text-nowrap p-text-center p-px-2">
         <template #body="{data}">
-          <div>{{data.Tel}}</div>
-          <div v-if="data.Tel2">{{data.Tel2}}</div>
+          <div class="p-d-flex p-flex-column">
+            <div>{{data.Tel}}</div>
+            <div v-if="data.Tel2">{{data.Tel2}}</div>
+          </div>
         </template>
       </Column>
       <Column header="Pojazdy" field="Pojazdy" style="width:350px">

@@ -7,7 +7,7 @@
         <div class="p-d-flex p-flex-row p-jc-between p-ai-center">
           <div class="invoice-logo p-d-flex p-flex-row p-ai-center">
             <div style="width: 80px"><img alt="workshopLogo" src="@/assets/logo.svg" style="width: 100%"></div>
-            <div class="workshopTitle p-text-uppercase p-text-bold">Warsztat_XD</div>
+            <div class="workshopTitle p-text-uppercase p-text-bold">{{workshopDetails?.['nazwaWarsztatu']}}</div>
           </div>
           <div class="invoice-title p-text-right p-text-bold">
             FAKTURA nr {{ randomIndex }}/{{ getYear }}
@@ -16,7 +16,7 @@
         </div>
         <div class="p-mt-4">
           <h3 class="p-text-uppercase">Sprzedawca</h3>
-          <div>{{ workshopDetails?.['nazwaWarsztatu'] }}</div>
+          <div>{{ workshopDetails?.['nazwaFirmy'] }}</div>
           <div>{{ `${workshopDetails?.['kodPocztowy']} ${workshopDetails?.['miejscowosc']}`}}</div>
           <div>{{ workshopDetails?.['adres'] }}</div>
           <div>NIP: {{ workshopDetails?.['NIP'] }}</div>

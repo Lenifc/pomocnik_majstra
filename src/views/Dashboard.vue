@@ -4,16 +4,17 @@
       <div style="width: 150px">
         <img alt="Logo" src="../assets/logo.svg" style="width: 100%; filter: invert(100%)">
       </div>
-      <div><h1>Warsztato Gitówa</h1></div>
+      <div><h1>{{ workshopName }}</h1></div>
     </div>
 
     <Card>
       <template #header>
+        <div class="p-text-center p-py-1">Obecnie zalogowany: <span class="p-text-bold">{{currentUserName.displayName || currentUserName.email || currentUserName.phoneNumber}}</span></div>
         <h2 class="p-text-center p-py-2">Podsumowanie danych</h2>
       </template>
       <template #content>
         <div class="p-d-flex p-flex-column p-flex-sm-row p-jc-center p-ai-center">
-          <div v-if="counterClients" class="p-d-flex p-flex-column p-py-3 p-py-sm-0 p-pr-0 p-pr-sm-4">
+          <div v-if="counterClients" class="p-d-flex p-flex-column p-py-2 p-py-sm-0 p-pr-0 p-pr-sm-4">
             <h3>Zlecenia: <span> {{counterTickets.IloscZlecen}} </span></h3>
             <div>Oczekujące: <span>{{counterTickets.Wolne}}</span></div>
             <div>W trakcie realizacji: <span>{{counterTickets.Obecne}}</span></div>
@@ -159,6 +160,8 @@ export default {
     const logs = ref('')
     const counterTickets = ref(0)
     const counterClients = ref(0)
+    const workshopName = ref('')
+    const currentUserName = ref('')
     const isLoading = ref(true)
     const searchValue = ref()
     const toast = useToast()
@@ -255,11 +258,17 @@ export default {
 
     const counterPathTickets = firebase.firestore().collection('warsztat').doc('zlecenia')
     const counterPathClients = firebase.firestore().collection('warsztat').doc('Klienci')
+    const workshopDetails = firebase.firestore().collection('warsztat').doc('DaneDoFaktur')
+    const auth = firebase.auth()
 
       onMounted(async() => {
         getClientsFromFirebase()
         const clientsResult = await counterPathClients.get()
         const ticketsResult = await counterPathTickets.get()
+        const docs = await workshopDetails.get().catch(() => toast.add({severity:'error', summary: 'Odczyt danych', detail: 'Wystąpił błąd wczytywania danych', life: 5000}))
+        workshopName.value = docs?.data()?.nazwaWarsztatu
+
+        currentUserName.value = auth.currentUser.providerData[0]
 
         if(localStorage.getItem('countActivityPages')) countActivityPages.value = JSON.parse(localStorage.getItem('countActivityPages'))
 
@@ -289,6 +298,8 @@ export default {
       convertObject,
       prettierOutput,
       countActivityPages,
+      workshopName,
+      currentUserName,
 
       prettyPrintJson,
     }

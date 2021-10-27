@@ -16,11 +16,11 @@
               <label for="phoneNum">Numer telefonu</label>
             </span>
 
-            <!-- <Dropdown v-model="carSpec.selectedBrand" :options="brands" optionLabel="brand" optionValue="brand"
+            <Dropdown v-model="carSpec.selectedBrand" :options="brands" optionLabel="brand" optionValue="brand"
               :filter="true" placeholder="Wybierz marke" :showClear="true" @change="fetchModels()"
               v-if="!manualBrandModelVersionInput" scrollHeight="60vh" id="brand" class="p-mt-3">
               <template #value="{value, placeholder}">
-                  ten template odpowiada za aktualnie wybrany pojazd 
+                  <!-- ten template odpowiada za aktualnie wybrany pojazd  -->
                 <div v-if="value">
                   <span>{{betterLooking(value)}}</span>
                 </div>
@@ -31,15 +31,15 @@
                   <span>{{betterLooking(slotProps.option.brand)}}</span>
                 </div>
               </template>
-            </Dropdown> -->
+            </Dropdown>
 
 
 <!-- TYLKO DO DEBUGU I TESTOW E2E -->
-            <select name="brand" required @change="fetchModels()" v-model="carSpec.selectedBrand"
+            <!-- <select name="brand" required @change="fetchModels()" v-model="carSpec.selectedBrand"
           v-if="!manualBrandModelVersionInput && brands && brands.length">
           <option disabled selected value="">Wybierz marke</option>
           <option v-for="brand in brands" :key="brand" :value="brand.brand">{{ betterLooking(brand.brand) }}</option>
-        </select>
+        </select> -->
 <!-- TYLKO DO DEBUGU I TESTOW E2E -->
 
 
@@ -49,7 +49,7 @@
                 <label for="brand">Wpisz marke pojazdu</label>
             </span>
 
-            <!-- <Dropdown v-model="carSpec.selectedModel" :options="models" optionLabel="pl" optionValue="pl" class="p-mt-3"
+            <Dropdown v-model="carSpec.selectedModel" :options="models" optionLabel="pl" optionValue="pl" class="p-mt-3"
               placeholder="Wybierz model" :filter="true" :showClear="true" @change="() => {fetchVersion(); fetchEngineCapacities()}" id="model"
               v-if="!manualBrandModelVersionInput && !manualModelVersionInput" :disabled="!models" scrollHeight="60vh"
               required>
@@ -64,14 +64,14 @@
                   <span>{{replaceSpaces(slotProps.option.pl)}}</span>
                 </div>
               </template>
-            </Dropdown> -->
+            </Dropdown>
 
 <!-- TYLKO DO DEBUGU I TESTOW E2E -->
-        <select name="model" @change="() => {fetchVersion(); fetchEngineCapacities()}" v-model="carSpec.selectedModel" :disabled="!models"
+        <!-- <select name="model" @change="() => {fetchVersion(); fetchEngineCapacities()}" v-model="carSpec.selectedModel" :disabled="!models"
           v-if="!manualBrandModelVersionInput && !manualModelVersionInput" required>
           <option disabled selected value="">Wybierz model</option>
           <option v-for="model in models" :key="model" :value="replaceSpaces(model.pl)">{{ model.pl }}</option>
-        </select>
+        </select> -->
 <!-- TYLKO DO DEBUGU I TESTOW E2E -->
 
 
@@ -81,7 +81,7 @@
               <label for="model">Wpisz model pojazdu</label>
             </span>
 
-            <!-- <Dropdown v-model="carSpec.selectedVersion" :options="versions" optionLabel="version"
+            <Dropdown v-model="carSpec.selectedVersion" :options="versions" optionLabel="version"
               placeholder="Wybierz generacje" id="prod_year" class="p-mt-3"
               v-if="!manualVersionInput && !manualBrandModelVersionInput && !manualModelVersionInput"
               :disabled="!versions" required scrollHeight="60vh" :showClear="true">
@@ -96,14 +96,14 @@
                   <span>{{slotProps.option}}</span>
                 </div>
               </template>
-            </Dropdown> -->
+            </Dropdown>
 
 <!-- TYLKO DO DEBUGU I TESTOW E2E -->
-      <select name="prod_year" v-model="carSpec.selectedVersion"
+      <!-- <select name="prod_year" v-model="carSpec.selectedVersion"
           v-if="!manualVersionInput && !manualBrandModelVersionInput && !manualModelVersionInput" :disabled="!versions">
           <option disabled selected value="">Wybierz generacje</option>
           <option v-for="version in versions" :key="version" :value="version">{{ version }}</option>
-        </select>
+        </select> -->
 <!-- TYLKO DO DEBUGU I TESTOW E2E -->
 
 
@@ -144,7 +144,7 @@
                 </div>
               </template>
             </Dropdown>
-              <span class="p-float-label" v-if="!capacities?.length">
+              <span class="p-float-label" v-if="!capacities?.length || !carSpec.selectedModel">
                 <InputText id="engineCapacity" v-model="carSpec.engineCapacity" style="width:140px" />
                 <label for="engineCapacity">Pojemność[cm<sup>3</sup>]:</label>
               </span>
@@ -362,6 +362,7 @@ export default {
 
       const data = await axios.get(`${link}/pojemnoscSilnika/${carSpec.selectedBrand}/${replaceSpaces(carSpec.selectedModel)}${carSpec.selectedFuel ? '?fuel_type='+carSpec.selectedFuel.value : ''}`)
         .catch(() => {
+          capacities.value = null
           toast.add({severity:'warn', summary: 'Brak danych', detail:'Nie uda się pobrać dostępnych pojemności silnika dla tego modelu.', life: 4000})
         })
       // ?. jest jak if statement sprawdzajacy czy obiekt istnieje
@@ -376,7 +377,7 @@ export default {
       if(!carSpec.VIN || !validateVIN(carSpec.VIN)) document.querySelector('#VIN').classList.add('p-invalid')
       if(!carSpec.selectedBrand) document.querySelector('#brand').classList.add('p-invalid')
       if(!carSpec.selectedModel) document.querySelector('#model').classList.add('p-invalid')
-      // if(!carSpec?.selectedFuel?.name) document.querySelector('#fuel').classList.add('p-invalid')
+      if(!carSpec?.selectedFuel?.name) document.querySelector('#fuel').classList.add('p-invalid')
       
 
       let checkForInvalids = document.querySelectorAll('.p-invalid')
@@ -577,6 +578,10 @@ export default {
         store.commit('setTargetCar', '')
         if (route.path.indexOf('dodaj') <= 0) fetchBrands()
       }
+    })
+
+    watch(() => carSpec.selectedBrand, () =>{
+      if(carSpec.selectedBrand == 'other') manualBrandModelVersionInput.value = true
     })
 
     onBeforeUnmount(() => controller.abort()) // zapobiega dalszemu pobieraniu sie danych w Promise w przypadku zamknięcia komponentu

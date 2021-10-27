@@ -8,6 +8,11 @@
       <template #content class="p-d-flex p-ai-center p-jc-center">
         <div v-if="!isLoading" style="width: min(550px, 100%)">
           <span class="p-float-label p-mt-4">
+            <Textarea type="text" id="workshopName" v-model="workshop.nazwaFirmy" :autoResize="true"
+              style="width: 100%" />
+            <label for="workshopName">Nazwa firmy</label>
+          </span>
+          <span class="p-float-label p-mt-4">
             <Textarea type="text" id="workshopName" v-model="workshop.nazwaWarsztatu" :autoResize="true"
               style="width: 100%" />
             <label for="workshopName">Nazwa warsztatu</label>
@@ -92,6 +97,7 @@ export default {
     const checkOffline = ref()
     const workshop = reactive({
       nazwaWarsztatu: '',
+      nazwaFirmy: '',
       kodPocztowy: '',
       miejscowosc: '',
       adres: '',
@@ -122,6 +128,7 @@ export default {
 
     function fillInputs(){
       workshop.nazwaWarsztatu = recivedData.value?.nazwaWarsztatu
+      workshop.nazwaFirmy = recivedData.value?.nazwaFirmy
       workshop.kodPocztowy = recivedData.value?.kodPocztowy
       workshop.miejscowosc = recivedData.value?.miejscowosc
       workshop.adres = recivedData.value?.adres
