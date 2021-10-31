@@ -1,8 +1,10 @@
 <template>
   <div class="p-d-flex p-flex-column p-ai-streach">
     <h1 class="p-my-3 p-mx-auto">Zlecenia {{collectionPath == 'wolne' ? 'Oczekujące na realizację' : (collectionPath == 'obecne' ? 'W trakcie realizacji' : (collectionPath == 'zakonczone' ? 'Zakończone' : 'Coś poszło nie tak...'))}}</h1>
+    <div class="p-d-flex p-ai-center p-jc-center">
     <Button class="p-button-secondary p-my-4" label="Załaduj kolejne zlecenia" @click="getDataFromFirebase('more')"
       v-if="!disableNextButton" icon="pi pi-download" />
+    </div>
 
     <DataTable :value="allTickets" responsiveLayout="stack" stripedRows showGridlines v-model:filters="tableFilters"
       filterDisplay="menu" :loading="isLoading" class="p-my-5" breakpoint="1050px" :paginator="true" :rows="countTicketPages || 20">
@@ -40,7 +42,7 @@
               v-tooltip.top="'Przenieś zlecenie'" />
             <Button @click="confirmDeleteModal(slotProps.data)"
               class="p-button-outlined p-button-rounded p-button-danger remove" icon="fas fa-trash-alt"
-              v-tooltip.top="'Usuń zlecenie'" />
+              v-tooltip.bottom="'Usuń zlecenie'" />
           </div>
 
         </template>

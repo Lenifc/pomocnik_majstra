@@ -39,12 +39,12 @@
         <template #body="{data}">
           <div class="p-d-flex p-flex-column p-ai-center">
             <div class="p-d-flex p-flex-row p-pb-2">
-              <i class="fas fa-edit p-pr-3" v-tooltip.right="'Edytuj dane klienta'" @click="openClientEditForm(data)"></i>
+              <i class="fas fa-edit p-pr-3" v-tooltip.bottom="'Edytuj dane klienta'" @click="openClientEditForm(data)"></i>
               <i class="fas fa-trash-alt" v-tooltip.right="'Usuń klienta z jego pojazdami'"
                       @click="confirmDeleteModal(data, 'removeClient', onlyCars(data).length)"></i>
             </div>
             <div class="p-d-flex p-flex-row">
-              <i class="fas fa-info-circle p-pr-2" v-tooltip.right="'Szczegółowe dane klienta'" @click="redirectToClientDetails(data)"></i>
+              <i class="fas fa-info-circle p-pr-2" v-tooltip.bottom="'Szczegółowe dane klienta'" @click="redirectToClientDetails(data)"></i>
               <i class="fas fa-plus" v-tooltip.right="'Przypisz pojazd do klienta'" @click="openVehicleAddForm(data.Tel)"><i class="fas fa-car"></i></i>
             </div>
           </div>
@@ -87,8 +87,8 @@
               </div>
               <div class="p-d-flex p-flex-row p-jc-end p-ai-center lowerMargin p-pl-1">
                 <i class="fas fa-info-circle" v-tooltip.top="'Szczegóły pojazdu'" @click="redirectToCarDetails(car, data)"></i>
-                <i class="fas fa-edit p-pr-1 p-pl-2" v-tooltip.top="'Edytuj dane pojazd'" @click="openVehicleEditForm(car)"></i>
-                <i class="fas fa-trash-alt" v-tooltip.top="'Usuń pojazd'" 
+                <i class="fas fa-edit p-pr-1 p-pl-2" v-tooltip.bottom="'Edytuj dane pojazd'" @click="openVehicleEditForm(car)"></i>
+                <i class="fas fa-trash-alt" v-tooltip.bottom="'Usuń pojazd'" 
                   @click="confirmDeleteModal(data, 'removeCar', car.VIN)"></i>
               </div>
             </div>
