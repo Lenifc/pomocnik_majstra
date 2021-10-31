@@ -156,6 +156,7 @@ export default {
       if(!WO.quantity || WO.quantity < 0) document.querySelector('#quantityWO').classList.add('p-invalid')
       if(!WO.part_service_Name) document.querySelector('#serviceWO').classList.add('p-invalid')
       if(!WO.price_net || WO.price_net < 0) document.querySelector('#priceNetWO').classList.add('p-invalid')
+      if(WO.tax && WO.tax < 0) document.querySelector('#taxWO').classList.add('p-invalid')
       let checkForInvalids = document.querySelectorAll('.p-invalid')
 
       if (checkForInvalids.length == 0) {
@@ -163,10 +164,10 @@ export default {
         items.value.push({
           id: Date.now(),
           part_service_Name: WO.part_service_Name || ' ',
-          quantity: WO.quantity,
-          price_net: WO.price_net,
+          quantity: Math.abs(WO.quantity),
+          price_net: Math.abs(WO.price_net),
           price_gross: WO.price_gross,
-          tax: WO.tax || 0,
+          tax: Math.abs(WO.tax) || 0,
           totalCost_net: WO.totalCost_net.toFixed(2),
           totalCost_gross: WO.totalCost_gross.toFixed(2)
         })
@@ -186,12 +187,15 @@ export default {
       item.totalCost_gross = item.price_net * item.quantity
 
       if (item.price_net && item.tax) {
-        item.price_gross = Number((Number(item.price_net) * (Number(item.tax) + 100) / 100).toFixed(2))
+        item.price_gross = Number(Math.abs(Number(item.price_net) * (Number(item.tax) + 100) / 100).toFixed(2))
       }
       if (item.quantity && item.price_net && item.tax) {
-        item.totalCost_net = Number((Number(item.price_net) * Number(item.quantity)).toFixed(2))
-        item.totalCost_gross = Number((Number(item.quantity) * Number(item.price_net) * ((Number(item.tax) + 100) / 100)).toFixed(2))
+        item.totalCost_net = Number(Math.abs(Number(item.price_net) * Number(item.quantity)).toFixed(2))
+        item.totalCost_gross = Number(Math.abs(Number(item.quantity) * Number(item.price_net) * ((Number(item.tax) + 100) / 100)).toFixed(2))
       }
+      if(item.price_net && item.price_net < 0) item.price_net = Math.abs(item.price_net)
+      if(item.quantity && item.quantity < 0) item.quantity = Math.abs(item.quantity)
+      if(item.tax && item.tax < 0) item.tax = Math.abs(item.tax)
     }
 
     function calcTotalCosts(order) {
@@ -214,22 +218,27 @@ export default {
     })
 
     watch(() => items.value, () => emit('WOItems', items.value))
+    watch(() => [WO.price_net,WO.quantity, WO.tax],() =>{
+      if (WO.price_net && WO.price_net < 0) WO.price_net = Math.abs(WO.price_net)
+      if (WO.quantity && WO.quantity < 0) WO.quantity = Math.abs(WO.quantity)
+      if (WO.tax && WO.tax < 0) WO.tax = Math.abs(WO.tax)
+    })
     watch(() => WO.price_net, () => {
-      WO.price_gross = Number((Number(WO.price_net) * (Number(WO.tax) + 100) / 100).toFixed(2))
+      WO.price_gross = Number(Math.abs(Number(WO.price_net) * (Number(WO.tax) + 100) / 100).toFixed(2))
       if (WO.quantity) {
-        WO.totalCost_net = Number((Number(WO.quantity) * Number(WO.price_net)).toFixed(2))
-        WO.totalCost_gross = Number((Number(WO.quantity) * Number(WO.price_net) * ((Number(WO.tax) + 100) / 100)).toFixed(2))
+        WO.totalCost_net = Number(Math.abs(Number(WO.quantity) * Number(WO.price_net)).toFixed(2))
+        WO.totalCost_gross = Number(Math.abs(Number(WO.quantity) * Number(WO.price_net) * ((Number(WO.tax) + 100) / 100)).toFixed(2))
       }
     })
     watch(() => WO.quantity, () => {
-      if (WO.price_net) WO.totalCost_net = Number((Number(WO.price_net) * Number(WO.quantity)).toFixed(2))
-      if (WO.price_net) WO.totalCost_gross = Number((Number(WO.quantity) * Number(WO.price_net) * ((Number(WO.tax) + 100) / 100)).toFixed(2))
+      if (WO.price_net) WO.totalCost_net = Number(Math.abs(Number(WO.price_net) * Number(WO.quantity)).toFixed(2))
+      if (WO.price_net) WO.totalCost_gross = Number(Math.abs(Number(WO.quantity) * Number(WO.price_net) * ((Number(WO.tax) + 100) / 100)).toFixed(2))
     })
     watch(() => WO.tax, () => {
       if (WO.quantity && WO.price_net) {
-        WO.price_gross = Number((Number(WO.price_net) * (Number(WO.tax) + 100) / 100).toFixed(2))
-        WO.totalCost_net = Number((Number(WO.quantity) * Number(WO.price_net)).toFixed(2))
-        WO.totalCost_gross = Number((Number(WO.quantity) * Number(WO.price_net) * ((Number(WO.tax) + 100) / 100)).toFixed(2))
+        WO.price_gross = Number(Math.abs(Number(WO.price_net) * (Number(WO.tax) + 100) / 100).toFixed(2))
+        WO.totalCost_net = Number(Math.abs(Number(WO.quantity) * Number(WO.price_net)).toFixed(2))
+        WO.totalCost_gross = Number(Math.abs(Number(WO.quantity) * Number(WO.price_net) * ((Number(WO.tax) + 100) / 100)).toFixed(2))
       }
     })
 
