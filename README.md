@@ -1,4 +1,4 @@
-# inzynierka-wizual
+# inzynierka
 
 ## Project setup
 ```
