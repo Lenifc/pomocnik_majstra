@@ -75,7 +75,7 @@ const routes = [
   {
     path: '/pojazdy',
     name: 'Zarządzaj pojazdami',
-    component: () => import('@/views/ShowClients.vue'),
+    component: () => import('@/views/ShowVehicles.vue'),
   },
   {
     path: '/pojazd/dodaj',

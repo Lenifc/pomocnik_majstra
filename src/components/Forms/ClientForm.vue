@@ -206,14 +206,14 @@ export default {
       
       async function addOrUpdateClient(doc) {
         try{
-          const ifNotExist = await X(doc)
+          const ifNotExist = await checkForClient(doc)
           if(ifNotExist) updateAndCleanup()
         }
         catch(err){
          toast.add({ severity: 'error', summary: 'Wystąpił Problem', detail: err.message, life: 5000})
         }
 
-        async function X(doc){
+        async function checkForClient(doc){
             if (doc.exists) {
             if(route.path.indexOf('edytuj') <= 0) {
               toast.add({severity:'error', summary: '', detail: 'Klient o podanym numerze jest już w bazie!', life: 5000})

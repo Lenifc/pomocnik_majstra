@@ -93,6 +93,11 @@ export default {
             icon: 'fa fa-user',
           },
           {
+            href: '/pojazdy',
+            title: 'Zarządzaj pojazdami',
+            icon: 'fa fa-car',
+          },
+          {
             component: CustomDivider
           },
           {

@@ -221,8 +221,6 @@ import { getTime } from '@/components/getCurrentTime'
 import validPhoneNum from '@/components/validPhoneNum.js'
 import validateVIN from '@/components/validateVIN.js'
 
-import { DeleteFunc } from '@/components/EditMoveDeleteOptions.js'
-
 import axios from 'axios'
 import firebase from 'firebase/app'
 
@@ -270,13 +268,17 @@ export default {
     let controller = new AbortController()
 
 
-    const tickets = firebase.firestore()
+    const vehicles = firebase.firestore()
       .collection('warsztat')
-      .doc('Klienci').collection("Numery")
+      .doc('Pojazdy').collection("VIN")
+
+    const clients = firebase.firestore()
+      .collection('warsztat')
+      .doc('Klienci').collection('Numery')
 
     const counterPath = firebase.firestore()
       .collection('warsztat')
-      .doc('Klienci')
+      .doc('Pojazdy')
 
     const fuelOptions = [
       {name: 'Benzyna', value: 'petrol'},
@@ -373,7 +375,7 @@ export default {
     function validateData() {
       document.querySelectorAll('.p-invalid').forEach(input => input.classList.remove('p-invalid'))
 
-      if(!phoneNum.value || !validPhoneNum(phoneNum.value)) document.querySelector('#phoneNum').classList.add('p-invalid')
+      if(phoneNum.value && !validPhoneNum(phoneNum.value)) document.querySelector('#phoneNum').classList.add('p-invalid')
       if(!carSpec.VIN || !validateVIN(carSpec.VIN)) document.querySelector('#VIN').classList.add('p-invalid')
       if(!carSpec.selectedBrand) document.querySelector('#brand').classList.add('p-invalid')
       if(!carSpec.selectedModel) document.querySelector('#model').classList.add('p-invalid')
@@ -388,19 +390,19 @@ export default {
 
         let preparedData = []
         let timeStamp = getTime()
-        let ID = (store.state.targetCar && store.state.targetCar['Tel']) == phoneNum.value ? store.state.targetCar['id'] : Date.now()
+        let ID = Date.now()
         let validVIN = validateVIN(carSpec.VIN)
  
-        preparedData[validVIN] = {
+        preparedData = {
           id: ID,
 
-          Tel: validPhoneNum(phoneNum.value),
+          Tel: (phoneNum?.value?.trim() && validPhoneNum(phoneNum?.value)) ? validPhoneNum(phoneNum?.value) : '',
           Marka: betterLooking(carSpec.selectedBrand),
-          Model: carSpec.selectedModel,
-          Wersja_Rocznik: carSpec.selectedVersion?.trim() || '',
-          Paliwo: carSpec?.selectedFuel || {name: 'Benzyna', value: 'petrol'},
+          Model: carSpec?.selectedModel,
+          Wersja_Rocznik: carSpec?.selectedVersion?.trim() || '',
+          Paliwo: carSpec?.selectedFuel || {name: '', value: ''},
 
-          Silnik_Pojemnosc: carSpec.engineCapacity ? onlyNumbers(carSpec.engineCapacity) : '',
+          Silnik_Pojemnosc: carSpec?.engineCapacity ? onlyNumbers(carSpec?.engineCapacity) : '',
           Silnik_Moc: carSpec.enginePower ? onlyNumbers(carSpec.enginePower) : '',
           Silnik_Kod: carSpec.engineCode?.trim() || '',
           SkrzyniaBiegow: carSpec.selectedTransmission || '',
@@ -413,53 +415,40 @@ export default {
           Ostatnia_Aktualizacja: (store.state.targetCar && store.state.targetCar['Ostatnia_Aktualizacja']) || timeStamp,
 
         }
-
-        if (route.path.indexOf('edytuj') > 0) {
-          // console.log(store.state.targetCar.VIN, validVIN, store.state.targetCar.VIN == validVIN)
-          // console.log(validPhoneNum(store.state.targetCar.Tel), validPhoneNum(phoneNum.value), validPhoneNum(store.state.targetCar.Tel) == validPhoneNum(phoneNum.value));
-          if (validPhoneNum(store.state.targetCar.Tel) != validPhoneNum(phoneNum.value) && store.state.targetCar.VIN == validVIN) {
-            changeCarOwner(preparedData, validVIN)
-          } else sendDataToFirebase(preparedData)
-        } else sendDataToFirebase(preparedData)
+        sendDataToFirebase(preparedData)
 
       } else toast.add({severity:'warn', summary: 'Błędne dane', detail:'Popraw wszystkie zaznaczone pola!', life: 4000})
     }
 
     function onlyNumbers(input) {
-      let result = String(input).replace(/[^0-9]+/g, '') // funkcja replace nie dziala dla cyfr - czyli w przypadku poprawnego wypelnienie program wyrzuci blad
-      return result
+      return String(input).replace(/[^0-9]+/g, '') // funkcja replace nie dziala dla cyfr - czyli w przypadku poprawnego wypelnienie program wyrzuci blad
    } 
 
-   async function changeCarOwner(preparedData, validVIN){
-     sendDataToFirebase(preparedData)
-     let downloadPreviousOwnerData = await tickets.doc(store.state.targetCar.Tel).get()
-     let previousOwnerData = downloadPreviousOwnerData.data()
-     await DeleteFunc('car', tickets, previousOwnerData.Tel, validVIN, JSON.parse(JSON.stringify(previousOwnerData)), 'doNotCount')
-   }
+      async function checkIfNumberExists(tel){
+        let check = await clients.doc(tel).get()
+        if(check.exists) {
+          toast.add({severity:'success', detail:`Przypisano pojazd do klienta: ${tel}`, life: 4000})
+          return 'OK'
+        }
+        else {
+          toast.add({severity:'warn', summary: 'Brak danych klienta', detail:`Aby przypisać pojazd do numeru ${tel} uzupełnij najpierw dane klienta lub dodaj pojazd bez przypisania.`, life: 8000})
+          document.querySelector('#phoneNum').classList.add('p-invalid')
+        }
+      }
 
-     function sendDataToFirebase(preparedData) {
-      let Tel = Object.values(preparedData)[0].Tel
+     async function sendDataToFirebase(preparedData) {
+      let VIN = preparedData.VIN
 
-      const docReference = tickets.doc(Tel)
+      if(preparedData.Tel) if(await checkIfNumberExists(preparedData.Tel) != 'OK') return
+
+      const docReference = vehicles.doc(VIN)
 
        docReference.get().then(function (doc) {
 
         if (!doc.exists) {
-          toast.add({severity:'error', summary: 'Brak klienta', detail:'W pierwszej kolejności dodaj dane klienta, następnie pojazdu.', life: 4000})
-          clearTimeout(checkOffline.value)
-          return
-        } else {
-          if (checkIfVINexists(doc.data(), preparedData) && route.path.indexOf('edytuj') <= 0) {
-            toast.add({severity:'warn', summary: 'Pojazd już istnieje', detail:'Pojazd o podanym numerze VIN jest już przypisany do danego klienta!', life: 4000})
-            clearTimeout(checkOffline.value)
-            return
-          }
-
-          docReference.update({
-              ...preparedData, Ostatnia_Aktualizacja: getTime()
-            }).then(() => {
+            docReference.set({...preparedData, Ostatnia_Aktualizacja: getTime()}).then(() => {
               toast.removeAllGroups()
-              toast.add({severity:'success', summary: 'Dodano pojazd', detail:`Dodano nowy pojazd do numeru telefonu: ${Tel}`, life: 4000})
+              toast.add({severity:'success', summary: 'Dodano pojazd', detail:`Dodano nowy pojazd do bazy: ${VIN}`, life: 4000})
               clearTimeout(checkOffline.value)
             })
             .catch(err => {
@@ -467,6 +456,24 @@ export default {
               toast.add({severity:'error', summary: 'Błąd danych', detail: err.message, life: 4000})
               clearTimeout(checkOffline.value)
             })
+        } else {
+          // ZROBIC
+          if (route.path.indexOf('edytuj') <= 0) {
+            toast.add({severity:'warn', summary: 'Pojazd już istnieje', detail:'Pojazd o podanym numerze VIN jest już w bazie pojazdów!', life: 4000})
+            clearTimeout(checkOffline.value)
+            return
+          } else{
+            docReference.update({...preparedData, Ostatnia_Aktualizacja: getTime()}).then(() => {
+              toast.removeAllGroups()
+              toast.add({severity:'success', summary: 'Aktualizacja danych', detail:`Pomyślnie zaktualzowano dane pojazdu o numerze VIN: ${VIN}`, life: 4000})
+              clearTimeout(checkOffline.value)
+            })
+            .catch(err => {
+              toast.removeAllGroups()
+              toast.add({severity:'error', summary: 'Błąd danych', detail: err.message, life: 4000})
+              clearTimeout(checkOffline.value)
+            })
+          }
         }
 
         checkOffline.value = setTimeout(() => {
@@ -479,18 +486,6 @@ export default {
         router.go(-1)
         store.commit('setTargetCar', '')
       })
-    }
-
-    function checkIfVINexists(objectToCheck, preparedData) {
-      let vehicles = Object.values(objectToCheck)?.filter(item => item instanceof Object)
-
-      let result = []
-      vehicles.forEach(item => {
-        if (item.VIN == Object.values(preparedData)[0].VIN) result.push(true)
-        result.push(false)
-      })
-
-      return result.some(val => val == true)
     }
 
 
@@ -520,7 +515,7 @@ export default {
     function autoFillData() {
       const fill = store.state.targetCar
 
-      phoneNum.value = fill['Tel'] || store.state.targetClient.Tel || ''
+      phoneNum.value = fill?.['Tel'] || store.state?.targetClient?.Tel || ''
       carSpec.selectedBrand = fill['Marka'] || ''
       carSpec.selectedModel = fill['Model'] || ''
       carSpec.selectedVersion = fill['Wersja_Rocznik'] || ''
