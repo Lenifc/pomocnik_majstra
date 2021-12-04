@@ -11,8 +11,8 @@
         <div class="p-d-flex p-flex-md-row p-flex-column p-jc-md-evenly p-ai-center">
           <div class="required p-d-flex p-flex-column">
             <h3>Pola obowiązkowe: </h3>
-            <span class="p-float-label p-mt-5" v-if="phoneNumNotStored">
-              <InputText id="phoneNum" v-model="phoneNum" v-if="phoneNumNotStored" v-tooltip.focus.bottom="'W przypadku zmiany numeru telefonu pojazd zostanie przeniesiony do innego klienta!'" />
+            <span class="p-float-label p-mt-5" v-if="phoneNumNotStored || $route.path.indexOf('edytuj') > 0">
+              <InputText id="phoneNum" v-model="phoneNum" v-if="phoneNumNotStored || $route.path.indexOf('edytuj') > 0" v-tooltip.focus.bottom="'W przypadku zmiany numeru telefonu pojazd zostanie przeniesiony do innego klienta!'" />
               <label for="phoneNum">Numer telefonu</label>
             </span>
 
@@ -208,7 +208,7 @@
 </template>
 
 <script>
-import { ref, onMounted, watch, onBeforeUnmount, reactive } from 'vue'
+import { ref, onMounted, watch, onBeforeUnmount, reactive, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
@@ -552,7 +552,7 @@ export default {
     }
 
     onMounted(() => {
-      if(!phoneNum.value) phoneNumNotStored.value = true
+      if(!phoneNum.value || phoneNum.value == "") phoneNumNotStored.value = true
       if (route.path.indexOf('edytuj') > 0 && store.state?.targetCar) {
         manualBrandModelVersionInput.value = true
         store.state.targetCar && autoFillData()
@@ -579,7 +579,11 @@ export default {
       if(carSpec.selectedBrand == 'other') manualBrandModelVersionInput.value = true
     })
 
-    onBeforeUnmount(() => controller.abort()) // zapobiega dalszemu pobieraniu sie danych w Promise w przypadku zamknięcia komponentu
+    onBeforeUnmount(() => controller.abort())// zapobiega dalszemu pobieraniu sie danych w Promise w przypadku zamknięcia komponentu) 
+
+    onUnmounted(() => {
+      store.commit('setNumberForNewVehicle', '')
+    })
 
     return {
 

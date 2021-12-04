@@ -29,7 +29,7 @@
       </template>
     </Card>
   </div>
-<SearchResults :outputData="outputData" v-if="outputData?.length" :searchType="searchType" class="p-pt-5"/>
+<SearchResults :outputVehicles="outputVehicles" :outputClient="outputClient"  v-if="outputClient?.length || outputVehicles?.length" class="p-pt-5"/>
 
 </div>
  
@@ -53,7 +53,8 @@ export default {
   setup(){
     const searchNumber = ref('')
     const searchVIN = ref('')
-    const outputData = ref('')
+    const outputClient = ref('')
+    const outputVehicles = ref('')
     const ticketsHistory = ref([])
 
     const toast = useToast()
@@ -91,45 +92,73 @@ function validSearchData(e) {
   }
 
     async function searchInFirestore(searchData, searchOption) {
-      outputData.value = ""
+      outputVehicles.value = ""
+      outputClient.value = ""
 
       if (searchOption == 'VIN') {
-        searchType.value = 'VIN'
-        const clients = firebase.firestore()
-          .collection('warsztat')
-          .doc('Klienci').collection("Numery")
-          .where(`${searchData}.VIN`, '==', searchData)
-
-        const response = await clients.get()
-
-        let allClients = []
-         response.docs.map(doc => {
-           let docResponse = doc.data()
-          allClients.push(docResponse)
-         })
-         outputData.value = allClients
-
-        if(Object.values(outputData.value).length) return
-        else toast.add({severity:'warn', summary: 'Nieprawidłowa wartość', detail:`Nie udało się wyszukać pojazdu o podanym numerze VIN.`, life: 5000})
-
+        searchForCars(searchData)
       }
       if (searchOption == 'phoneNum') {
-        searchType.value = 'phoneNum'
-        const clients = firebase.firestore()
-          .collection('warsztat')
-          .doc('Klienci').collection("Numery").doc(searchData)
-
-        const response = await clients.get()
-        if(response.exists) {
-          outputData.value = [response.data()]
-          store.commit('setSearchData', outputData.value)
-        }
-        else toast.add({severity:'warn', summary: 'Nieprawidłowa wartość', detail:`Nie udało się wyszukać klienta o podanym numerze telefonu.`, life: 5000})
+        searchForClient(searchData)
       }
     }
 
+    async function searchForClient(data, order){
+      searchType.value = 'phoneNum'
+        const clients = firebase.firestore()
+          .collection('warsztat')
+          .doc('Klienci').collection("Numery").doc(data)
+
+        const response = (await clients.get()).data()
+        // console.log('CLIENT', response)
+
+        if(response) {
+          outputClient.value = response
+          store.commit('setSearchData', [outputClient.value, outputVehicles.value])
+
+          if(order != 2) await searchForCars(response.Tel, 2)
+        }
+        else {
+          if(order != 2) toast.add({severity:'warn', summary: 'Nieprawidłowa wartość', detail:`Nie udało się wyszukać klienta o podanym numerze telefonu.`, life: 5000})
+        }
+    }
+
+
+    async function searchForCars(data, order){
+        searchType.value = 'VIN'
+        let vehicle
+        order && order == 2 ? 
+          vehicle = firebase.firestore()
+                .collection('warsztat')
+                .doc('Pojazdy').collection("VIN").where('Tel', '==', data) : 
+           vehicle = firebase.firestore()
+                .collection('warsztat')
+                .doc('Pojazdy').collection("VIN").doc(data)
+
+        let response 
+        
+        order && order == 2 ? response = await vehicle.get() : response = (await vehicle.get()).data()
+
+        if(response){
+          order && order == 2 ? response = response.docs?.map(doc => doc.data()) : response = [response]
+          // console.log('CAR', response)
+
+          outputVehicles.value = response
+          store.commit('setSearchData', [outputClient.value, outputVehicles.value])
+
+          if(response?.[0]?.Tel) await searchForClient(response[0].Tel, 2)
+        }
+        else {
+          if(!order) toast.add({severity:'warn', summary: 'Nieprawidłowa wartość', detail:`Nie udało się wyszukać pojazdu o podanym numerze VIN.`, life: 5000})
+        }
+    }
+
     onMounted(() =>{
-      if(store.state.searchData) outputData.value = store.state.searchData
+      if(store.state.searchData) {
+        // console.log('MOUNTED', store.state.searchData);
+        outputClient.value = store.state.searchData[0]
+        outputVehicles.value = store.state.searchData[1]
+      }
     })
 
 
@@ -137,7 +166,8 @@ function validSearchData(e) {
         searchNumber,
         searchVIN,
         validSearchData,
-        outputData,
+        outputClient,
+        outputVehicles,
 
         searchInFirestore,
         ticketsHistory,

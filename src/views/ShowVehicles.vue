@@ -8,7 +8,7 @@
       </div>
     
 
-    <DataTable :value="recivedVehicles" responsiveLayout="stack" breakpoint="1280px" stripedRows :paginator="true" :rows="countClientPages || 20"
+    <DataTable :value="recivedVehicles" responsiveLayout="stack" breakpoint="1200px" stripedRows :paginator="true" :rows="countClientPages || 20"
     showGridlines v-model:filters="tableFilters" filterDisplay="menu" :loading="!recivedVehicles || isLoading" 
     class="p-my-5" dataKey="VIN">
       <template #header>
@@ -51,10 +51,10 @@
         </template>
       </Column>
       <Column field="Tel2" class="p-d-none" />
-      <Column field="Tel" header="Numer Telefonu Klienta" class="p-text-center" style="min-width:125px; max-width:145px">
+      <Column field="Tel" header="Numer Telefonu Klienta" class="p-text-center" style="width:130px">
         <template #body="{data}">
           <div class="p-d-flex p-flex-column" @dblclick="copyValue($event)">
-            <div class="pointer">{{data.Tel}}</div>
+            <div class="pointer">{{data.Tel || 'NIEPRZYPISANY'}}</div>
           </div>
         </template>
       </Column>
@@ -75,10 +75,10 @@
           </div>
         </template>
       </Column>
-      <Column field="VIN" header="Numer VIN" class="p-text-center" style="max-width:250px; overflow: hidden">
+      <Column field="VIN" header="Numer VIN" class="p-text-center" style="width:230px; overflow: hidden">
         <template #body="{data}">
           <div class="p-d-flex p-flex-column" @dblclick="copyValue($event)">
-            <div class="pointer">{{data.VIN}}</div>
+            <div class="pointer " style="display:block; max-width:197px;">{{data.VIN}}</div>
           </div>
         </template>
       </Column>
@@ -89,7 +89,7 @@
           </div>
         </template>
       </Column>
-      <Column field="Opis" header="Opis" class="p-text-center" style="width:250px">
+      <Column field="Opis" header="Opis" class="p-text-center" style="max-width:270px; word-wrap: break-word; overflow: hidden">
       <template #body="{data}">
         <div v-html="data.Opis" class="p-px-3 p-text-wrap" ></div>
       </template>
@@ -317,32 +317,5 @@ import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDelete
 
 .fa-car, .fa-edit, .fa-trash-alt, .fa-info-circle{
   font-size: 1.66rem;
-}
-
-.Cars:last-child > .p-divider{
-  display: none;
-}
-
-@media(max-width:1370px){
-  .lowerMargin{
-    margin-left: -16px;
-  }
-}
-@media(max-width:1280px){
-  .lowerMargin{
-    margin-left: 0px;
-  }
-  .DescriptionDisplayNone{
-    display: none;
-  }
-}
-
-@media(max-width:500px){
-  .smallerFontOnPhones{
-    font-size: 0.9rem;
-  }
-  .width160OnPhones{
-    width: 160px!important;
-  }
 }
 </style>

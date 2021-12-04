@@ -68,9 +68,9 @@
               <div class="p-text-bold p-mr-2">Rodzaj skrzyni biegów: </div>
               <div class="copy">{{ carDetails?.['SkrzyniaBiegow'] || 'Nie wprowadzono danych'}}</div>
             </div>
-            <div class="p-d-flex p-flex-row p-my-1" v-if="carDetails?.['Opis']">
+            <div class="p-d-flex p-flex-row p-my-1" v-if="carDetails?.['Opis']" style="max-width: 330px">
               <div class="p-text-bold p-mr-2">Dodatkowe informacje: </div>
-              <div v-html="carDetails?.['Opis']"></div>
+              <div v-html="carDetails?.['Opis']" style="word-wrap: break-word; overflow: hidden "></div>
             </div>
           </div>
 
