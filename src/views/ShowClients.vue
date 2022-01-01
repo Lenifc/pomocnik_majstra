@@ -39,8 +39,8 @@
           <div class="p-d-flex p-flex-column p-ai-center">
             <div class="p-d-flex p-flex-row p-pb-2">
               <i class="fas fa-edit p-pr-3" v-tooltip.bottom="'Edytuj dane klienta'" @click="openClientEditForm(data)"></i>
-              <i class="fas fa-trash-alt" v-tooltip.right="'Usuń klienta z jego pojazdami'"
-                      @click="confirmDeleteModal(data, 'removeClient', '')"></i>
+              <i class="fas fa-trash-alt" v-tooltip.right="'Usuń klienta (usunięcie powiązania z pojazdami)'"
+                      @click="confirmDeleteModal(data, 'removeClient')"></i>
             </div>
             <div class="p-d-flex p-flex-row">
               <i class="fas fa-info-circle p-pr-2" v-tooltip.bottom="'Szczegółowe dane klienta'" @click="redirectToClientDetails(data)"></i>
@@ -119,7 +119,7 @@ import { useConfirm } from "primevue/useconfirm";
 
 import copyToClipboard from '@/components/copyToClipboard.js'
 
-import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDeleteOptions.js'
+import { DeleteFunc, relocateCarsFunc } from '@/components/EditMoveDeleteOptions.js'
 
  export default {
 
@@ -152,7 +152,7 @@ import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDelete
        .collection('warsztat').doc('Klienci')
 
     async function relocateFunc(carData, target, extraInfo) {
-      const confirmUnassign = await relocateCarToUnassigned(carData, target)
+      const confirmUnassign = await relocateCarsFunc(carData, target)
         if (confirmUnassign !== false) {
           toast.removeAllGroups()
           toast.add({severity:'success', detail:'Pomyślnie usunięto powiązanie pojazdu z klientem.', life: 4000})
@@ -197,12 +197,11 @@ import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDelete
        }
      }
 
-     const confirmDeleteModal = async (clientData, operation) => {
+     const confirmDeleteModal = async (clientData) => {
 
        confirm.require({
-         message: operation == 'removeClient' ?
-           `Czy napewno chcesz usunąć klienta o podanym numerze telefonu: ${clientData['Tel']}?` : 'Jezeli sie to wyswietla to jest cos do poprawy!',
-         header: operation == 'removeClient' ? `Usuń klienta` : 'Jezeli sie to wyswietla to jest cos do poprawy!',
+         message: `Czy napewno chcesz usunąć klienta o podanym numerze telefonu: ${clientData['Tel']}?`,
+         header: `Usuń klienta`,
          icon: 'pi pi-exclamation-triangle',
          acceptClass: 'p-button-success',
          rejectClass: 'p-button-danger',

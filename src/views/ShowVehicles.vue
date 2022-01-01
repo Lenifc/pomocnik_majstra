@@ -12,9 +12,9 @@
     showGridlines v-model:filters="tableFilters" filterDisplay="menu" :loading="!recivedVehicles || isLoading" 
     class="p-my-5" dataKey="VIN">
       <template #header>
-        <div class="p-d-flex p-jc-between p-flex-column p-flex-sm-row">
+        <div class="p-d-flex p-jc-between p-flex-column p-flex-md-row">
           <Button icon="pi pi-filter-slash" label="Wyczyść" class="p-button-outlined" @click="clearTableFilters()" v-tooltip.bottom="`Wyczyść filtry`" />
-                  <div class="p-my-3 p-my-sm-0 p-text-center">Wczytano {{ recivedVehicles?.length }} z {{ totalNumberOfVehicles }} pojazdów</div>
+                  <div class="p-my-3 p-my-md-0 p-text-center">Wczytano {{ recivedVehicles?.length }} z {{ totalNumberOfVehicles }} pojazdów</div>
           <span class="p-input-icon-left">
             <i class="pi pi-search" />
             <InputText placeholder="Wyszukaj..." v-model="searchValue" @keyup="showEvent($event)" v-tooltip.bottom="'Wyszukiwanie aktywuje się po podaniu 3 znaków'"/>
@@ -44,7 +44,7 @@
             <div class="p-d-flex p-flex-row">
               <i class="fas fa-info-circle p-pr-2" v-tooltip.bottom="'Szczegółowe dane klienta'" @click="redirectToCarDetails(data)"></i>
               <i class="pi pi-user-plus size2" v-if="!data?.Tel" v-tooltip.right="'Przypisz pojazd do klienta'" @click="openVehicleEditForm(data)"></i>
-              <i class="pi pi-user-minus size2" v-if="data?.Tel" v-tooltip.right="'Usuń pojazd z bazy'" @click="relocateFunc(data, data.VIN)"></i>
+              <i class="pi pi-user-minus size2" v-if="data?.Tel" v-tooltip.right="'Usuń powiązanie z klientem'" @click="relocateFunc(data, data.VIN)"></i>
             </div>
           </div>
 
@@ -54,7 +54,12 @@
       <Column field="Tel" header="Numer Telefonu Klienta" class="p-text-center" style="width:130px">
         <template #body="{data}">
           <div class="p-d-flex p-flex-column" @dblclick="copyValue($event)">
-            <div class="pointer">{{data.Tel || 'NIEPRZYPISANY'}}</div>
+            <div v-if="data.Tel" class="pointer">{{data.Tel}}</div>
+            <!--  -->
+            <div v-else class="p-text-bold">NIEPRZYPISANY</div> 
+            <!-- w tym przypadku wpisujac w wyszukiwarce 'NIEPRZYPISANE' niestety nie wyfiltruje potrzebnych pojazdow -->
+            <!-- ROZWIAZANIE: -->
+            <!-- cala pobrana zmienna zaktualizowac -> foreach if(!Tel) Tel = 'NIEPRZYPISANY'  -->
           </div>
         </template>
       </Column>
@@ -119,7 +124,7 @@ import { useConfirm } from "primevue/useconfirm";
 import copyToClipboard from '@/components/copyToClipboard.js'
 import { callTicketsHistory } from '@/components/fetchTicketHistory.js'
 
-import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDeleteOptions.js'
+import { DeleteFunc, relocateCarsFunc } from '@/components/EditMoveDeleteOptions.js'
 
  export default {
 
@@ -151,7 +156,7 @@ import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDelete
 
 
     async function relocateFunc(carData, target, extraInfo) {
-      const confirmUnassign = await relocateCarToUnassigned(carData, target)
+      const confirmUnassign = await relocateCarsFunc(carData, target)
         if (confirmUnassign !== false) {
           toast.removeAllGroups()
           if(carData.Tel) toast.add({severity:'success', detail:'Pomyślnie usunięto powiązanie pojazdu z klientem.', life: 4000})
@@ -214,7 +219,7 @@ import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDelete
 
             //  console.log(isThereAnyTicket.value)
              if(isThereAnyTicket.value == false){
-               const confirmDelete = await DeleteFunc('car', MainPath, target) // prosta konwersja proxy do objektu
+               const confirmDelete = await DeleteFunc('car', MainPath, target)
                if (confirmDelete !== false) {
                   recivedVehicles.value = recivedVehicles.value.filter(car => {
                     return car.VIN != VIN
@@ -223,7 +228,7 @@ import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDelete
                }
              }
                 else if(isThereAnyTicket.value == true){
-                  await relocateFunc(JSON.parse(JSON.stringify(vehicleData)), target, 'extraInfo') // prosta konwersja proxy do objektu
+                  await relocateFunc(JSON.parse(JSON.stringify(vehicleData)), target, 'extraInfo')
                 }
              else{
                toast.add({ severity: 'warn', detail: 'To nie powinno sie pokazac, sprawdz logi....', life: 0})
@@ -300,7 +305,7 @@ import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDelete
        searchValue,
        countClientPages,
 
-       relocateCarToUnassigned,
+       relocateCarsFunc,
        relocateFunc
      }
 

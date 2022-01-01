@@ -13,15 +13,15 @@
         <div class="p-my-1 p-pl-3"
           v-if="clientDetails?.KodPocztowy && clientDetails?.Miejscowosc && clientDetails?.Ulica"> 
           {{ `${clientDetails?.KodPocztowy} ${clientDetails?.Miejscowosc} - ul. ${clientDetails?.Ulica}` }}</div>
-        <div class="p-my-1 p-pl-3">Ilość pojazdów przypisanych do klienta: {{ clientDetails ? onlyCars(clientDetails).length : ''}}</div>
+        <div class="p-my-1 p-pl-3">Ilość pojazdów przypisanych do klienta: {{ clientDetails ? totalCars : ''}}</div>
         <div class="p-my-1 p-pl-3" v-if="clientDetails?.Opis">Dodatkowe informacje:</div>
         <div class="p-my-1 p-pl-5" v-if="clientDetails?.Opis" v-html="clientDetails?.Opis"></div>
       </template>
       <template #footer>
         <div class="p-d-flex p-flex-column p-flex-sm-row p-jc-center">
-          <Button label="Edytuj dane klienta" @click="openEditClientForm()" icon="pi pi-pencil"
-            class="p-mr-0 p-mr-sm-3 p-mb-3 p-mb-sm-0" />
-          <Button label="Usuń klienta" class="p-button-danger" icon="pi pi-trash" @click="confirmDeleteModal(clientDetails, '', onlyCars(clientDetails).length)"/>
+          <Button label="Edytuj dane klienta" @click="openEditClientForm()" icon="pi pi-pencil" />
+          <Button label="Usuń klienta" class="p-button-danger p-mx-0 p-mx-sm-3 p-my-3 p-my-sm-0" icon="pi pi-trash" @click="confirmDeleteModal(clientDetails)"/>
+          <Button label="Przypisz pojazd" class="p-button-success" icon="pi pi-car" @click="$router.push('/pojazdy/')"/>
         </div>
       </template>
     </Card>
@@ -49,6 +49,7 @@ export default {
 
     const clientDetails = ref()
     const clientCars = ref()
+    const totalCars = ref(0)
 
     const MainPath = firebase.firestore()
        .collection('warsztat').doc('Klienci').collection('Numery')
@@ -82,8 +83,11 @@ export default {
       });
     }
 
-    function onlyCars(client){
-      return Object.values(client).filter(item => item instanceof Object && item.VIN)
+     async function countVehicles(){
+        const vehiclesPath = firebase.firestore().collection('warsztat').doc('Pojazdy').collection('VIN').where('Tel', '==', clientDetails?.value?.Tel)
+
+        let getTotal = (await vehiclesPath.get()).size
+        totalCars.value = getTotal
         }
 
     onBeforeMount(() => {
@@ -92,18 +96,18 @@ export default {
         router.push('/klienci')
       }else{
         clientDetails.value = store.state?.targetClient
-        console.log(store.state?.targetClient);
-        clientCars.value = onlyCars(clientDetails?.value)
+        countVehicles()
       }
     })
 
     return {
       clientDetails,
       clientCars,
+      totalCars,
 
       openEditClientForm,
 
-      onlyCars,
+      countVehicles,
       confirmDeleteModal
     }
   }

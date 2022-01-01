@@ -10,11 +10,11 @@
 
         <div class="p-d-flex p-flex-md-row p-flex-column p-jc-md-evenly p-ai-center">
           <div class="required p-d-flex p-flex-column">
-            <h3>Pola obowiązkowe: </h3>
-            <span class="p-float-label p-mt-5" v-if="phoneNumNotStored || $route.path.indexOf('edytuj') > 0">
+            <span class="p-float-label p-mt-3" v-if="phoneNumNotStored || $route.path.indexOf('edytuj') > 0">
               <InputText id="phoneNum" v-model="phoneNum" v-if="phoneNumNotStored || $route.path.indexOf('edytuj') > 0" v-tooltip.focus.bottom="'W przypadku zmiany numeru telefonu pojazd zostanie przeniesiony do innego klienta!'" />
-              <label for="phoneNum">Numer telefonu</label>
+              <label for="phoneNum">Numer telefonu klienta</label>
             </span>
+            <h3 class="p-mt-4">Pola obowiązkowe: </h3>
 
             <Dropdown v-model="carSpec.selectedBrand" :options="brands" optionLabel="brand" optionValue="brand"
               :filter="true" placeholder="Wybierz marke" :showClear="true" @change="fetchModels()"
@@ -220,6 +220,7 @@ import { useToast } from "primevue/usetoast"
 import { getTime } from '@/components/getCurrentTime'
 import validPhoneNum from '@/components/validPhoneNum.js'
 import validateVIN from '@/components/validateVIN.js'
+import { updateVehicleVIN } from '@/components/EditMoveDeleteOptions.js'
 
 import axios from 'axios'
 import firebase from 'firebase/app'
@@ -372,7 +373,7 @@ export default {
       }
     }
 
-    function validateData() {
+    async function validateData() {
       document.querySelectorAll('.p-invalid').forEach(input => input.classList.remove('p-invalid'))
 
       if(phoneNum.value && !validPhoneNum(phoneNum.value)) document.querySelector('#phoneNum').classList.add('p-invalid')
@@ -413,9 +414,16 @@ export default {
 
           Opis: carSpec.description || "",
           Ostatnia_Aktualizacja: (store.state.targetCar && store.state.targetCar['Ostatnia_Aktualizacja']) || timeStamp,
-
         }
-        sendDataToFirebase(preparedData)
+
+
+      if(route.path.indexOf('edytuj') > 0 && (validateVIN(store.state.targetCar.VIN) != validateVIN(carSpec.VIN))) {
+          let confirmUpdate = await updateVehicleVIN(store.state.targetCar, preparedData)
+          if(confirmUpdate != false) {
+            toast.add({severity:'success', summary: 'Zaktualizowano pomyślnie', detail: `Nowy VIN : \n${preparedData.VIN}`, life: 4000})
+            router.go(-1)
+          } else toast.add({severity:'error', summary: 'Wystąpił błąd', detail: `Nie udało się zaktualizować danych pojazdu`, life: 5000})
+      } else sendDataToFirebase(preparedData)
 
       } else toast.add({severity:'warn', summary: 'Błędne dane', detail:'Popraw wszystkie zaznaczone pola!', life: 4000})
     }
@@ -491,6 +499,7 @@ export default {
 
     function clearForm() {
 
+      store.commit('setNumberForNewVehicle', '')
       if(phoneNumNotStored.value) phoneNum.value = null
       clientName.value = null
       carSpec.selectedBrand = null
@@ -515,7 +524,8 @@ export default {
     function autoFillData() {
       const fill = store.state.targetCar
 
-      phoneNum.value = fill?.['Tel'] || store.state?.targetClient?.Tel || ''
+      // phoneNum.value = fill?.['Tel'] || store.state?.targetClient?.Tel || ''
+      phoneNum.value = fill?.['Tel'] || ''
       carSpec.selectedBrand = fill['Marka'] || ''
       carSpec.selectedModel = fill['Model'] || ''
       carSpec.selectedVersion = fill['Wersja_Rocznik'] || ''
@@ -583,6 +593,7 @@ export default {
 
     onUnmounted(() => {
       store.commit('setNumberForNewVehicle', '')
+      clearForm()
     })
 
     return {

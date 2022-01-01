@@ -93,7 +93,7 @@
 <script>
 import { callTicketsHistory } from '@/components/fetchTicketHistory.js'
 import TicketsHistory from '@/components/TicketsHistory.vue'
-import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDeleteOptions.js'
+import { DeleteFunc, relocateCarsFunc } from '@/components/EditMoveDeleteOptions.js'
 
 import firebase from 'firebase/app'
   
@@ -143,7 +143,7 @@ export default {
     }
 
     async function relocateFunc(carData, target, extraInfo) {
-      const confirmUnassign = await relocateCarToUnassigned(carData, target)
+      const confirmUnassign = await relocateCarsFunc(carData, target)
         if (confirmUnassign !== false) {
           toast.removeAllGroups()
           if(carDetails.value['Tel']) toast.add({severity:'success', detail:'Pomyślnie usunięto powiązanie pojazdu z klientem.', life: 4000})
@@ -221,7 +221,7 @@ export default {
 
       isLoading,
 
-      relocateCarToUnassigned,
+      relocateCarsFunc,
       relocateFunc
     }
   }

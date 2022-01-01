@@ -76,6 +76,7 @@ import { useToast } from "primevue/usetoast"
 import { useConfirm } from "primevue/useconfirm"
 import { useStore } from 'vuex'
 import { onMounted, ref, watch } from '@vue/runtime-core'
+import { callTicketsHistory } from '@/components/fetchTicketHistory.js'
 
 
 export default {
@@ -91,6 +92,8 @@ export default {
   const store = useStore()
   const resultData = ref()
   const client = ref()
+  const allTickets = ref()
+  const isThereAnyTicket = ref()
 
   const clientPath = firebase.firestore()
        .collection('warsztat').doc('Klienci').collection('Numery')
@@ -117,7 +120,14 @@ export default {
       router.push(`/szczegoly/client/${client?.['Tel']}`)
     }
 
-            const confirmDeleteModal = (clientData, operation, target) => {
+            const confirmDeleteModal = async (clientData, operation, target) => {
+      allTickets.value = await callTicketsHistory(target)
+
+       setTimeout(() => {
+        //  console.log(allTickets.value)
+         isThereAnyTicket.value = allTickets.value.some(ticket => ticket[1].length > 0)
+       }, 500)
+
       confirm.require({
         message: operation == 'removeClient' ?
           `Czy napewno chcesz usunąć klienta o podanym numerze telefonu: ${clientData['Tel']}?` : 
@@ -142,13 +152,16 @@ export default {
           }
           }
           if (operation == 'removeCar') {
-            const confirmDelete = await DeleteFunc('car', vehiclePath, target)
-            if (confirmDelete !== false) {
-              props.outputData.map(client => {
-                if (client.Tel == Tel) delete client?.[`${target}`]
-              })
-              toast.removeAllGroups()
-              toast.add({severity:'success', detail:'Pomyślnie usunięto pojazd z listy klienta.', life: 4000})
+            if(isThereAnyTicket.value == false){
+              const confirmDelete = await DeleteFunc('car', vehiclePath, target)
+              if (confirmDelete !== false) {
+                resultData.value[1].filter(car => car.VIN != target)
+                toast.removeAllGroups()
+                toast.add({severity:'success', detail:'Pomyślnie usunięto pojazd z listy klienta.', life: 4000})
+              } else toast.add({severity:'info', detail:'Nie można usunąć pojazdu, który posiada historię serwisową.', life: 4000})
+            } 
+            else {
+              toast.add({ severity: 'warn', detail: 'Pojazd posiada historię serwisową i nie może zostać całkowicie usunięty!', life: 6000})
             }
           }
         },
