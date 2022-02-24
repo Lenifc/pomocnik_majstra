@@ -22,7 +22,8 @@
           </div>
           <div v-if="counterClients" class="p-d-flex p-flex-column">
             <div>Ilość klientów: <span>{{counterClients.Klienci}}</span></div>
-            <div>Ilość pojazdów: <span>{{counterClients.Pojazdy}}</span></div>
+            <div>Ilość pojazdów: <span>{{counterVehicles.Pojazdy}}</span></div>
+            <!-- <div>Ilość pojazdów: <span>{{counterClients.Pojazdy}}</span></div> --> <!-- STARA WERSJA GDZIE POJAZDY BYLY ZAPISYWANE W DANYCH KLIENTA  -->
             <!-- <div>Ilość opłaconych faktur: <span> // Do wykonania</span></div> -->
           </div>
         <ProgressSpinner animationDuration="0.5s" v-if="!counterClients" /> 
@@ -160,6 +161,7 @@ export default {
     const logs = ref('')
     const counterTickets = ref(0)
     const counterClients = ref(0)
+    const counterVehicles = ref(0)
     const workshopName = ref('')
     const currentUserName = ref('')
     const isLoading = ref(true)
@@ -258,6 +260,7 @@ export default {
 
     const counterPathTickets = firebase.firestore().collection('warsztat').doc('zlecenia')
     const counterPathClients = firebase.firestore().collection('warsztat').doc('Klienci')
+    const counterPathVehicles = firebase.firestore().collection('warsztat').doc('Pojazdy')
     const workshopDetails = firebase.firestore().collection('warsztat').doc('DaneDoFaktur')
     const auth = firebase.auth()
 
@@ -267,6 +270,7 @@ export default {
 
         getClientsFromFirebase()
         const clientsResult = await counterPathClients.get()
+        const vehiclesResult = await counterPathVehicles.get()
         const ticketsResult = await counterPathTickets.get()
         const docs = await workshopDetails.get().catch(() => toast.add({severity:'error', summary: 'Odczyt danych', detail: 'Wystąpił błąd wczytywania danych', life: 5000}))
         localStorage.setItem('nazwaWarsztatu', docs?.data()?.nazwaWarsztatu)
@@ -279,6 +283,7 @@ export default {
         limit.value = 50
 
         // console.log(logs.value);
+        counterVehicles.value = vehiclesResult.data()
         counterClients.value = clientsResult.data()
         counterTickets.value = ticketsResult.data()
       })
@@ -287,6 +292,7 @@ export default {
       logs,
       counterTickets,
       counterClients,
+      counterVehicles,
       isLoading,
       clearTableFilters,
       tableFilters,

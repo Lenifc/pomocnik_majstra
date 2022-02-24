@@ -160,28 +160,27 @@ export default {
       const clientPath = firebase.firestore()
         .collection('warsztat').doc('Klienci').collection('Numery').doc(dataToFetch.value.phoneNum)
 
-      clientPath.get().then(recived => {
-        // odfiltrowuje pojazdy przypisane do klienta i zostawiam same dane klienta
-        // filtrowanie zamienia nam Obiekt na tablice, wiec w nastepnym kroku musimy przywrocic stan Obiektu
-        if(recived.data()){
-        let clientResponse = Object.entries(recived.data()).filter(item => !(item[1] instanceof Object))
+      const vehiclePath = firebase.firestore()
+        .collection('warsztat').doc('Pojazdy').collection('VIN').doc(dataToFetch.value.vehicleVIN)
 
-        // zamieniam tablice z powrotem na obiekt, ktory zawiera keys oraz values
-        clientDetails.value = Object.fromEntries(clientResponse.map(item => [item[0], item[1]]))
+    try{
+      const clientResponse = await clientPath.get()
+      const vehicleResponse = await vehiclePath.get()
 
-        // odfiltrowuje ten jeden konkretny pojazd przypisany do klienta
-        let response = Object.entries(recived.data()).filter(item => item ?.[1]['VIN'] == dataToFetch.value.vehicleVIN)
-        saveToLocalStorage()
-        
-        try{
-          carDetails.value = response[0][1]
-        } catch{
-          toast.add({severity:'warn', detail:`Dane pojazdu zostały usunięte z bazy\n Wprowadzone dane moga być nieaktualne!`, life: 5000})
-        }
-        } else{
-          toast.add({severity:'warn', detail:`Dane klienta o podanym numerze zostały usunięte z bazy`, life: 5000})
-        }
-      }).catch(err => console.log(err))
+      if(clientResponse.data()) clientDetails.value = clientResponse.data()
+      else clientDetails.value = ticketDetails.value
+
+      if(vehicleResponse.data()) carDetails.value = vehicleResponse.data()
+      else carDetails.value = ticketDetails.value
+
+      console.log(clientResponse.data());
+      console.log(vehicleResponse.data());
+      saveToLocalStorage()
+    } 
+    catch(error){
+      console.log(error);
+      toast.add({severity:'error', detail:`${error}`, life: 8000})
+    }
     }
 
     async function fetchWorkshopDetails(){
@@ -216,7 +215,7 @@ export default {
         fetchTicketDetails()
         fetchClientDetails()
         fetchWorkshopDetails()
-        toast.add({severity:'info', detail:`Obecnie generator PDF nie wspiera polskich znaków - użyto enkodowania na podstawowe`, life: 11000})
+        toast.add({severity:'info', detail:`Obecnie generator PDF nie wspiera polskich znaków - użyto enkodowania na podstawowe`, life: 8000})
       }
     })
     

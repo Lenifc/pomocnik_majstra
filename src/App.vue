@@ -5,7 +5,6 @@
   <Login v-if="!userSignedIn && showLoginForm" @login="(passedCredentials) => signInWithEmailAndPassword(passedCredentials)" @OAuth="loginWithGoogle()" @pwdReset="email => PasswordReset(email)" @closeForm="hideLoginPanel" />
   <Button  v-if="!userSignedIn && showLogInButton" icon="pi pi-sign-in" class="p-button-rounded p-button-primary signInBtn" @click="showLoginPanel()" v-tooltip.right="'Zaloguj'" />
 
-<!-- Przerobic aby osoba niezalogowana widziala tylko podstawowe dane kontaktowe do warsztatu(tel, mail,adres) i maly przycisk zaloguj dla admina-->
   <ContactInfo  v-if="!userSignedIn && showLogInButton" />
   <div class="signedIn" v-if="userSignedIn">
     <div class="container">
@@ -91,6 +90,11 @@ export default {
             href: '/klienci',
             title: 'Zarządzaj klientami',
             icon: 'fa fa-user',
+          },
+          {
+            href: '/pojazdy',
+            title: 'Zarządzaj pojazdami',
+            icon: 'fa fa-car',
           },
           {
             component: CustomDivider

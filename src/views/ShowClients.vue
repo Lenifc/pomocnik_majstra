@@ -2,13 +2,12 @@
   <div class="p-d-flex p-flex-column">
 
     <div class="p-d-flex p-flex-column p-ai-center p-jc-center">
-    <Button label="Dodaj Klienta" icon="pi pi-user-plus" @click="openClientAddForm()"
-      class="p-button-outlined p-button-success p-d-flex p-ai-center p-mt-5" />
-        <Button class="p-button-secondary p-flex column p-mt-3" @click="getClientsFromFirebase('all')" label="Załaduj wszystkich klientów" 
-                v-if="!disableNextButton" :icon="(!recivedClients || isLoading) ? 'pi pi-spin pi-spinner' : 'pi pi-download'" 
-                v-tooltip.bottom="`W przypadku dużej ilości klientów ładowanie może chwile potrwać`" />
-      </div>
-    
+      <Button label="Dodaj Klienta" icon="pi pi-user-plus" @click="openClientAddForm()"
+              class="p-button-outlined p-button-success p-d-flex p-ai-center p-mt-5" />
+      <Button class="p-button-secondary p-flex column p-mt-3" @click="getClientsFromFirebase('all')" label="Załaduj wszystkich klientów" 
+              v-if="!disableNextButton" :icon="(!recivedClients || isLoading) ? 'pi pi-spin pi-spinner' : 'pi pi-download'" 
+              v-tooltip.bottom="`W przypadku dużej ilości klientów ładowanie może chwile potrwać`" />
+    </div>
 
     <DataTable :value="recivedClients" responsiveLayout="stack" breakpoint="1280px" stripedRows :paginator="true" :rows="countClientPages || 20"
     showGridlines v-model:filters="tableFilters" filterDisplay="menu" :loading="!recivedClients || isLoading" 
@@ -40,8 +39,8 @@
           <div class="p-d-flex p-flex-column p-ai-center">
             <div class="p-d-flex p-flex-row p-pb-2">
               <i class="fas fa-edit p-pr-3" v-tooltip.bottom="'Edytuj dane klienta'" @click="openClientEditForm(data)"></i>
-              <i class="fas fa-trash-alt" v-tooltip.right="'Usuń klienta z jego pojazdami'"
-                      @click="confirmDeleteModal(data, 'removeClient', onlyCars(data).length)"></i>
+              <i class="fas fa-trash-alt" v-tooltip.right="'Usuń klienta (usunięcie powiązania z pojazdami)'"
+                      @click="confirmDeleteModal(data, 'removeClient')"></i>
             </div>
             <div class="p-d-flex p-flex-row">
               <i class="fas fa-info-circle p-pr-2" v-tooltip.bottom="'Szczegółowe dane klienta'" @click="redirectToClientDetails(data)"></i>
@@ -73,12 +72,10 @@
         <div v-html="data.Opis" class="p-px-4 p-text-wrap" ></div>
       </template>
       </Column>
-      <!-- <Column field="Adres" header="Adres" class="p-text-center"></Column> -->
       <Column header="Pojazd" class="p-text-center" style="width:270px" field="Pojazdy">
-        <template #body="{data}"> 
-          <!-- zamiast pisac SlotProps.data moge uzyc destrukturyzacji i skrocic zapis -->
+        <template #body="{data}">
           <div class="p-d-flex p-flex-column smallerFontOnPhones lowerMargin" @dblclick="copyValue($event)"> <!-- trzeba bylo oplesc to jeszcze w jednego DIVa, bo inaczej pod telefony zle wyswietlalo pojazdy -->
-            <div v-for="car in onlyCars(data)" :id="`id${car.VIN}`" :key="car.VIN"
+            <div v-for="car in onlyCars(data.Tel)" :id="`id${car.VIN}`" :key="car.VIN"
             class="p-d-flex p-flex-column Cars">
             <div class="p-d-flex p-flex-row p-ai-center p-jc-between">
               <div class="p-d-flex p-flex-column">
@@ -86,10 +83,10 @@
                 <div class="p-text-nowrap p-text-truncate pointer width160OnPhones" style="width:220px; max-width:225px">{{car.VIN}}</div>
               </div>
               <div class="p-d-flex p-flex-row p-jc-end p-ai-center lowerMargin p-pl-1">
-                <i class="fas fa-info-circle" v-tooltip.top="'Szczegóły pojazdu'" @click="redirectToCarDetails(car, data)"></i>
-                <i class="fas fa-edit p-pr-1 p-pl-2" v-tooltip.bottom="'Edytuj dane pojazd'" @click="openVehicleEditForm(car)"></i>
-                <i class="fas fa-trash-alt" v-tooltip.bottom="'Usuń pojazd'" 
-                  @click="confirmDeleteModal(data, 'removeCar', car.VIN)"></i>
+                <i class="fas fa-minus" v-tooltip.bottom="'Usuń powiązanie pojazdu z klientem'" 
+                  @click="relocateFunc(car, car.VIN)"><i class="fas fa-car"></i></i>
+                <i class="fas fa-info-circle p-px-2" v-tooltip.top="'Szczegóły pojazdu'" @click="redirectToCarDetails(car, data)"></i>
+                <i class="fas fa-edit" v-tooltip.bottom="'Edytuj dane pojazd'" @click="openVehicleEditForm(car)"></i>
               </div>
             </div>
             <Divider />
@@ -101,7 +98,7 @@
     </DataTable>
 
     <Button class="p-button-secondary p-mb-6" @click="getClientsFromFirebase('more')" 
-    label="Załaduj więcej klientów" v-if="!disableNextButton" icon="pi pi-download" />
+            label="Załaduj więcej klientów" v-if="!disableNextButton" icon="pi pi-download" />
 
   </div>
 </template>
@@ -121,9 +118,8 @@ import Divider from 'primevue/divider';
 import { useConfirm } from "primevue/useconfirm";
 
 import copyToClipboard from '@/components/copyToClipboard.js'
-import { callTicketsHistory } from '@/components/fetchTicketHistory.js'
 
-import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDeleteOptions.js'
+import { DeleteFunc, relocateCarsFunc } from '@/components/EditMoveDeleteOptions.js'
 
  export default {
 
@@ -134,10 +130,9 @@ import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDelete
      const confirm = useConfirm()
 
      const searchValue = ref()
-     const allTickets = ref()
-     const isThereAnyTicket = ref()
 
      const recivedClients = ref()
+     const recivedVehicles = ref()
      const limit = ref(50)
      const totalNumberOfClients = ref(0)
      const disableNextButton = ref(true)
@@ -150,8 +145,21 @@ import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDelete
      const MainPath = firebase.firestore()
        .collection('warsztat').doc('Klienci').collection('Numery')
 
+     const vehiclePath = firebase.firestore()
+       .collection('warsztat').doc('Pojazdy').collection('VIN')
+
      const totalClientsPath = firebase.firestore()
        .collection('warsztat').doc('Klienci')
+
+    async function relocateFunc(carData, target, extraInfo) {
+      const confirmUnassign = await relocateCarsFunc(carData, target)
+        if (confirmUnassign !== false) {
+          toast.removeAllGroups()
+          toast.add({severity:'success', detail:'Pomyślnie usunięto powiązanie pojazdu z klientem.', life: 4000})
+          if(extraInfo) toast.add({severity:'info', detail:'Pojazd zawiera historię serwisową przez co nie można go całkowicie usunąć z bazy.', life: 8000})
+          recivedVehicles.value.map(car => car.VIN == target ? car.Tel = '' : car)
+        }
+    }
 
      async function getClientsFromFirebase(req) {
        if (req == 'more') limit.value += 100
@@ -167,6 +175,7 @@ import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDelete
        }
 
        let clientResponse = await clientPath.get()
+       let vehicleResponse = await vehiclePath.get()
 
        totalNumberOfClients.value = (await totalClientsPath.get()).data().Klienci
 
@@ -176,11 +185,7 @@ import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDelete
        }
 
        recivedClients.value = clientResponse.docs.map(doc => doc.data())
-
-       // Dodano podstawowe dane pojazdu o poziom wyzej w obiekcie ze wzgledu na filtrowanie tabeli
-       //  await recivedClients.value.map(client => client['Pojazdy'] = (Object.values(client).filter(item => item instanceof Object)).map(car => `${car.Marka} ${car.Model} ${car.VIN} `)) //dziala
-       await recivedClients.value.map(client => client['Pojazdy'] = (Object.values(client).filter(item => item instanceof Object)).map(car => `${car.Marka} ${car.Model} ${car.VIN} `))
-       // https://github.com/dg92/Performance-Analysis-JS/blob/master/small_data_set_result.png
+       recivedVehicles.value = vehicleResponse.docs.map(doc => doc.data())
 
        isLoading.value = false
        disableNextButton.value = false
@@ -192,20 +197,11 @@ import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDelete
        }
      }
 
-     const confirmDeleteModal = async (clientData, operation, target) => {
-       // console.log(clientData, target);
-       allTickets.value = await callTicketsHistory(target)
-
-       setTimeout(() => {
-        //  console.log(allTickets.value)
-         isThereAnyTicket.value = allTickets.value.some(ticket => ticket[1].length > 0)
-       }, 500)
+     const confirmDeleteModal = async (clientData) => {
 
        confirm.require({
-         message: operation == 'removeClient' ?
-           `Czy napewno chcesz usunąć klienta o podanym numerze telefonu: ${clientData['Tel']}?` : (operation == 'removeCar' ?
-             `Czy na pewno chcesz usunąć pojazd klienta ${clientData.Tel}\n o numerze VIN: ${target}?` : 'Jezeli sie to wyswietla to jest cos do poprawy!'),
-         header: operation == 'removeClient' ? `Usuń klienta` : (operation == 'removeCar' ? `Usuń pojazd` : 'Jezeli sie to wyswietla to jest cos do poprawy!'),
+         message: `Czy napewno chcesz usunąć klienta o podanym numerze telefonu: ${clientData['Tel']}?`,
+         header: `Usuń klienta`,
          icon: 'pi pi-exclamation-triangle',
          acceptClass: 'p-button-success',
          rejectClass: 'p-button-danger',
@@ -214,37 +210,11 @@ import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDelete
          accept: async () => {
            const { Tel } = clientData
 
-           if (operation == 'removeClient') {
-             const confirmDelete = await DeleteFunc('client', MainPath, Tel, target)
+             const confirmDelete = await DeleteFunc('client', MainPath, Tel)
              if (confirmDelete !== false) {
                recivedClients.value = recivedClients.value.filter(client => client.Tel != Tel)
                toast.removeAllGroups()
                toast.add({ severity: 'success', detail: 'Pomyślnie usunięto dane klienta', life: 4000 })
-             }
-           }
-           if (operation == 'removeCar') {
-            //  console.log(isThereAnyTicket.value)
-             if(isThereAnyTicket.value == false || clientData['Tel'] == '000-000-000'){
-               const confirmDelete = await DeleteFunc('car', MainPath, Tel, target, JSON.parse(JSON.stringify(clientData))) // prosta konwersja proxy do objektu
-               if (confirmDelete !== false) {
-                 recivedClients.value.map(client => {
-                   if (client.Tel == Tel) delete client[`${target}`]
-                 })
-               }
-               }
-                else if(isThereAnyTicket.value == true){
-                   const confirmDelete = await relocateCarToUnassigned('car', MainPath, Tel, target, JSON.parse(JSON.stringify(clientData)), 'doNotCount') // prosta konwersja proxy do objektu
-               if (confirmDelete !== false) {
-                 recivedClients.value.map(client => {
-                   if (client.Tel == Tel) delete client[`${target}`]
-                 })
-             }
-                }
-             else{
-               toast.add({ severity: 'warn', detail: 'To nie powinno sie pokazac, sprawdz logi....', life: 0})
-             }
-               toast.removeAllGroups()
-               toast.add({ severity: 'success', detail: 'Pomyślnie usunięto pojazd z listy klienta.', life: 4000})
              }
          },
          reject: async () => {}
@@ -281,8 +251,8 @@ import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDelete
        Router.push(`/szczegoly/client/${client.Tel}`)
      }
 
-     function onlyCars(client) {
-       return Object.values(client).filter(item => item instanceof Object && item.VIN)
+     function onlyCars(clientTel) {
+       return recivedVehicles.value.map(car => car).filter(item => item?.Tel == clientTel)
      }
 
      function showEvent(e) {
@@ -341,7 +311,9 @@ import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDelete
        isLoading,
        showEvent,
        searchValue,
-       countClientPages
+       countClientPages,
+
+       relocateFunc
      }
 
    }
@@ -349,7 +321,8 @@ import { DeleteFunc, relocateCarToUnassigned } from '@/components/EditMoveDelete
 </script>
 <style scoped>
 
-.fa-plus{
+.fa-plus,
+.fa-minus{
   font-size: 0.75rem!important;
   display: flex;
   align-items: center;

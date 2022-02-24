@@ -263,7 +263,11 @@ export default {
 
       if (response == true) {
         store.commit('setTargetCar', ticketDetails.value)
-        
+        if (newLocation == route.params.collectionPath) {
+         toast.add({ severity: 'info', summary: 'Zmień target', detail: `Nie można przenieść zlecenia do tej samej lokalizacji..`, life: 4000})
+         return
+        }
+
         const { ConfirmRelocate, clientIsOffline} = await RelocateTicket('ticket', ticketDetails.value, tickets, route.params.collectionPath, newLocation, id)
         if (ConfirmRelocate !== false) {
           router.push(`/${newLocation}`)
@@ -272,7 +276,6 @@ export default {
         }
         if(clientIsOffline)toast.add({severity:'warn', summary: 'Status offline', detail:'Klient jest offline.\n Bez połączenia z siecią przenoszenie zleceń nie jest możliwe.', life: 0})
 
-        if (newLocation == route.path.substring(1)) toast.add({ severity: 'info', summary: 'Zmień target', detail: `Nie można przenieść zlecenia do tej samej lokalizacji..`, life: 4000})
       }
       return showModal.value = false
     }

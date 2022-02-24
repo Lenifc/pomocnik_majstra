@@ -1,9 +1,7 @@
 <template>
 <div class="p-pt-5">
-  <MINIShowClients v-if="openClientsModal" @openClientModal="() => { openClientsModal = false; setAllData()}" />
+  <MINIShowVehicleList v-if="openClientsModal" @openClientModal="() => { openClientsModal = false; setAllData()}" />
   <Card class="p-text-center" style="max-width:1100px" v-if="!openClientsModal">
-
-    <!-- https://intercars.pl/s/lp-czesci-zamienne/ Uzupelnic Firestore o te kategorie -->
 
     <template #content>
       <form class="newDataForm">
@@ -81,7 +79,7 @@
 import { onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
  
-import MINIShowClients from '@/views/MINIShowClients'
+import MINIShowVehicleList from '@/views/MINIShowVehicleList'
 import WorkOrderForm from '@/components/Forms/WorkOrderForm.vue'
 import RadioButton from 'primevue/radiobutton'
 import Editor from 'primevue/editor'
@@ -94,7 +92,7 @@ import firebase from 'firebase/app'
 
 export default {
   components:{
-    MINIShowClients,
+    MINIShowVehicleList,
     WorkOrderForm,
     Editor
   },

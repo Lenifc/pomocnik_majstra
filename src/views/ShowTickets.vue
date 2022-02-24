@@ -235,6 +235,10 @@ export default ({
 
     async function modalResponse(response, newLocation) {
       const targetClient = store.state.targetClient
+        if (newLocation == route.path.substring(1)) {
+          toast.add({ severity: 'info', summary: 'Zmień target', detail: `Nie można przenieść zlecenia do tej samej lokalizacji..`, life: 4000 })
+          return
+        } 
 
       if (response == true) {
         store.commit('setTargetCar', targetClient)
@@ -251,13 +255,6 @@ export default ({
           })
         }
         if(clientIsOffline) toast.add({severity:'warn', summary: 'Status offline', detail:'Klient jest offline.\n Bez połączenia z siecią przenoszenie zleceń nie jest możliwe.', life: 0})
-        
-        if (newLocation == route.path.substring(1)) toast.add({
-          severity: 'info',
-          summary: 'Zmień target',
-          detail: `Nie można przenieść zlecenia do tej samej lokalizacji..`,
-          life: 4000
-        })
       }
       return showModal.value = false
     }

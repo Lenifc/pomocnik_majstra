@@ -5,81 +5,48 @@ import firebase from 'firebase/app'
 //
 // Usuwanie danych z kolekcji firebase
 //
-export async function DeleteFunc(type, docPath, ID, target, extraData, doNotCount) {
-  // console.log(type, ID, target, extraData);
-
-  const counterPathTickets = firebase.firestore().collection('warsztat').doc('zlecenia')
-  const counterPathClients = firebase.firestore().collection('warsztat').doc('Klienci')
-
+export async function DeleteFunc(objectType, docPath, ID, operationType) {
+  const docReference = docPath.doc(`${objectType == 'ticket' ? 'zlecenie-' : ''}${ID}`)
   let ConfirmDelete
 
-  if (type == 'ticket') {
-  const docReference = docPath.doc(`zlecenie-${ID}`)
-
     await docReference.get().then(()=> {
-      docReference.get().then(() => {
-        docReference.delete().then(() => {
-      if (target != 'justRelocate') counterPathTickets.update("IloscZlecen", firebase.firestore.FieldValue.increment(-1))
-      if (docPath.id == 'wolne' && target != 'justRelocate') counterPathTickets.update("Wolne", firebase.firestore.FieldValue.increment(-1))
-      if (docPath.id == 'obecne' && target != 'justRelocate') counterPathTickets.update("Obecne", firebase.firestore.FieldValue.increment(-1))
-      if (docPath.id == 'zakonczone' && target != 'justRelocate') counterPathTickets.update("Zakonczone", firebase.firestore.FieldValue.increment(-1))
+        docReference.delete().catch(err => {
+          console.log(err.code, err.message);
+          ConfirmDelete = false
+        }).then(() => {
+
+          if(objectType == 'ticket'){
+            const counterPathTickets = firebase.firestore().collection('warsztat').doc('zlecenia')
+            if (operationType != 'justRelocate') counterPathTickets.update("IloscZlecen", firebase.firestore.FieldValue.increment(-1))
+            if (docPath.id == 'wolne' && operationType != 'justRelocate') counterPathTickets.update("Wolne", firebase.firestore.FieldValue.increment(-1))
+            if (docPath.id == 'obecne' && operationType != 'justRelocate') counterPathTickets.update("Obecne", firebase.firestore.FieldValue.increment(-1))
+            if (docPath.id == 'zakonczone' && operationType != 'justRelocate') counterPathTickets.update("Zakonczone", firebase.firestore.FieldValue.increment(-1))
+          }
+          if(objectType == 'client'){
+            const counterPathClients = firebase.firestore().collection('warsztat').doc('Klienci')
+            if(operationType != 'doNotCount'){
+              counterPathClients.update("Klienci", firebase.firestore.FieldValue.increment(-1))
+              fetchAndCountClientVehicles(ID)
+              }
+              ConfirmDelete = true
+          }
+          if(objectType == 'car'){     
+            const counterPathVehicles = firebase.firestore().collection('warsztat').doc('Pojazdy')
+            if(operationType != 'doNotCount'){
+              counterPathVehicles.update("Pojazdy", firebase.firestore.FieldValue.increment(-1))
+              }
+              ConfirmDelete = true
+          }
         }
         ).catch(err => {
           console.log(err.code, err.message)
+          ConfirmDelete = false
         })
     }).catch(err => {
       console.log(err.code, err.message)
+      ConfirmDelete = false
     })
-  })
-}
-
-  if (type == 'client') {
-    const docReference = docPath.doc(ID)
-
-      await docReference.get().then(()=> {
-      docReference.delete().catch(err => {
-          console.log(err.code, err.message);
-          ConfirmDelete = false
-        })
-        .then(() => {
-          if(target != 'doNotCount'){
-          counterPathClients.update("Klienci", firebase.firestore.FieldValue.increment(-1))
-          if(target != 0) counterPathClients.update("Pojazdy", firebase.firestore.FieldValue.increment(-target))
-          }
-          ConfirmDelete = true
-        })
-        .catch(err => {
-          console.log(err.code, err.message);
-          ConfirmDelete = false
-        })
-      return ConfirmDelete
-    })
-  }
-    if (type == 'car') {
-      const docReference = docPath.doc(ID)
-      delete extraData[`${target}`]
-
-      await docReference.get().then(()=> {
-
-      extraData['Ostatnia_Aktualizacja'] = getTime()
-
-      docReference.set({
-          ...extraData
-        }).catch(err => {
-          console.log(err.code, err.message);
-          ConfirmDelete = false
-        })
-        .then(() => {
-          if(doNotCount != 'doNotCount') counterPathClients.update("Pojazdy", firebase.firestore.FieldValue.increment(-1))
-          ConfirmDelete = true
-        })
-        .catch(err => {
-          console.log(err.code, err.message);
-          ConfirmDelete = false
-        })
-      return ConfirmDelete
-    })
-  }
+    return ConfirmDelete
 }
 
 //
@@ -118,7 +85,7 @@ export async function RelocateTicket(type, object, ticketsPath, currentDocPath, 
     if(newDocPath == 'obecne') counterPathTickets.update("Obecne", firebase.firestore.FieldValue.increment(1))
     if(newDocPath == 'zakonczone') counterPathTickets.update("Zakonczone", firebase.firestore.FieldValue.increment(1))
     let deleteThis = ticketsPath.collection(currentDocPath)
-    DeleteFunc(type, deleteThis, ID, 'justRelocate', ...Object.keys(object))
+    DeleteFunc(type, deleteThis, ID, 'justRelocate')
   }
 
   if (currentDocPath != newDocPath) {
@@ -148,43 +115,37 @@ export async function RelocateTicket(type, object, ticketsPath, currentDocPath, 
 return { ConfirmRelocate, clientIsOffline}
 }
 
-
-
-export async function relocateCarToUnassigned(type, docPath, ID, target, extraData, doNotCount){
-let confirmRelocate = ''
-
-  const unassignedPath = firebase.firestore()
+//
+// Przenoszenie pojazdow do NIEPRZYPISANE lub do nowych numerow po aktualizacji numeru klienta
+//
+export async function relocateCarsFunc(vehicle, target, newPhoneNum){
+  let confirmUnassign
+  const vehiclePath = firebase.firestore()
     .collection('warsztat')
-    .doc('Klienci').collection('Numery').doc('000-000-000')
-    // .where('Tel' == extraData.Tel)
+    .doc('Pojazdy').collection('VIN').doc(target)
 
-    unassignedPath.get().then(function (doc) {
+    vehiclePath.get().then(function (doc) {
       let data = doc.data()
-      let targetData = data[target]
-      let carToRelocate = []
-      carToRelocate[target] = extraData[target]
-      carToRelocate[target].Tel = '000-000-000' //usuniecie oryginalnego numeru telefonu poprzez nadpisanie
-      // console.log(data, targetData)
-      // console.log(carToRelocate)
-
-      if (targetData) {
-        unassignedPath.update({
-          ...data, ...carToRelocate
+      
+      if (data.exists) {
+        vehiclePath.update({
+          ...vehicle, Tel: newPhoneNum ? newPhoneNum : ''
           }).catch(err => {
             console.log(err.code, err.message)
+            return confirmUnassign = false
           })
+          return confirmUnassign
       } else {
-        unassignedPath.set({
-            ...data, ...carToRelocate
+        vehiclePath.set({
+            ...vehicle, Tel: newPhoneNum ? newPhoneNum : ''
           }).catch(err => {
             console.log(err.code, err.message)
+            return confirmUnassign = false
           })
+          return confirmUnassign
       }
-      confirmRelocate = 'OK'
-    }).then(() =>{
-      if(confirmRelocate == 'OK') DeleteFunc(type, docPath, ID, target, extraData, doNotCount)
-      else console.log('powinno wyjsc inaczej...');
-    }).catch(err => console.log(err.code, err.message))
+    })
+    return { confirmUnassign } 
 }
 
 
@@ -200,10 +161,6 @@ export async function updateClientNumber(oldData, updatedData) {
   // aktualizujemy stare dane, ktore maja wszystkie dane potrzebne do przeniesienia nowymi zmiennymi z formularza
   let setNewData = Object.assign(JSON.parse(JSON.stringify(oldData)), updatedData)
 
-  // zmiana numeru takze dla wszystkich pojazdow przypisanych do danego klienta
-  Object.values(setNewData).map(element => {
-    if(element.VIN && element.Tel) element.Tel = updatedData.Tel
-  });
 
   ConfirmUpdateClientData = await newClientPath.get().then(function (doc) {
     if (doc.exists) {
@@ -213,8 +170,9 @@ export async function updateClientNumber(oldData, updatedData) {
       newClientPath.set({
         ...setNewData,
         timeStamp
-      }).then(() => {
-        DeleteFunc('client', clientsPath, oldData.Tel, 'doNotCount')
+      }).then(async () => {
+        await fetchAndCountClientVehicles(oldData.Tel, updatedData.Tel)
+        await DeleteFunc('client', clientsPath, oldData.Tel, 'doNotCount')
         ConfirmUpdateClientData = true
       }).catch(err => {
         console.log(err.code, err.message)
@@ -224,4 +182,49 @@ export async function updateClientNumber(oldData, updatedData) {
     return ConfirmUpdateClientData
   })
   return ConfirmUpdateClientData
+}
+
+export async function updateVehicleVIN(oldData, updatedData){
+  console.log(oldData, updatedData);
+
+  let ConfirmUpdateVehicleData
+  const timeStamp = getTime()
+  const vehiclePath = firebase.firestore()
+    .collection('warsztat')
+    .doc('Pojazdy').collection('VIN')
+
+  const newVehiclePath = vehiclePath.doc(updatedData.VIN)
+
+  // aktualizujemy stare dane, ktore maja wszystkie dane potrzebne do przeniesienia nowymi zmiennymi z formularza
+  let setNewData = Object.assign(JSON.parse(JSON.stringify(oldData)), updatedData)
+
+  ConfirmUpdateVehicleData = await newVehiclePath.get().then(function (doc) {
+    if (doc.exists) {
+      console.log('Ten VIN juz istnieje')
+      ConfirmUpdateVehicleData = false
+    } else {
+      newVehiclePath.set({
+        ...setNewData,
+        timeStamp
+      }).then(async () => {
+        await DeleteFunc('car', vehiclePath, oldData.VIN, 'doNotCount')
+        ConfirmUpdateVehicleData = true
+      }).catch(err => {
+        console.log(err.code, err.message)
+        ConfirmUpdateVehicleData = false
+      })
+    }
+    return ConfirmUpdateVehicleData
+  })
+  return ConfirmUpdateVehicleData
+}
+
+export async function fetchAndCountClientVehicles(currentTel, newTelUpdate){
+  const vehiclesPath = firebase.firestore().collection('warsztat').doc('Pojazdy').collection('VIN').where('Tel', '==', currentTel)
+
+  const getVehicles = await vehiclesPath.get()
+  const allVehicles = getVehicles.docs.map(doc => doc.data())
+
+  allVehicles.forEach(async (car) => await relocateCarsFunc(car, car.VIN, newTelUpdate))
+  return allVehicles
 }

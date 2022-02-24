@@ -35,9 +35,9 @@
         </template>
       </Column>
       <Column header="Pojazdy" field="Pojazdy" style="width:350px">
-        <template #body={data}>
+        <template #body="{data}">
           <div>
-            <div v-for="car in onlyCars(data)" :id="`id${car.VIN}`" :key="car.VIN" class="Cars">
+            <div v-for="car in onlyCars(data.Tel)" :id="`id${car.VIN}`" :key="car.VIN" class="Cars">
               <div if="car.VIN" class="p-d-flex p-flex-row p-jc-between">
                 <div class="left p-d-flex p-flex-column p-p-2">
                   <div>{{ car.Marka }} {{ car.Model }}</div>
@@ -80,6 +80,8 @@ require('firebase/firestore')
      const toast = useToast()
 
      const recivedClients = ref([])
+     const recivedVehicles = ref()
+     const unassignedVehicles = ref()
      const filteredNumbers = ref()
 
      const isLoading = ref(true)
@@ -107,6 +109,9 @@ require('firebase/firestore')
      const MainPath = firebase.firestore()
        .collection('warsztat').doc('Klienci').collection('Numery')
 
+     const vehiclePath = firebase.firestore()
+       .collection('warsztat').doc('Pojazdy').collection('VIN')
+
      async function getClientsFromFirebase(req) {
        if(req == 'more') limit.value += 100
 
@@ -115,6 +120,7 @@ require('firebase/firestore')
 
       //  let clientResponse = await clientPath.get({source: 'cache'})
        let clientResponse = await clientPath.get()
+       let vehicleResponse = await vehiclePath.get()
 
        lastDoc.value = clientResponse.docs[clientResponse.docs.length - 1]
 
@@ -124,7 +130,10 @@ require('firebase/firestore')
        }
 
         // dodano filtr zapobiegajacy wyswietlaniu na liscie pojazdow nieprzypisanych
-       recivedClients.value = clientResponse.docs.map(doc => doc.data()).filter(client => client.Tel != '000-000-000')
+       recivedVehicles.value = vehicleResponse.docs.map(doc => doc.data())
+       recivedClients.value = clientResponse.docs.map(doc => doc.data()).filter(client => Object.values(recivedVehicles.value).some((car) => car.Tel == client.Tel))
+       recivedClients.value = [...recivedClients.value, {Tel: 'NIEPRZYPISANE'}]
+       unassignedVehicles.value = recivedVehicles.value.map(car => car).filter(item => !item.Tel)
 
       disableNextButton.value = false
         if (clientResponse.docs.length < limit.value) {
@@ -136,9 +145,11 @@ require('firebase/firestore')
          recivedClients.value.map(client => client['Pojazdy'] = (Object.values(client).filter(item => item instanceof Object)).map(car => `${car.Marka} ${car.Model} ${car.VIN} `))
      }
 
-    function onlyCars(client){
-      return Object.values(client).filter(item => item instanceof Object && item.VIN)
-    }
+     function onlyCars(clientTel) {
+        return recivedVehicles.value.map(car => car).filter(item => {
+          return clientTel == 'NIEPRZYPISANE' ? !item.Tel : item?.Tel == clientTel })
+     }
+
         function showEvent(e){
       searchValue.value = e.target.value
 
@@ -157,6 +168,8 @@ require('firebase/firestore')
      return {
 
        recivedClients,
+       recivedVehicles,
+       unassignedVehicles,
        filteredNumbers,
 
        filterInput,
