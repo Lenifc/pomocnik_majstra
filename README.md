@@ -1,5 +1,15 @@
 # inzynierka
 
+Live version: https://kijack.pl/
+
+DEMO Account:
+demouser1@email.pl:demodemo
+
+
+G-Login will be disabled!
+
+
+
 ## Project setup
 ```
 npm install
@@ -14,11 +24,3 @@ npm run serve
 ```
 npm run build
 ```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
