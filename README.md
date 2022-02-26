@@ -2,6 +2,8 @@
 
 Live version: https://kijack.pl/
 
+**Login button at the top-left corner!**
+
 DEMO Account:
 demouser1@email.pl:demodemo
 
