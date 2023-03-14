@@ -3,46 +3,20 @@ import App from './App.vue'
 import './registerServiceWorker'
 import router from './router'
 import store from './store'
+import { createI18n } from "vue-i18n";
 
-import PrimeVue from 'primevue/config'
+// predefiniowane kolory
+import '@/assets/colors/colors.css'
 
-import 'primevue/resources/themes/bootstrap4-dark-blue/theme.css'      // dark theme
-// import 'primevue/resources/themes/bootstrap4-light-blue/theme.css'      // alt light theme
-import 'primevue/resources/primevue.min.css'                //core css
-import 'primeicons/primeicons.css'          //icons
-import 'primeflex/primeflex.css'
-import Tooltip from 'primevue/tooltip';
+// import translacji
+import pl from "@/assets/translations/pl.json";
+import en from "@/assets/translations/en.json";
 
-import ToastService from 'primevue/toastservice'
-import ConfirmationService from 'primevue/confirmationservice';
+// konfiguracja i18n
+const i18n = createI18n({
+  locale: "pl",
+  fallbackLocale: "pl",
+  messages: { pl, en },
+});
 
-import Toast from "primevue/toast"
-import Button from 'primevue/button'
-import InputText from 'primevue/inputtext'
-import InputNumber from 'primevue/inputnumber'
-import RadioButton from 'primevue/radiobutton';
-import Card from 'primevue/card';
-import Fieldset from 'primevue/fieldset';
-import ConfirmDialog from 'primevue/confirmdialog'
-import Divider from 'primevue/divider'
-import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
-
-
-const app = createApp(App)
-
-app.directive('tooltip', Tooltip);
-app.component('Toast', Toast)
-app.component('Button', Button)
-app.component('InputText', InputText)
-app.component('InputNumber', InputNumber)
-app.component('Card', Card)
-app.component('Fieldset', Fieldset)
-app.component('ConfirmDialog', ConfirmDialog)
-app.component('Divider', Divider)
-app.component('RadioButton', RadioButton)
-app.component('DataTable', DataTable)
-app.component('Column', Column)
-
-
-app.use(store).use(router).use(PrimeVue, {ripple: true}).use(ToastService).use(ConfirmationService).mount('#app')
+createApp(App).use(store).use(router).use(i18n).mount('#app')
