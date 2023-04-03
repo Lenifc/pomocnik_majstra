@@ -1,12 +1,19 @@
 <template>
     <ViewWrapper>
-        <router-view @logout="logOutFromAccount"></router-view>
-        <RouteChangeGuard @route-changed="checkAuthStatus" />
+        <router-view
+            v-if="authOK"
+            :key="$route.name"
+            @logout="logOutFromAccount"
+        ></router-view>
+        <CardLogin
+            v-else-if="!dataLoading"
+            @login-with-email-and-password="handleLoginWithEmailAndPassword"
+            @o-auth="handleOAuthLogin"
+        />
     </ViewWrapper>
 </template>
 
 <script>
-import ViewWrapper from '@/layout/ViewWrapper.vue'
 import firebase from 'firebase/app'
 import firebaseConfig from '@/firebase.js'
 require('firebase/auth')
@@ -22,30 +29,33 @@ firebase.firestore().settings({
 firebase.firestore().enablePersistence() // daje dostep do danych w trybie offline poprzez cache
 
 // import po inicjalizaji apki firebase
-import RouteChangeGuard from '@/components/helpers/RouteChangeGuard.vue'
+import ViewWrapper from '@/layout/ViewWrapper.vue'
+import CardLogin from '@/components/views/CardLogin.vue'
 import ROUTES from '@/router/routes'
-import { signOut } from '@/components/helpers/auth.js'
-
-const auth = firebase.auth()
+import {
+    signOut,
+    handleLoginWithEmail,
+    handleOAuth,
+} from '@/components/helpers/auth.js'
 
 export default {
     components: {
         ViewWrapper,
-        RouteChangeGuard,
+        CardLogin,
     },
-    created() {
-        this.checkAuthStatus()
+    computed: {
+        authOK: {
+            get() {
+                return !!this.$store.state.auth?.user
+            },
+        },
+        dataLoading: {
+            get() {
+                return !!this.$store.state.auth?.dataLoading
+            },
+        },
     },
     methods: {
-        checkAuthStatus() {
-            auth.onAuthStateChanged(user => {
-                if (user && this.$route.path === ROUTES.LOGIN)
-                    return this.$router.push(ROUTES.DASHBOARD)
-                user
-                    ? this.$store.commit('setAuth', user)
-                    : this.$router.push(ROUTES.LOGIN)
-            })
-        },
         async logOutFromAccount() {
             try {
                 await signOut()
@@ -55,6 +65,24 @@ export default {
                 this.$toast.info(this.$t('toast.info.logged_out'))
             } catch (error) {
                 this.$toast.error(error.message)
+            }
+        },
+        async handleLoginWithEmailAndPassword(credentials) {
+            try {
+                await handleLoginWithEmail(credentials)
+                this.$toast.success(this.$t('toast.success.login_success'))
+                this.$router.push(ROUTES.DASHBOARD)
+            } catch (error) {
+                this.$toast.error(this.$t(error.message))
+            }
+        },
+        async handleOAuthLogin() {
+            try {
+                await handleOAuth()
+                this.$toast.success(this.$t('toast.success.login_success'))
+                this.$router.push(ROUTES.DASHBOARD)
+            } catch (error) {
+                this.$toast.error(this.$t(error.message))
             }
         },
     },

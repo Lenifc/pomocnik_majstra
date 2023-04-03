@@ -27,7 +27,7 @@ export default {
         handleClick() {
             this.$store.state.auth?.user
                 ? this.$router.push(ROUTES.DASHBOARD)
-                : this.$router.push(ROUTES.LOGIN)
+                : null
         },
     },
 }

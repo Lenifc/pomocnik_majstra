@@ -21,7 +21,10 @@
                 </InputBase>
             </div>
             <div class="buttons">
-                <ButtonBase type="primary" @click="handleLoginWithEmail">
+                <ButtonBase
+                    type="primary"
+                    @click="$emit('login-with-email-and-password', credentials)"
+                >
                     {{ $t('button.login') }}
                 </ButtonBase>
                 <ButtonBase
@@ -30,13 +33,15 @@
                 >
                     {{ $t('button.remember_password') }}
                 </ButtonBase>
-                <!-- <ButtonBase
+                <!-- disabled till the OAuth fix -->
+                <ButtonBase
+                    v-if="false"
                     icon="pi pi-google"
                     type="secondary"
-                    @click="handleOAuth"
+                    @click="$emit('o-auth')"
                 >
                     {{ $t('button.g-login') }}
-                </ButtonBase> -->
+                </ButtonBase>
             </div>
         </div>
     </CardBase>
@@ -49,13 +54,6 @@ import InputBase from '@/components/common/InputBase.vue'
 import ButtonBase from '@/components/common/ButtonBase.vue'
 import ROUTES from '@/router/routes'
 
-import firebase from 'firebase/app'
-require('firebase/auth')
-
-const auth = firebase.auth()
-const provider = new firebase.auth.GoogleAuthProvider()
-const callLogs = firebase.functions().httpsCallable('userSignedIn')
-
 export default {
     name: 'LoginPage',
     components: {
@@ -63,6 +61,7 @@ export default {
         InputBase,
         ButtonBase,
     },
+    emits: ['o-auth', 'login-with-email-and-password'],
     data() {
         return {
             credentials: reactive({
@@ -74,50 +73,7 @@ export default {
     },
     methods: {
         closeCard() {
-            this.$router.push(ROUTES.MAIN_SCREEN)
-        },
-        async handleOAuth() {
-            try {
-                await auth.signInWithPopup(provider)
-                this.checkAuthStatus()
-                const provideData = auth.currentUser.providerData
-                callLogs({ provideData })
-            } catch (error) {
-                console.log(error)
-                this.$toast.error(error.message)
-            }
-        },
-        checkAuthStatus() {
-            auth.onAuthStateChanged(user => {
-                if (user) this.$router.push(ROUTES.DASHBOARD)
-            })
-        },
-        async handleLoginWithEmail() {
-            const { username, password } = this.credentials
-
-            if (username && password) {
-                try {
-                    await firebase
-                        .auth()
-                        .signInWithEmailAndPassword(username, password)
-                    this.$toast.success(this.$t('toast.success.login_success'))
-                    const provideData = auth.currentUser.providerData
-                    callLogs({ provideData })
-                    this.checkAuthStatus()
-                } catch (error) {
-                    const errorCode = error.code
-
-                    if (errorCode == 'auth/invalid-email')
-                        this.$toast.error(this.$t('toast.error.invalid_email'))
-                    if (
-                        errorCode == 'auth/wrong-password' ||
-                        errorCode == 'auth/user-not-found'
-                    )
-                        this.$toast.error(this.$t('toast.error.invalid_data'))
-                    if (errorCode == 'auth/network-request-failed')
-                        this.$toast.error(this.$t('toast.error.network_issue'))
-                }
-            } else this.$toast.warning(this.$t('toast.fill_the_inputs'))
+            this.$router.push(-1 || ROUTES.DASHBOARD)
         },
     },
 }
