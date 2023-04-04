@@ -1,15 +1,12 @@
 <template>
     <ViewWrapper>
-        <router-view
-            v-if="authOK"
-            :key="$route.name"
-            @logout="logOutFromAccount"
-        ></router-view>
+        <router-view v-if="authOK" :key="$route.name"></router-view>
         <CardLogin
             v-else-if="!dataLoading"
             @login-with-email-and-password="handleLoginWithEmailAndPassword"
             @o-auth="handleOAuthLogin"
         />
+        <SidebarMenuWrapper v-if="authOK" />
     </ViewWrapper>
 </template>
 
@@ -31,17 +28,16 @@ firebase.firestore().enablePersistence() // daje dostep do danych w trybie offli
 // import po inicjalizaji apki firebase
 import ViewWrapper from '@/layout/ViewWrapper.vue'
 import CardLogin from '@/components/views/CardLogin.vue'
+import SidebarMenuWrapper from '@/components/common/menu/SidebarMenuWrapper.vue'
+
 import ROUTES from '@/router/routes'
-import {
-    signOut,
-    handleLoginWithEmail,
-    handleOAuth,
-} from '@/components/helpers/auth.js'
+import { handleLoginWithEmail, handleOAuth } from '@/components/helpers/auth.js'
 
 export default {
     components: {
         ViewWrapper,
         CardLogin,
+        SidebarMenuWrapper,
     },
     computed: {
         authOK: {
@@ -56,17 +52,6 @@ export default {
         },
     },
     methods: {
-        async logOutFromAccount() {
-            try {
-                await signOut()
-                this.$store.commit('signOut')
-
-                this.$router.push(ROUTES.MAIN_SCREEN)
-                this.$toast.info(this.$t('toast.info.logged_out'))
-            } catch (error) {
-                this.$toast.error(error.message)
-            }
-        },
         async handleLoginWithEmailAndPassword(credentials) {
             try {
                 await handleLoginWithEmail(credentials)
@@ -108,7 +93,5 @@ body {
     color: var(--grayscale-light);
     font-size: 1.8rem;
     font-family: 'Source Sans Pro', sans-serif;
-    width: 100vw;
-    height: 100vh;
 }
 </style>

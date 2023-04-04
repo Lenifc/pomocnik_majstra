@@ -14,9 +14,58 @@ const routes = [
     {
         path: ROUTES.DASHBOARD,
         name: 'Dashboard',
-        component: () => import('@/pages/app/dashboard.vue'),
+        component: () => import(`@/pages${ROUTES.DASHBOARD}.vue`),
         meta: { requiresAuth: true },
     },
+    {
+        path: ROUTES.MANAGE_CLIENTS,
+        name: 'Clients',
+        component: () => import(`@/pages${ROUTES.MANAGE_CLIENTS}.vue`),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: ROUTES.MANAGE_VEHICLES,
+        name: 'Vehicles',
+        component: () => import(`@/pages${ROUTES.MANAGE_VEHICLES}.vue`),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: ROUTES.TASKS_ADD,
+        name: 'Add Task',
+        component: () => import(`@/pages${ROUTES.TASKS_ADD}.vue`),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: ROUTES.TASKS_NEW,
+        name: 'Tasks New',
+        component: () => import(`@/pages${ROUTES.TASKS_NEW}.vue`),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: ROUTES.TASKS_IN_PROGRESS,
+        name: 'Tasks In Progress',
+        component: () => import(`@/pages${ROUTES.TASKS_IN_PROGRESS}.vue`),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: ROUTES.TASKS_DONE,
+        name: 'Tasks Done',
+        component: () => import(`@/pages${ROUTES.TASKS_DONE}.vue`),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: ROUTES.SEARCH,
+        name: 'Search',
+        component: () => import(`@/pages${ROUTES.SEARCH}.vue`),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: ROUTES.SETTINGS,
+        name: 'Settings',
+        component: () => import(`@/pages${ROUTES.SETTINGS}.vue`),
+        meta: { requiresAuth: true },
+    },
+    // TODO - przerobic redirect na 404
     {
         path: '/:pathMatch(.*)*',
         redirect: ROUTES.DASHBOARD,

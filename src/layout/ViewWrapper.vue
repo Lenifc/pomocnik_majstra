@@ -7,7 +7,6 @@
 .view-wrapper {
     display: flex;
     justify-content: center;
-    width: 120rem;
     height: 100%;
     margin: 0 auto;
     padding-top: 5rem;

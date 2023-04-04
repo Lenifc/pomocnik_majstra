@@ -1,8 +1,8 @@
 <template>
-    <div>DASHBOARD</div>
+    <div>CLIENTS</div>
 </template>
 <script>
 export default {
-    name: 'DashboardPage',
+    name: 'ClientsPage',
 }
 </script>
