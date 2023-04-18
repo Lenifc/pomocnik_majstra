@@ -6,8 +6,8 @@
             @login-with-email-and-password="handleLoginWithEmailAndPassword"
             @o-auth="handleOAuthLogin"
         />
-        <SidebarMenuWrapper v-if="authOK" />
     </ViewWrapper>
+    <SidebarMenuWrapper v-if="authOK" />
 </template>
 
 <script>

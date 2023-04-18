@@ -9,6 +9,9 @@ const ROUTES = {
     TASKS_IN_PROGRESS: '/app/tasks/in-progress',
     TASKS_DONE: '/app/tasks/done',
 
+    ADD_NEW_VEHICLE: '/app/manage-vehicles/add',
+    ADD_NEW_CLIENT: '/app/manage-clients/add',
+
     SEARCH: '/app/search',
     SETTINGS: '/app/settings',
 }
